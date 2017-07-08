@@ -51,25 +51,29 @@ public class App {
           @Override
           public Flux<Payload> requestStream(Payload payload) {
             String query = StandardCharsets.UTF_8.decode(payload.getData()).toString();
-            return Flux.create(s -> {
-              System.out.println("Opening " + query);
-              Stream stream =
-                  twitter.streamingOperations().filter(query, Arrays.asList(new StreamAdapter() {
-                    @Override public void onTweet(Tweet tweet) {
-                      s.next(new PayloadImpl(tweet.getText()));
-                      //if (s.requestedFromDownstream() == 0) {
-                      //  stream.close();
-                      //}
-                    }
-                  }));
-
-              //s.onRequest(l -> stream.open());
-              s.onCancel(() -> {
-                System.out.println("Closing " + query);
-                stream.close();
-              });
-            }, FluxSink.OverflowStrategy.DROP);
+            return twitterSearch(query, twitter).take(10000);
           }
         });
+  }
+
+  private static Flux<Payload> twitterSearch(String query, Twitter twitter) {
+    return Flux.create(s -> {
+      System.out.println("Opening " + query);
+      Stream stream =
+          twitter.streamingOperations().filter(query, Arrays.asList(new StreamAdapter() {
+            @Override public void onTweet(Tweet tweet) {
+              s.next(new PayloadImpl(tweet.getText()));
+              //if (s.requestedFromDownstream() == 0) {
+              //  stream.close();
+              //}
+            }
+          }));
+
+      //s.onRequest(l -> stream.open());
+      s.onCancel(() -> {
+        System.out.println("Closing " + query);
+        stream.close();
+      });
+    }, FluxSink.OverflowStrategy.DROP);
   }
 }
