@@ -17,9 +17,9 @@ repositories {
     // Use jcenter for resolving your dependencies.
     // You can declare any Maven/Ivy/file repository here.
     jcenter()
-    maven { url 'http://repo.spring.io/milestone' }
     maven { url 'https://oss.jfrog.org/libs-snapshot' }
     maven { url 'https://dl.bintray.com/reactivesocket/RSocket' }
+    maven { url "http://repo.spring.io/libs-milestone" }
 }
 
 dependencies {
@@ -28,6 +28,7 @@ dependencies {
     compile 'io.rsocket:rsocket-transport-netty:0.9-SNAPSHOT'
     compile 'io.rsocket:rsocket-transport-local:0.9-SNAPSHOT'
     compile 'org.slf4j:slf4j-jdk14:1.7.24'
+    compile 'org.springframework.social:spring-social-twitter:1.1.2.RELEASE'
 
     // Use JUnit test framework
     testCompile 'junit:junit:4.12'
