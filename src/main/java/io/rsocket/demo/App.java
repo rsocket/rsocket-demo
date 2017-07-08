@@ -7,6 +7,7 @@ import io.rsocket.Payload;
 import io.rsocket.RSocket;
 import io.rsocket.RSocketFactory;
 import io.rsocket.transport.netty.server.WebsocketServerTransport;
+import java.time.Duration;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -21,7 +22,7 @@ public class App {
 
     System.out.println("running on " + port());
 
-    server.onClose().block();
+    server.onClose().block(Duration.ofDays(3650));
   }
 
   private static int port() {
