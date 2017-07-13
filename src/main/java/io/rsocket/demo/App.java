@@ -1,14 +1,15 @@
 package io.rsocket.demo;
 
 import io.rsocket.AbstractRSocket;
-import io.rsocket.Closeable;
 import io.rsocket.ConnectionSetupPayload;
 import io.rsocket.Payload;
 import io.rsocket.RSocket;
 import io.rsocket.RSocketFactory;
-import io.rsocket.transport.netty.server.WebsocketServerTransport;
+import io.rsocket.transport.netty.server.WebsocketRouteTransport;
 import io.rsocket.util.PayloadImpl;
+import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Arrays;
 import org.springframework.social.connect.Connection;
@@ -18,21 +19,37 @@ import org.springframework.social.twitter.api.Twitter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
+import reactor.ipc.netty.NettyContext;
+import reactor.ipc.netty.http.server.HttpServer;
 
 public class App {
   public static void main(String[] args) {
     Connection<org.springframework.social.twitter.api.Twitter> twitter = TwitterFactory.connect();
 
-    Closeable server = RSocketFactory.receive()
-        .acceptor(
-            (setupPayload, reactiveSocket) -> createServerRequestHandler(twitter.getApi(), setupPayload))
-        .transport(WebsocketServerTransport.create(port()))
-        .start()
-        .block();
+    HttpServer httpServer = HttpServer.create(port());
+
+    NettyContext server = httpServer.newRouter(rb -> {
+      // TODO why doesn't rb.index work?
+
+      // TODO ???
+      RSocketFactory.receive()
+          .acceptor(
+              (setupPayload, reactiveSocket) -> createServerRequestHandler(twitter.getApi(), setupPayload))
+          .transport(new WebsocketRouteTransport(rb, "/ws"))
+          .start()
+          .block();
+
+      rb.file("/", webPath("src/main/resources/web/index.html"));
+      rb.directory("/", webPath("src/main/resources/web"));
+    }).block();
 
     System.out.println("running on " + port());
 
     server.onClose().block(Duration.ofDays(3650));
+  }
+
+  private static Path webPath(String pathname) {
+    return new File(pathname).getAbsoluteFile().toPath();
   }
 
   private static int port() {
