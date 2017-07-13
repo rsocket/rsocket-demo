@@ -3948,7 +3948,7 @@ function main() {
     transport: new RSocketWebSocketClient({
       url,
       debug: true, // print frames to console
-      lengthPrefixedFrames: true
+      lengthPrefixedFrames: false
     }, Utf8Encoders)
   });
 
