@@ -3931,7 +3931,7 @@ const {
 const RSocketWebSocketClient = __webpack_require__(38).default;
 
 function main() {
-  const url = 'ws://rsocket-demo.herokuapp.com/ws';
+  const url = "ws://rsocket-demo.herokuapp.com/ws";
 
   // Create an instance of a client
   const client = new RSocketClient({
