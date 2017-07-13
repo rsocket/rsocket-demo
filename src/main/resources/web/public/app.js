@@ -3959,7 +3959,7 @@ function main() {
 
       socket.requestStream({
         data: 'reactive',
-        metadata: null
+        metadata: 'metadata goes here'
       }).subscribe({
         onComplete: () => console.log('complete'),
         onError: error => console.error(error),
