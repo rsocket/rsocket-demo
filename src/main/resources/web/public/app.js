@@ -3931,7 +3931,7 @@ const {
 const RSocketWebSocketClient = __webpack_require__(38).default;
 
 function main() {
-  const url = 'ws://rsocket-demo.herokuapp.com/ws';
+  const url = 'ws://localhost:8080/ws';
 
   // Create an instance of a client
   const client = new RSocketClient({
@@ -3959,7 +3959,7 @@ function main() {
 
       socket.requestStream({
         data: 'reactive',
-        metadata: null
+        metadata: 'nothing'
       }).subscribe({
         onComplete: () => console.log('complete'),
         onError: error => console.error(error),

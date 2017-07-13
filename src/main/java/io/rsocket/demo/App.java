@@ -24,6 +24,8 @@ import reactor.ipc.netty.http.server.HttpServer;
 
 public class App {
   public static void main(String[] args) {
+      LoggingUtil.configureLogging(true);
+
     Connection<org.springframework.social.twitter.api.Twitter> twitter = TwitterFactory.connect();
 
     HttpServer httpServer = HttpServer.create(port());
@@ -76,6 +78,9 @@ public class App {
   private static Flux<Payload> twitterSearch(String query, Twitter twitter) {
     return Flux.create(s -> {
       System.out.println("Opening " + query);
+
+      s.next(new PayloadImpl("Querying for " + query));
+
       Stream stream =
           twitter.streamingOperations().filter(query, Arrays.asList(new StreamAdapter() {
             @Override public void onTweet(Tweet tweet) {
