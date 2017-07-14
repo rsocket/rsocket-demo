@@ -1,7 +1,7 @@
 # rsocket-demo
 Demo server for rsocket
 
-## Local Development
+## Local JS Development
 
 To edit the homepage (including the JavaScript example code), do the following:
 
@@ -18,3 +18,26 @@ To edit the homepage (including the JavaScript example code), do the following:
   checked in, and can be updated with:
 
     yarn run build
+
+## Local Java/Heroku Development
+
+To test the full app locally
+
+- If changes are made to JS code, then use "yarn run build" as described above
+
+- In order to build java code
+
+    ./gradlew stage
+
+- Add valid twitter credentials to a .env file.  Grabs values from Keys and Access tokens here https://apps.twitter.com
+
+TWITTER_CONSUMER_KEY=XXXX
+TWITTER_CONSUMER_SECRET=XXX
+TWITTER_TOKEN=XXXX
+TWITTER_TOKEN_SECRET=XXXX
+
+- Run local server
+
+    heroku local web
+
+- Hit http://localhost:5000 in a webbrowser
