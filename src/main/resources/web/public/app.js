@@ -3965,7 +3965,7 @@ function main() {
       socket.onClose().catch(error => console.error(error));
 
       socket.requestStream({
-        data: 'reactive',
+        data: 'peace',
         metadata: 'metadata goes here'
       }).subscribe({
         onComplete: () => console.log('complete'),
