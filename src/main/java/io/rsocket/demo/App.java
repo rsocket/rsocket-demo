@@ -12,9 +12,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.function.Consumer;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.twitter.api.Stream;
 import org.springframework.social.twitter.api.Tweet;
@@ -64,7 +61,8 @@ public class App {
     return Integer.getInteger("server.port", 8080);
   }
 
-  private static Mono<RSocket> createServerRequestHandler(Twitter twitter, ConnectionSetupPayload setupPayload) {
+  private static Mono<RSocket> createServerRequestHandler(Twitter twitter,
+      ConnectionSetupPayload setupPayload) {
 
     return Mono.just(
         new AbstractRSocket() {
