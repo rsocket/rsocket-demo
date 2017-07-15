@@ -12,6 +12,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.function.Consumer;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.twitter.api.Stream;
 import org.springframework.social.twitter.api.Tweet;
@@ -21,6 +24,7 @@ import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
 import reactor.ipc.netty.NettyContext;
 import reactor.ipc.netty.http.server.HttpServer;
+import reactor.ipc.netty.http.server.HttpServerRoutes;
 
 public class App {
   public static void main(String[] args) {
@@ -28,19 +32,23 @@ public class App {
 
     HttpServer httpServer = HttpServer.create(port());
 
-    NettyContext server = httpServer.newRouter(rb -> {
-      // TODO why doesn't rb.index work?
+    HttpServerRoutes routes = HttpServerRoutes.newRoutes();
 
-      // TODO ???
-      RSocketFactory.receive()
-          .acceptor(
-              (setupPayload, reactiveSocket) -> createServerRequestHandler(twitter.getApi(), setupPayload))
-          .transport(new WebsocketRouteTransport(rb, "/ws"))
-          .start()
-          .block();
+    RSocketFactory.receive()
+        .acceptor(
+            (setupPayload, reactiveSocket) -> createServerRequestHandler(twitter.getApi(),
+                setupPayload))
+        .transport(new WebsocketRouteTransport(routes, "/ws"))
+        .start()
+        .block();
 
-      rb.file("/", webPath("src/main/resources/web/index.html"));
-      rb.directory("/", webPath("src/main/resources/web"));
+    routes.file("/", webPath("src/main/resources/web/index.html"));
+    routes.directory("/", webPath("src/main/resources/web"));
+
+    NettyContext server = httpServer.newHandler((request, response) -> {
+      response.addHeader("Access-Control-Allow-Origin", "*");
+
+      return routes.apply(request, response);
     }).block();
 
     System.out.println("running on " + port());
