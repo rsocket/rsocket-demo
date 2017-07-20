@@ -1,7 +1,7 @@
 # rsocket-demo
 Demo server for rsocket
 
-https://rsocket-demo.herokuapp.com
+http://rsocket-demo.herokuapp.com
 
 # Using as a test server
 
