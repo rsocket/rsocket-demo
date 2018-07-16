@@ -4049,7 +4049,7 @@ function addMessage(message) {
 }
 
 function main() {
-  const url = "ws://rsocket-demo.herokuapp.com/ws";
+  const url = "wss://rsocket-demo.herokuapp.com/ws";
 
   // Create an instance of a client
   const client = new RSocketClient({

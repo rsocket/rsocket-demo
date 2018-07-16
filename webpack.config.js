@@ -10,7 +10,7 @@ module.exports = {
   plugins: [
     new webpack.DefinePlugin({
       '__DEV__': true,
-      '__WS_URL__': JSON.stringify(process.env.WS_URL || 'ws://rsocket-demo.herokuapp.com/ws'),
+      '__WS_URL__': JSON.stringify(process.env.WS_URL || 'wss://rsocket-demo.herokuapp.com/ws'),
     }),
   ],
   module: {
