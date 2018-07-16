@@ -29,7 +29,7 @@ public class App {
     Consumer<HttpServerRoutes> routeSetup =
         routes -> {
           routes.file("/", webPath("src/main/resources/web/index.html"));
-          routes.directory("/", webPath("src/main/resources/web"));
+          routes.directory("/public", webPath("src/main/resources/web/public"));
         };
     Closeable server =
         RSocketFactory.receive()
@@ -40,7 +40,7 @@ public class App {
             .start()
             .block();
 
-    // TODO test 
+    // TODO test
     //    NettyContext server =
     //        httpServer
     //            .newHandler(
