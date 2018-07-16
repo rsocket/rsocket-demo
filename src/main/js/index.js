@@ -4,6 +4,13 @@ const {
 } = require('rsocket-core');
 const RSocketWebSocketClient = require('rsocket-websocket-client').default;
 
+function addMessage(message) {
+  var ul = document.getElementById("messages");
+  var li = document.createElement("li");
+  li.appendChild(document.createTextNode(message));
+  ul.appendChild(li);
+}
+
 function main() {
   const url = __WS_URL__;
 
@@ -32,13 +39,14 @@ function main() {
       socket.onClose().catch(error => console.error(error));
 
       socket.requestStream({
-        data: 'reactive',
+        data: 'peace',
         metadata: 'metadata goes here',
       }).subscribe({
         onComplete: () => console.log('complete'),
         onError: error => console.error(error),
         onNext: payload => {
           console.log(payload.data);
+          addMessage(payload.data);
         },
         onSubscribe: subscription => {
           subscription.request(100);

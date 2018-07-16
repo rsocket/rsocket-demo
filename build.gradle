@@ -20,16 +20,19 @@ repositories {
     jcenter()
     maven { url 'https://oss.jfrog.org/libs-snapshot' }
     maven { url 'https://dl.bintray.com/reactivesocket/RSocket' }
+    maven { url "http://repo.spring.io/libs-snapshot" }
     maven { url "http://repo.spring.io/libs-milestone" }
+    maven { url 'http://repo.spring.io/plugins-release' }
 }
 
 dependencies {
     // This dependency is found on compile classpath of this component and consumers.
     compile 'com.google.guava:guava:21.0'
-    compile 'io.rsocket:rsocket-transport-netty:0.9-SNAPSHOT'
-    compile 'io.rsocket:rsocket-transport-local:0.9-SNAPSHOT'
+    compile 'io.rsocket:rsocket-transport-netty:0.9.10'
+    compile 'io.rsocket:rsocket-transport-local:0.9.10'
     compile 'org.slf4j:slf4j-jdk14:1.7.24'
-    compile 'org.springframework.social:spring-social-twitter:1.1.2.RELEASE'
+    compile 'org.springframework.social:spring-social-core:2.0.0.M4'
+    compile 'org.springframework.social:spring-social-twitter:2.0.0.M4'
 
     // Use JUnit test framework
     testCompile 'junit:junit:4.12'
