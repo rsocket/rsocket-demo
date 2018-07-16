@@ -40,6 +40,7 @@ public class App {
             .start()
             .block();
 
+    // TODO test 
     //    NettyContext server =
     //        httpServer
     //            .newHandler(
