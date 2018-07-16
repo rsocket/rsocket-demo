@@ -17,30 +17,25 @@ function main() {
   // Create an instance of a client
   const client = new RSocketClient({
     setup: {
-      // ms btw sending keepalive to server
       keepAlive: 60000,
-      // ms timeout if no keepalive response
       lifetime: 180000,
-      // format of `data`
       dataMimeType: 'binary',
-      // format of `metadata`
       metadataMimeType: 'binary',
     },
     transport: new RSocketWebSocketClient({
       url,
-      debug: true, // print frames to console
-      lengthPrefixedFrames: false,
+      debug: true,
     }, Utf8Encoders),
   });
 
   // Open the connection
   client.connect().subscribe({
     onComplete: socket => {
-      socket.onClose().catch(error => console.error(error));
+//       socket.onClose().catch(error => console.error(error));
 
       socket.requestStream({
         data: 'peace',
-        metadata: 'metadata goes here',
+        metadata: null,
       }).subscribe({
         onComplete: () => console.log('complete'),
         onError: error => console.error(error),
