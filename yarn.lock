@@ -2298,27 +2298,37 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
     hash-base "^2.0.0"
     inherits "^2.0.1"
 
-rsocket-core@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/rsocket-core/-/rsocket-core-0.0.1.tgz#9e6478353ec4de70f6ef7f5d87bb864e5260560c"
+rsocket-core@^0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/rsocket-core/-/rsocket-core-0.0.8.tgz#12835b1770f9d021a6889e6998969dbfc13e3840"
   dependencies:
     buffer "^5.0.6"
     fbjs "^0.8.12"
-    rsocket-flowable "^0.0.1"
+    rsocket-flowable "^0.0.8"
+    rsocket-types "^0.0.8"
 
-rsocket-flowable@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/rsocket-flowable/-/rsocket-flowable-0.0.1.tgz#15806654a629ed3f0940073015caee79d1386fb1"
+rsocket-flowable@^0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/rsocket-flowable/-/rsocket-flowable-0.0.8.tgz#20276e9a26e3c12dc84744c88f92fad9d01c8d46"
   dependencies:
     fbjs "^0.8.12"
 
-rsocket-websocket-client@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/rsocket-websocket-client/-/rsocket-websocket-client-0.0.1.tgz#6902297112a4d6f4c0366921dc6f90ee01cd57df"
+rsocket-types@^0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/rsocket-types/-/rsocket-types-0.0.8.tgz#1d899776089ed9ab55dcd67a10ac68f2459c7a47"
+  dependencies:
+    buffer "^5.0.6"
+    fbjs "^0.8.12"
+    rsocket-flowable "^0.0.8"
+
+rsocket-websocket-client@^0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/rsocket-websocket-client/-/rsocket-websocket-client-0.0.8.tgz#0a49f91ac433262a69db6fb735f80485e574c9d1"
   dependencies:
     fbjs "^0.8.12"
-    rsocket-core "^0.0.1"
-    rsocket-flowable "^0.0.1"
+    rsocket-core "^0.0.8"
+    rsocket-flowable "^0.0.8"
+    rsocket-types "^0.0.8"
 
 safe-buffer@^5.0.1, safe-buffer@^5.1.0, safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   version "5.1.1"
