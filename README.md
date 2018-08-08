@@ -1,6 +1,8 @@
 # rsocket-demo
 Demo server for rsocket
 
+http://rsocket-demo.herokuapp.com/
+
 ## Local JS Development
 
 To edit the homepage (including the JavaScript example code), do the following:
