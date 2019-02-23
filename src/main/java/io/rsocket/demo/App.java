@@ -10,8 +10,8 @@ import org.springframework.social.twitter.api.Twitter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
-import reactor.ipc.netty.http.server.HttpServer;
-import reactor.ipc.netty.http.server.HttpServerRoutes;
+import reactor.netty.http.server.HttpServer;
+import reactor.netty.http.server.HttpServerRoutes;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -24,7 +24,7 @@ public class App {
   public static void main(String[] args) {
     Connection<org.springframework.social.twitter.api.Twitter> twitter = TwitterFactory.connect();
 
-    HttpServer httpServer = HttpServer.create(port());
+    HttpServer httpServer = HttpServer.create().port(port());
 
     Consumer<HttpServerRoutes> routeSetup =
         routes -> {
