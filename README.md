@@ -1,7 +1,14 @@
 # rsocket-demo
 Demo server for rsocket
 
-http://rsocket-demo.herokuapp.com/
+http://rsocket-demo.herokuapp.com
+
+# Using as a test server
+
+```
+$ brew install yschimke/tap/rsocket-cli
+$ rsocket-cli -i peace --stream wss://rsocket-demo.herokuapp.com/ws
+```
 
 ## Local JS Development
 
