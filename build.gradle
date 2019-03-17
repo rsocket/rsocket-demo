@@ -1,5 +1,5 @@
 plugins {
-    id "com.github.ben-manes.versions" version "0.20.0"
+    id "com.github.ben-manes.versions" version "0.21.0"
 }
 
 apply plugin: 'java'
@@ -21,9 +21,9 @@ compileJava {
 
 dependencies {
 //    implementation 'com.google.guava:guava:25.1-jre'
-    implementation 'io.rsocket:rsocket-transport-netty:0.11.17'
-    implementation 'io.rsocket:rsocket-transport-local:0.11.17'
-    implementation 'org.slf4j:slf4j-jdk14:1.8.0-beta2'
+    implementation 'io.rsocket:rsocket-transport-netty:0.12.1'
+    implementation 'io.rsocket:rsocket-transport-local:0.12.1'
+    implementation 'org.slf4j:slf4j-jdk14:1.8.0-beta4'
     implementation 'org.springframework.social:spring-social-core:2.0.0.M4'
     implementation 'org.springframework.social:spring-social-twitter:2.0.0.M4'
 
