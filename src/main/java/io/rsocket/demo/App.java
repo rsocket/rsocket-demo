@@ -1,8 +1,18 @@
 package io.rsocket.demo;
 
-import io.rsocket.*;
+import io.rsocket.AbstractRSocket;
+import io.rsocket.Closeable;
+import io.rsocket.ConnectionSetupPayload;
+import io.rsocket.Payload;
+import io.rsocket.RSocket;
+import io.rsocket.RSocketFactory;
 import io.rsocket.transport.netty.server.WebsocketRouteTransport;
 import io.rsocket.util.DefaultPayload;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.function.Consumer;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.twitter.api.Stream;
 import org.springframework.social.twitter.api.Tweet;
@@ -13,12 +23,7 @@ import reactor.core.publisher.Mono;
 import reactor.netty.http.server.HttpServer;
 import reactor.netty.http.server.HttpServerRoutes;
 
-import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.function.Consumer;
+import static java.util.Arrays.asList;
 
 public class App {
   public static void main(String[] args) {
@@ -33,6 +38,7 @@ public class App {
         };
     Closeable server =
         RSocketFactory.receive()
+            .resume()
             .acceptor(
                 (setupPayload, reactiveSocket) ->
                     createServerRequestHandler(twitter.getApi(), setupPayload))
@@ -91,18 +97,14 @@ public class App {
                   .streamingOperations()
                   .filter(
                       query,
-                      Arrays.asList(
+                      asList(
                           new StreamAdapter() {
                             @Override
                             public void onTweet(Tweet tweet) {
                               s.next(DefaultPayload.create(tweet.getText()));
-                              // if (s.requestedFromDownstream() == 0) {
-                              //  stream.close();
-                              // }
                             }
                           }));
 
-          // s.onRequest(l -> stream.open());
           s.onCancel(
               () -> {
                 System.out.println("Closing " + query);
