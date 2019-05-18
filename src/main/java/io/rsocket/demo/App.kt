@@ -31,7 +31,7 @@ object App {
     }
     val server = RSocketFactory.receive()
         .resume()
-        .acceptor { setupPayload, _ ->
+        .acceptor { _, _ ->
           createServerRequestHandler(twitter.api)
         }
         .transport(WebsocketRouteTransport(httpServer, routeSetup, "/ws"))
