@@ -5,11 +5,7 @@ import io.rsocket.Payload
 import io.rsocket.RSocket
 import io.rsocket.RSocketFactory
 import io.rsocket.transport.netty.server.WebsocketRouteTransport
-import io.rsocket.util.DefaultPayload
-import org.springframework.social.twitter.api.Tweet
-import org.springframework.social.twitter.api.Twitter
 import reactor.core.publisher.Flux
-import reactor.core.publisher.FluxSink
 import reactor.core.publisher.Mono
 import reactor.netty.http.server.HttpServer
 import reactor.netty.http.server.HttpServerRoutes
@@ -32,7 +28,7 @@ object App {
     val server = RSocketFactory.receive()
         .resume()
         .acceptor { _, _ ->
-          createServerRequestHandler(twitter.api)
+          createServerRequestHandler()
         }
         .transport(WebsocketRouteTransport(httpServer, routeSetup, "/ws"))
         .start()
@@ -48,7 +44,6 @@ object App {
   private fun port(): Int = Integer.getInteger("server.port", 8080)!!
 
   private fun createServerRequestHandler(
-    twitter: Twitter
   ): Mono<RSocket> = Mono.just(
       object : AbstractRSocket() {
         override fun requestResponse(payload: Payload): Mono<Payload> {
@@ -57,28 +52,29 @@ object App {
 
         override fun requestStream(payload: Payload): Flux<Payload> {
           val query = StandardCharsets.UTF_8.decode(payload.data).toString()
-          return twitterSearch(query, twitter).take(10000)
+          return twitterSearch(query).take(10000)
         }
       })
 
-  private fun twitterSearch(query: String, twitter: Twitter): Flux<Payload> = Flux.create(
-      { s ->
-        println("Opening $query")
-        val stream = twitter
-            .streamingOperations()
-            .filter(
-                query,
-                listOf(
-                    object : StreamAdapter() {
-                      override fun onTweet(tweet: Tweet) {
-                        s.next(DefaultPayload.create(tweet.text))
-                      }
-                    }))
-
-        s.onCancel {
-          println("Closing $query")
-          stream.close()
-        }
-      },
-      FluxSink.OverflowStrategy.DROP)
+  private fun twitterSearch(query: String): Flux<Payload> = Flux.empty()
+//  private fun twitterSearch(query: String, twitter: Twitter): Flux<Payload> = Flux.create(
+//      { s ->
+//        println("Opening $query")
+//        val stream = twitter
+//            .streamingOperations()
+//            .filter(
+//                query,
+//                listOf(
+//                    object : StreamAdapter() {
+//                      override fun onTweet(tweet: Tweet) {
+//                        s.next(DefaultPayload.create(tweet.text))
+//                      }
+//                    }))
+//
+//        s.onCancel {
+//          println("Closing $query")
+//          stream.close()
+//        }
+//      },
+//      FluxSink.OverflowStrategy.DROP)
 }
