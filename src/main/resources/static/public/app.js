@@ -5383,7 +5383,7 @@ function addMessage(message) {
 }
 
 function main() {
-  const url = "wss://rsocket-demo.herokuapp.com/ws";
+  const url = "wss://rsocket-demo.herokuapp.com/rsocket";
 
   // Create an instance of a client
   const client = new __WEBPACK_IMPORTED_MODULE_0_rsocket_core__["RSocketClient"]({

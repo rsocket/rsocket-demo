@@ -7,7 +7,7 @@ http://rsocket-demo.herokuapp.com
 
 ```
 $ brew install yschimke/tap/rsocket-cli
-$ rsocket-cli -i peace --stream wss://rsocket-demo.herokuapp.com/ws
+$ rsocket-cli -i peace --stream wss://rsocket-demo.herokuapp.com/rsocket
 ```
 
 ## Local JS Development

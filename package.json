@@ -18,6 +18,6 @@
   },
   "scripts": {
     "build": "webpack",
-    "start": "webpack && http-server ./src/main/resources/web/ -p 3000 -c-1"
+    "start": "webpack && http-server ./src/main/resources/static/ -p 3000 -c-1"
   }
 }
