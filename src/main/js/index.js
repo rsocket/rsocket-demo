@@ -1,14 +1,18 @@
-const {
-  RSocketClient,
-  Utf8Encoders,
-} = require('rsocket-core');
-const RSocketWebSocketClient = require('rsocket-websocket-client').default;
+import {RSocketClient, JsonSerializers} from 'rsocket-core';
+import RSocketWebSocketClient from 'rsocket-websocket-client';
 
 function addMessage(message) {
   var ul = document.getElementById("messages");
   var li = document.createElement("li");
   li.appendChild(document.createTextNode(message));
-  ul.appendChild(li);
+  if (ul.childNodes.length == 0) {
+    ul.appendChild(li);
+  } else {
+    if (ul.childNodes.length > 19) {
+      ul.removeChild(ul.lastChild);
+    }
+    ul.insertBefore(li, ul.firstChild);
+  }
 }
 
 function main() {
@@ -19,32 +23,26 @@ function main() {
     setup: {
       keepAlive: 60000,
       lifetime: 180000,
-      dataMimeType: 'binary',
-      metadataMimeType: 'binary',
+      dataMimeType: 'application/json',
+      metadataMimeType: 'application/json',
     },
-    transport: new RSocketWebSocketClient({
-      url,
-      debug: true,
-    }, Utf8Encoders),
+    transport: new RSocketWebSocketClient({url: url}),
   });
 
   // Open the connection
   client.connect().subscribe({
     onComplete: socket => {
-//       socket.onClose().catch(error => console.error(error));
-
       socket.requestStream({
-        data: 'peace',
+        data: null,
         metadata: null,
       }).subscribe({
         onComplete: () => console.log('complete'),
         onError: error => console.error(error),
         onNext: payload => {
-          console.log(payload.data);
           addMessage(payload.data);
         },
         onSubscribe: subscription => {
-          subscription.request(100);
+          subscription.request(10000000);
         },
       });
     },

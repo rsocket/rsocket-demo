@@ -13,8 +13,8 @@
     "webpack": "^3.2.0"
   },
   "dependencies": {
-    "rsocket-core": "^0.0.8",
-    "rsocket-websocket-client": "^0.0.8"
+    "rsocket-core": "^0.0.19",
+    "rsocket-websocket-client": "^0.0.19"
   },
   "scripts": {
     "build": "webpack",
