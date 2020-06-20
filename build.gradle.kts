@@ -1,71 +1,55 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.3.72"
-    application
-    id("com.github.ben-manes.versions") version "0.21.0"
-    id("net.nemerosa.versioning") version "2.8.2"
-    id("com.diffplug.gradle.spotless") version "3.23.0"
+	id("org.springframework.boot") version "2.3.1.RELEASE"
+	id("io.spring.dependency-management") version "1.0.9.RELEASE"
+	kotlin("jvm") version "1.3.72"
+	kotlin("plugin.spring") version "1.3.72"
 }
+
+group = "io.rsocket"
+version = "0.0.1-SNAPSHOT"
+java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
-    jcenter()
-    mavenCentral()
-    maven(url = "http://repo.maven.apache.org/maven2")
-}
-
-group = "com.baulsupp"
-val artifactID = "rsocket-demo"
-description = "RSocket Demo"
-val projectVersion = versioning.info.display
-version = projectVersion
-
-base {
-    archivesBaseName = "rsocket-demo"
-}
-
-application {
-    mainClassName = "io.rsocket.demo.App"
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
-
-tasks {
-    withType(KotlinCompile::class) {
-        kotlinOptions.jvmTarget = "1.8"
-        kotlinOptions.apiVersion = "1.3"
-        kotlinOptions.languageVersion = "1.3"
-        kotlinOptions.allWarningsAsErrors = false
-        kotlinOptions.freeCompilerArgs = listOf("-Xjsr305=strict", "-Xjvm-default=enable")
-    }
-}
-
-tasks {
-    withType(Tar::class) {
-        compression = Compression.GZIP
-    }
+	mavenCentral()
+	maven(url = "https://jitpack.io")
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("io.rsocket:rsocket-core:1.0.1")
-    implementation("io.rsocket:rsocket-transport-local:1.0.1")
-    implementation("io.rsocket:rsocket-transport-netty:1.0.1")
-
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
-
-    testRuntimeOnly("org.slf4j:slf4j-jdk14")
+	implementation(platform("com.squareup.okhttp3:okhttp-bom:4.7.2"))
+	implementation("com.squareup.okhttp3:okhttp:4.7.2")
+	implementation("com.squareup.okhttp3:logging-interceptor:4.7.2")
+	implementation("com.squareup.okhttp3:okhttp-tls:4.7.2")
+	implementation("com.squareup.okhttp3:okhttp-dnsoverhttps:4.7.2")
+	implementation("com.squareup.okhttp3:okhttp-sse:4.7.2")
+	implementation("com.squareup.moshi:moshi:1.8.0")
+	implementation("com.squareup.moshi:moshi-adapters:1.8.0")
+	implementation("com.squareup.moshi:moshi-kotlin:1.8.0")
+	implementation("org.springframework.boot:spring-boot-starter-rsocket")
+	implementation("org.springframework.boot:spring-boot-starter-webflux")
+	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
+	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+	implementation("com.github.yschimke:okurl:2.6") {
+		exclude(group = "com.babylon.certificatetransparency", module = "certificatetransparency")
+		exclude(group = "org.slf4j", module = "slf4j-jdk14")
+	}
+	testImplementation("org.springframework.boot:spring-boot-starter-test") {
+		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
+	}
+	testImplementation("io.projectreactor:reactor-test")
 }
 
-spotless {
-    kotlinGradle {
-        ktlint("0.31.0").userData(mutableMapOf("indent_size" to "2", "continuation_indent_size" to "2"))
-        trimTrailingWhitespace()
-        endWithNewline()
-    }
+tasks.withType<Test> {
+	useJUnitPlatform()
 }
 
+tasks.withType<KotlinCompile> {
+	kotlinOptions {
+		freeCompilerArgs = listOf("-Xjsr305=strict")
+		jvmTarget = "11"
+	}
+}
