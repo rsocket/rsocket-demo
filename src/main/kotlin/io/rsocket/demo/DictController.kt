@@ -10,7 +10,7 @@ import java.io.File
 
 @Controller("dict")
 class DictController {
-  @MessageMapping("")
+  @MessageMapping("words")
   suspend fun requestResponse(): Flow<String> = withContext(Dispatchers.IO) {
     File("/usr/share/dict/words").bufferedReader().lineSequence().asFlow()
   }
