@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 15);
+/******/ 	return __webpack_require__(__webpack_require__.s = 19);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -70,60 +70,57 @@
 "use strict";
 /* WEBPACK VAR INJECTION */(function(process) {/**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
+ * 
  */
 
 
-
+var validateFormat = process.env.NODE_ENV !== "production" ? function (format) {} : function (format) {
+  if (format === undefined) {
+    throw new Error('invariant(...): Second argument must be a string.');
+  }
+};
 /**
  * Use invariant() to assert state which your program assumes to be true.
  *
- * Provide sprintf-style format (only %s is supported) and arguments
- * to provide information about what broke and what you were
- * expecting.
+ * Provide sprintf-style format (only %s is supported) and arguments to provide
+ * information about what broke and what you were expecting.
  *
- * The invariant message will be stripped in production, but the invariant
- * will remain to ensure logic does not differ in production.
+ * The invariant message will be stripped in production, but the invariant will
+ * remain to ensure logic does not differ in production.
  */
 
-var validateFormat = function validateFormat(format) {};
+function invariant(condition, format) {
+  for (var _len = arguments.length, args = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+    args[_key - 2] = arguments[_key];
+  }
 
-if (process.env.NODE_ENV !== 'production') {
-  validateFormat = function validateFormat(format) {
-    if (format === undefined) {
-      throw new Error('invariant requires an error message argument');
-    }
-  };
-}
-
-function invariant(condition, format, a, b, c, d, e, f) {
   validateFormat(format);
 
   if (!condition) {
     var error;
+
     if (format === undefined) {
       error = new Error('Minified exception occurred; use the non-minified dev environment ' + 'for the full error message and additional helpful warnings.');
     } else {
-      var args = [a, b, c, d, e, f];
       var argIndex = 0;
       error = new Error(format.replace(/%s/g, function () {
-        return args[argIndex++];
+        return String(args[argIndex++]);
       }));
       error.name = 'Invariant Violation';
     }
 
-    error.framesToPop = 1; // we don't care about invariant's own frame
+    error.framesToPop = 1; // Skip invariant's own stack frame.
+
     throw error;
   }
 }
 
 module.exports = invariant;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)))
 
 /***/ }),
 /* 1 */
@@ -166,9 +163,9 @@ exports.getFrameTypeName = getFrameTypeName;
 exports.createErrorFromFrame = createErrorFromFrame;
 exports.getErrorCodeExplanation = getErrorCodeExplanation;
 exports.printFrame = printFrame;
-var _forEachObject = __webpack_require__(16);
+var _forEachObject = __webpack_require__(20);
 var _forEachObject2 = _interopRequireDefault(_forEachObject);
-var _sprintf = __webpack_require__(17);
+var _sprintf = __webpack_require__(21);
 var _sprintf2 = _interopRequireDefault(_sprintf);
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : {default: obj};
@@ -190,7 +187,7 @@ const FRAME_TYPES = (exports.FRAME_TYPES = {
   RESERVED: 0x00, // Reserved
   RESUME: 0x0d, // Resume: Replaces SETUP for Resuming Operation (optional)
   RESUME_OK: 0x0e, // Resume OK : Sent in response to a RESUME if resuming operation possible (optional)
-  SETUP: 0x01,
+  SETUP: 0x01, // Setup: Sent by client to initiate protocol processing.
 }); // Maps frame type codes to type names
 const FRAME_TYPE_NAMES = (exports.FRAME_TYPE_NAMES = {});
 (0, _forEachObject2.default)(FRAME_TYPES, (value, name) => {
@@ -204,7 +201,7 @@ const FLAGS = (exports.FLAGS = {
   METADATA: 0x100, // (all): must be set if metadata is present in the frame.
   NEXT: 0x20, // PAYLOAD: indicates data/metadata present, if set onNext will be invoked on receiver.
   RESPOND: 0x80, // KEEPALIVE: should KEEPALIVE be sent by peer on receipt.
-  RESUME_ENABLE: 0x80,
+  RESUME_ENABLE: 0x80, // SETUP: Client requests resume capability if possible. Resume Identification Token present.
 }); // Maps error names to codes
 const ERROR_CODES = (exports.ERROR_CODES = {
   APPLICATION_ERROR: 0x00000201,
@@ -294,26 +291,26 @@ const MAX_VERSION = (exports.MAX_VERSION = 0xffff); // uint16
 ) {
   return type === FRAME_TYPES.CANCEL ||
     type === FRAME_TYPES.ERROR ||
-    type === FRAME_TYPES.METADATA_PUSH ||
     type === FRAME_TYPES.PAYLOAD ||
     type === FRAME_TYPES.REQUEST_CHANNEL ||
     type === FRAME_TYPES.REQUEST_FNF ||
     type === FRAME_TYPES.REQUEST_RESPONSE ||
-    type === FRAME_TYPES.REQUEST_STREAM;
+    type === FRAME_TYPES.REQUEST_STREAM ||
+    type === FRAME_TYPES.REQUEST_N;
 }
 function getFrameTypeName(type) {
   const name = FRAME_TYPE_NAMES[type];
   return name != null ? name : toHex(type);
 }
 /**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * Constructs an Error object given the contents of an error frame. The
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * `source` property contains metadata about the error for use in introspecting
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * the error at runtime:
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * - `error.source.code: number`: the error code returned by the server.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * - `error.source.explanation: string`: human-readable explanation of the code
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              *   (this value is not standardized and may change).
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * - `error.source.message: string`: the error string returned by the server.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              */ function createErrorFromFrame(
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          * Constructs an Error object given the contents of an error frame. The
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          * `source` property contains metadata about the error for use in introspecting
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          * the error at runtime:
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          * - `error.source.code: number`: the error code returned by the server.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          * - `error.source.explanation: string`: human-readable explanation of the code
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          *   (this value is not standardized and may change).
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          * - `error.source.message: string`: the error string returned by the server.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          */ function createErrorFromFrame(
   frame
 ) {
   const {code, message} = frame;
@@ -330,9 +327,9 @@ function getFrameTypeName(type) {
   return error;
 }
 /**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Given a RSocket error code, returns a human-readable explanation of that
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * code, following the names used in the protocol specification.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */ function getErrorCodeExplanation(
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            * Given a RSocket error code, returns a human-readable explanation of that
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            * code, following the names used in the protocol specification.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            */ function getErrorCodeExplanation(
   code
 ) {
   const explanation = ERROR_EXPLANATIONS[code];
@@ -345,9 +342,9 @@ function getFrameTypeName(type) {
   }
 }
 /**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          * Pretty-prints the frame for debugging purposes, with types, flags, and
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          * error codes annotated with descriptive names.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          */ function printFrame(
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * Pretty-prints the frame for debugging purposes, with types, flags, and
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * error codes annotated with descriptive names.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */ function printFrame(
   frame
 ) {
   const obj = Object.assign({}, frame);
@@ -396,13 +393,15 @@ function toHex(n) {
 
 
 Object.defineProperty(exports, '__esModule', {value: true});
-exports.every = (exports.Single = (exports.Flowable = undefined));
+exports.every = (exports.Single = (exports.FlowableProcessor = (exports.Flowable = undefined)));
 
-var _Flowable = __webpack_require__(11);
+var _Flowable = __webpack_require__(14);
 var _Flowable2 = _interopRequireDefault(_Flowable);
-var _Single = __webpack_require__(26);
+var _Single = __webpack_require__(28);
 var _Single2 = _interopRequireDefault(_Single);
-var _FlowableTimer = __webpack_require__(27);
+var _FlowableProcessor = __webpack_require__(29);
+var _FlowableProcessor2 = _interopRequireDefault(_FlowableProcessor);
+var _FlowableTimer = __webpack_require__(30);
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : {default: obj};
 }
@@ -410,6 +409,7 @@ function _interopRequireDefault(obj) {
 /**
                                                                                                                                                * The public API of the `flowable` package.
                                                                                                                                                */ exports.Flowable = _Flowable2.default;
+exports.FlowableProcessor = _FlowableProcessor2.default;
 exports.Single = _Single2.default;
 exports.every = _FlowableTimer.every;
 
@@ -419,39 +419,594 @@ exports.every = _FlowableTimer.every;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
+/** Copyright (c) Facebook, Inc. and its affiliates.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * 
  */
 
+
+
+/* eslint-disable no-bitwise */ Object.defineProperty(exports, '__esModule', {
+  value: true,
+});
+exports.createBuffer = undefined;
+exports.readUInt24BE = readUInt24BE;
+exports.writeUInt24BE = writeUInt24BE;
+exports.readUInt64BE = readUInt64BE;
+exports.writeUInt64BE = writeUInt64BE;
+exports.byteLength = byteLength;
+exports.toBuffer = toBuffer;
+var _LiteBuffer = __webpack_require__(8);
+var _invariant = __webpack_require__(0);
+var _invariant2 = _interopRequireDefault(_invariant);
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : {default: obj};
+}
+/**
+                                                                                                                                                                                                                                                                 * Mimimum value that would overflow bitwise operators (2^32).
+                                                                                                                                                                                                                                                                 */ const BITWISE_OVERFLOW = 0x100000000;
+/**
+                                                                                                                                                                                                                                                                                                          * Read a uint24 from a buffer starting at the given offset.
+                                                                                                                                                                                                                                                                                                          */ function readUInt24BE(
+  buffer,
+  offset
+) {
+  const val1 = buffer.readUInt8(offset) << 16;
+  const val2 = buffer.readUInt8(offset + 1) << 8;
+  const val3 = buffer.readUInt8(offset + 2);
+  return val1 | val2 | val3;
+}
+/**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     * Writes a uint24 to a buffer starting at the given offset, returning the
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     * offset of the next byte.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     */ function writeUInt24BE(
+  buffer,
+  value,
+  offset
+) {
+  offset = buffer.writeUInt8(value >>> 16, offset); // 3rd byte
+  offset = buffer.writeUInt8(value >>> 8 & 0xff, offset); // 2nd byte
+  return buffer.writeUInt8(value & 0xff, offset); // 1st byte
+}
+/**
+   * Read a uint64 (technically supports up to 53 bits per JS number
+   * representation).
+   */ function readUInt64BE(
+  buffer,
+  offset
+) {
+  const high = buffer.readUInt32BE(offset);
+  const low = buffer.readUInt32BE(offset + 4);
+  return high * BITWISE_OVERFLOW + low;
+}
+/**
+                                                                                                                                                                         * Write a uint64 (technically supports up to 53 bits per JS number
+                                                                                                                                                                         * representation).
+                                                                                                                                                                         */ function writeUInt64BE(
+  buffer,
+  value,
+  offset
+) {
+  const high = value / BITWISE_OVERFLOW | 0;
+  const low = value % BITWISE_OVERFLOW;
+  offset = buffer.writeUInt32BE(high, offset); // first half of uint64
+  return buffer.writeUInt32BE(low, offset); // second half of uint64
+}
+/**
+   * Determine the number of bytes it would take to encode the given data with the
+   * given encoding.
+   */ function byteLength(
+  data,
+  encoding
+) {
+  if (data == null) {
+    return 0;
+  }
+  return _LiteBuffer.LiteBuffer.byteLength(data, encoding);
+}
+/**
+                                                                                                                                   * Attempts to construct a buffer from the input, throws if invalid.
+                                                                                                                                   */ function toBuffer(
+  data
+) {
+  // Buffer.from(buffer) copies which we don't want here
+  if (data instanceof _LiteBuffer.LiteBuffer) {
+    return data;
+  }
+  (0, _invariant2.default)(
+    data instanceof ArrayBuffer,
+    'RSocketBufferUtils: Cannot construct buffer. Expected data to be an ' +
+      'arraybuffer, got `%s`.',
+    data
+  );
+  return _LiteBuffer.LiteBuffer.from(data);
+}
+/**
+                                                                                                                                                                                                                                                                       * Function to create a buffer of a given sized filled with zeros.
+                                                                                                                                                                                                                                                                       */ const createBuffer = (exports.createBuffer = typeof _LiteBuffer.LiteBuffer.alloc ===
+  'function'
+  ? length => _LiteBuffer.LiteBuffer.alloc(length) // $FlowFixMe
+  : length => new _LiteBuffer.LiteBuffer(length).fill(0));
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/** Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * 
+ */
+
+Object.defineProperty(exports, '__esModule', {value: true});
+exports.IdentitySerializers = (exports.IdentitySerializer = (exports.JsonSerializers = (exports.JsonSerializer = undefined)));
+
+var _LiteBuffer = __webpack_require__(8);
+var _invariant = __webpack_require__(0);
+var _invariant2 = _interopRequireDefault(_invariant);
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : {default: obj};
+}
+
+// JSON serializer
+/**
+ * A Serializer transforms data between the application encoding used in
+ * Payloads and the Encodable type accepted by the transport client.
+ */ const JsonSerializer = (exports.JsonSerializer = {
+  deserialize: data => {
+    let str;
+    if (data == null) {
+      return null;
+    } else if (typeof data === 'string') {
+      str = data;
+    } else if (_LiteBuffer.LiteBuffer.isBuffer(data)) {
+      const buffer = data;
+      str = buffer.toString('utf8');
+    } else {
+      const buffer = _LiteBuffer.LiteBuffer.from(data);
+      str = buffer.toString('utf8');
+    }
+    return JSON.parse(str);
+  },
+  serialize: JSON.stringify,
+});
+
+const JsonSerializers = (exports.JsonSerializers = {
+  data: JsonSerializer,
+  metadata: JsonSerializer,
+});
+
+// Pass-through serializer
+const IdentitySerializer = (exports.IdentitySerializer = {
+  deserialize: data => {
+    (0, _invariant2.default)(
+      data == null ||
+        typeof data === 'string' ||
+        _LiteBuffer.LiteBuffer.isBuffer(data) ||
+        data instanceof Uint8Array,
+      'RSocketSerialization: Expected data to be a string, Buffer, or ' +
+        'Uint8Array. Got `%s`.',
+      data
+    );
+
+    return data;
+  },
+  serialize: data => data,
+});
+
+const IdentitySerializers = (exports.IdentitySerializers = {
+  data: IdentitySerializer,
+  metadata: IdentitySerializer,
+});
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/** Copyright 2015-2019 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * 
+ */
+
+Object.defineProperty(exports, '__esModule', {value: true});
+exports.ResponderLeaseHandler = (exports.RequesterLeaseHandler = (exports.Leases = (exports.Lease = undefined)));
+
+var _invariant = __webpack_require__(0);
+var _invariant2 = _interopRequireDefault(_invariant);
+var _rsocketFlowable = __webpack_require__(2);
+
+var _RSocketFrame = __webpack_require__(1);
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : {default: obj};
+}
+
+class Lease {
+  constructor(timeToLiveMillis, allowedRequests, metadata) {
+    (0, _invariant2.default)(
+      timeToLiveMillis > 0,
+      'Lease time-to-live must be positive'
+    );
+    (0, _invariant2.default)(
+      allowedRequests > 0,
+      'Lease allowed requests must be positive'
+    );
+    this.timeToLiveMillis = timeToLiveMillis;
+    this.allowedRequests = allowedRequests;
+    this.startingAllowedRequests = allowedRequests;
+    this.expiry = Date.now() + timeToLiveMillis;
+    this.metadata = metadata;
+  }
+
+  expired() {
+    return Date.now() > this.expiry;
+  }
+
+  valid() {
+    return this.allowedRequests > 0 && !this.expired();
+  }
+
+  // todo hide
+  _use() {
+    if (this.expired()) {
+      return false;
+    }
+    const allowed = this.allowedRequests;
+    const success = allowed > 0;
+    if (success) {
+      this.allowedRequests = allowed - 1;
+    }
+    return success;
+  }
+}
+exports.Lease = Lease;
+
+class Leases {
+  constructor() {
+    this._sender = () => _rsocketFlowable.Flowable.never();
+    this._receiver = leases => {};
+  }
+
+  sender(sender) {
+    this._sender = sender;
+    return this;
+  }
+
+  receiver(receiver) {
+    this._receiver = receiver;
+    return this;
+  }
+
+  stats(stats) {
+    this._stats = stats;
+    return this;
+  }
+}
+exports.Leases = Leases;
+
+class RequesterLeaseHandler {
+  constructor(leaseReceiver) {
+    this._requestN = -1;
+    leaseReceiver(
+      new _rsocketFlowable.Flowable(subscriber => {
+        if (this._subscriber) {
+          subscriber.onError(new Error('only 1 subscriber is allowed'));
+          return;
+        }
+        if (this.isDisposed()) {
+          subscriber.onComplete();
+          return;
+        }
+        this._subscriber = subscriber;
+        subscriber.onSubscribe({
+          cancel: () => {
+            this.dispose();
+          },
+          request: n => {
+            if (n <= 0) {
+              subscriber.onError(
+                new Error(`request demand must be positive: ${n}`)
+              );
+            }
+            if (!this.isDisposed()) {
+              const curReqN = this._requestN;
+              this._onRequestN(curReqN);
+              this._requestN = Math.min(
+                Number.MAX_SAFE_INTEGER,
+                Math.max(0, curReqN) + n
+              );
+            }
+          },
+        });
+      })
+    );
+  } /*negative value means received lease was not signalled due to missing requestN*/
+
+  use() {
+    const l = this._lease;
+    return l ? l._use() : false;
+  }
+
+  errorMessage() {
+    return _errorMessage(this._lease);
+  }
+
+  receive(frame) {
+    if (!this.isDisposed()) {
+      const timeToLiveMillis = frame.ttl;
+      const requestCount = frame.requestCount;
+      const metadata = frame.metadata;
+      this._onLease(new Lease(timeToLiveMillis, requestCount, metadata));
+    }
+  }
+
+  availability() {
+    const l = this._lease;
+    if (l && l.valid()) {
+      return l.allowedRequests / l.startingAllowedRequests;
+    }
+    return 0.0;
+  }
+
+  dispose() {
+    if (!this._isDisposed) {
+      this._isDisposed = true;
+      const s = this._subscriber;
+      if (s) {
+        s.onComplete();
+      }
+    }
+  }
+
+  isDisposed() {
+    return this._isDisposed;
+  }
+
+  _onRequestN(requestN) {
+    const l = this._lease;
+    const s = this._subscriber;
+    if (requestN < 0 && l && s) {
+      s.onNext(l);
+    }
+  }
+
+  _onLease(lease) {
+    const s = this._subscriber;
+    const newReqN = this._requestN - 1;
+    if (newReqN >= 0 && s) {
+      s.onNext(lease);
+    }
+    this._requestN = Math.max(-1, newReqN);
+    this._lease = lease;
+  }
+}
+exports.RequesterLeaseHandler = RequesterLeaseHandler;
+
+class ResponderLeaseHandler {
+  constructor(leaseSender, stats, errorConsumer) {
+    this._leaseSender = leaseSender;
+    this._stats = stats;
+    this._errorConsumer = errorConsumer;
+  }
+
+  use() {
+    const l = this._lease;
+    const success = l ? l._use() : false;
+    this._onStatsEvent(success);
+    return success;
+  }
+
+  errorMessage() {
+    return _errorMessage(this._lease);
+  }
+
+  send(send) {
+    let subscription;
+    let isDisposed;
+
+    this._leaseSender(this._stats).subscribe({
+      onComplete: () => this._onStatsEvent(),
+      onError: error => {
+        this._onStatsEvent();
+        const errConsumer = this._errorConsumer;
+        if (errConsumer) {
+          errConsumer(error);
+        }
+      },
+      onNext: lease => {
+        this._lease = lease;
+        send(lease);
+      },
+      onSubscribe: s => {
+        if (isDisposed) {
+          s.cancel();
+          return;
+        }
+        s.request(_RSocketFrame.MAX_REQUEST_N);
+        subscription = s;
+      },
+    });
+
+    return {
+      dispose() {
+        if (!isDisposed) {
+          isDisposed = true;
+          this._onStatsEvent();
+          if (subscription) {
+            subscription.cancel();
+          }
+        }
+      },
+
+      isDisposed() {
+        return isDisposed;
+      },
+    };
+  }
+
+  _onStatsEvent(success) {
+    const s = this._stats;
+    if (s) {
+      const event = success === undefined
+        ? 'Terminate'
+        : success ? 'Accept' : 'Reject';
+      s.onEvent(event);
+    }
+  }
+}
+exports.ResponderLeaseHandler = ResponderLeaseHandler;
+
+function _errorMessage(lease) {
+  if (!lease) {
+    return 'Lease was not received yet';
+  }
+  if (lease.valid()) {
+    return 'Missing leases';
+  } else {
+    const isExpired = lease.expired();
+    const requests = lease.allowedRequests;
+    return `Missing leases. Expired: ${isExpired.toString()}, allowedRequests: ${requests}`;
+  }
+}
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {/**
+ * Copyright (c) 2014-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ */
+
+
+var emptyFunction = __webpack_require__(7);
+/**
+ * Similar to invariant but only logs a warning if the condition is not met.
+ * This can be used to log issues in development environments in critical
+ * paths. Removing the logging code for production environments will keep the
+ * same logic and follow the same code paths.
+ */
+
+
+function printWarning(format) {
+  for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    args[_key - 1] = arguments[_key];
+  }
+
+  var argIndex = 0;
+  var message = 'Warning: ' + format.replace(/%s/g, function () {
+    return args[argIndex++];
+  });
+
+  if (typeof console !== 'undefined') {
+    console.error(message);
+  }
+
+  try {
+    // --- Welcome to debugging React ---
+    // This error was thrown as a convenience so that you can use this stack
+    // to find the callsite that caused this warning to fire.
+    throw new Error(message);
+  } catch (x) {}
+}
+
+var warning = process.env.NODE_ENV !== "production" ? function (condition, format) {
+  if (format === undefined) {
+    throw new Error('`warning(condition, format, ...args)` requires a warning ' + 'message argument');
+  }
+
+  if (!condition) {
+    for (var _len2 = arguments.length, args = new Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
+      args[_key2 - 2] = arguments[_key2];
+    }
+
+    printWarning.apply(void 0, [format].concat(args));
+  }
+} : emptyFunction;
+module.exports = warning;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)))
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * 
+ */
 function makeEmptyFunction(arg) {
   return function () {
     return arg;
   };
 }
-
 /**
  * This function accepts and discards inputs; it has no side effects. This is
  * primarily useful idiomatically for overridable function endpoints which
  * always need to be callable, since JS lacks a null-call idiom ala Cocoa.
  */
+
+
 var emptyFunction = function emptyFunction() {};
 
 emptyFunction.thatReturns = makeEmptyFunction;
 emptyFunction.thatReturnsFalse = makeEmptyFunction(false);
 emptyFunction.thatReturnsTrue = makeEmptyFunction(true);
 emptyFunction.thatReturnsNull = makeEmptyFunction(null);
+
 emptyFunction.thatReturnsThis = function () {
   return this;
 };
+
 emptyFunction.thatReturnsArgument = function (arg) {
   return arg;
 };
@@ -459,7 +1014,4497 @@ emptyFunction.thatReturnsArgument = function (arg) {
 module.exports = emptyFunction;
 
 /***/ }),
-/* 4 */
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(global) {
+Object.defineProperty(exports, '__esModule', {value: true});
+exports.Buffer = Buffer;
+const K_MAX_LENGTH = 0x7fffffff;
+function createBuffer(length) {
+  if (length > K_MAX_LENGTH) {
+    throw new RangeError(
+      'The value "' + length + '" is invalid for option "size"'
+    );
+  } // Return an augmented `Uint8Array` instance
+  const buf = new Uint8Array(length); // $FlowFixMe
+  buf.__proto__ = Buffer.prototype;
+  return buf;
+}
+const bufferExists = typeof global !== 'undefined' &&
+  global.hasOwnProperty('Buffer');
+const LiteBuffer = (exports.LiteBuffer = bufferExists ? global.Buffer : Buffer);
+function Buffer(arg, encodingOrOffset, length) {
+  // Common case.
+  if (typeof arg === 'number') {
+    if (typeof encodingOrOffset === 'string') {
+      throw new TypeError(
+        'The "string" argument must be of type string. Received type number'
+      );
+    }
+    return allocUnsafe(arg);
+  }
+  return from(arg, encodingOrOffset, length);
+}
+
+function from(value, encodingOrOffset, length) {
+  if (ArrayBuffer.isView(value)) {
+    return fromArrayLike(value);
+  }
+
+  if (value == null) {
+    throw TypeError(
+      'The first argument must be one of type, Buffer, ArrayBuffer, Array, ' +
+        'or Array-like Object. Received type ' +
+        typeof value
+    );
+  }
+
+  if (
+    isInstance(value, ArrayBuffer) ||
+    (value && isInstance(value.buffer, ArrayBuffer))
+  ) {
+    return fromArrayBuffer(value, encodingOrOffset, length);
+  }
+
+  if (typeof value === 'number') {
+    throw new TypeError(
+      'The "value" argument must not be of type number. Received type number'
+    );
+  }
+
+  const valueOf = value.valueOf && value.valueOf();
+  if (valueOf != null && valueOf !== value) {
+    return Buffer.from(valueOf, encodingOrOffset, length);
+  }
+
+  const b = fromObject(value);
+  if (b) {
+    return b;
+  }
+
+  throw new TypeError(
+    'The first argument must be one of type string, Buffer, ArrayBuffer, ' +
+      'Array, or Array-like Object. Received type ' +
+      typeof value
+  );
+}
+
+Buffer.from = function(value, encodingOrOffset, length) {
+  return from(value, encodingOrOffset, length);
+};
+
+// $FlowFixMe
+Buffer.prototype.__proto__ = Uint8Array.prototype;
+
+// $FlowFixMe
+Buffer.__proto__ = Uint8Array;
+
+function assertSize(size) {
+  if (typeof size !== 'number') {
+    throw new TypeError('"size" argument must be of type number');
+  } else if (size < 0) {
+    throw new RangeError(
+      'The value "' + size + '" is invalid for option "size"'
+    );
+  }
+}
+
+function alloc(size, fill, encoding) {
+  assertSize(size);
+
+  return createBuffer(size);
+}
+
+Buffer.alloc = function(size, fill, encoding) {
+  return alloc(size, fill, encoding);
+};
+
+function allocUnsafe(size) {
+  assertSize(size);
+  return createBuffer(size < 0 ? 0 : checked(size) | 0);
+}
+
+function fromArrayLike(array) {
+  const length = array.length < 0 ? 0 : checked(array.length) | 0;
+  const buf = createBuffer(length);
+  for (let i = 0; i < length; i += 1) {
+    buf[i] = array[i] & 255;
+  }
+  return buf;
+}
+
+function fromArrayBuffer(array, byteOffset, length) {
+  let buf;
+  if (byteOffset === undefined && length === undefined) {
+    buf = new Uint8Array(array);
+  } else if (length === undefined) {
+    buf = new Uint8Array(array, byteOffset);
+  } else {
+    buf = new Uint8Array(array, byteOffset, length);
+  }
+
+  // $FlowFixMe
+  buf.__proto__ = Buffer.prototype;
+  return buf;
+}
+
+function fromObject(obj) {
+  if (Buffer.isBuffer(obj)) {
+    const len = checked(obj.length) | 0;
+    const buf = createBuffer(len);
+
+    if (buf.length === 0) {
+      return buf;
+    }
+
+    obj.copy(buf, 0, 0, len);
+    return buf;
+  }
+
+  if (obj.length !== undefined) {
+    if (typeof obj.length !== 'number' || numberIsNaN(obj.length)) {
+      return createBuffer(0);
+    }
+    return fromArrayLike(obj);
+  }
+
+  if (obj.type === 'Buffer' && Array.isArray(obj.data)) {
+    return fromArrayLike(obj.data);
+  }
+}
+
+function checked(length) {
+  if (length >= K_MAX_LENGTH) {
+    throw new RangeError(
+      'Attempt to allocate Buffer larger than maximum ' +
+        'size: 0x' +
+        K_MAX_LENGTH.toString(16) +
+        ' bytes'
+    );
+  }
+  return length | 0;
+}
+
+Buffer.isBuffer = function isBuffer(b) {
+  return b != null && b._isBuffer === true && b !== Buffer.prototype;
+};
+
+Buffer.isEncoding = function isEncoding(encoding) {
+  switch (String(encoding).toLowerCase()) {
+    case 'hex':
+    case 'utf8':
+    case 'utf-8':
+    case 'ascii':
+    case 'latin1':
+    case 'binary':
+    case 'base64':
+    case 'ucs2':
+    case 'ucs-2':
+    case 'utf16le':
+    case 'utf-16le':
+      return true;
+    default:
+      return false;
+  }
+};
+
+Buffer.concat = function concat(list, length) {
+  if (!Array.isArray(list)) {
+    throw new TypeError('"list" argument must be an Array of Buffers');
+  }
+
+  if (list.length === 0) {
+    return Buffer.alloc(0);
+  }
+
+  let i;
+  if (length === undefined) {
+    length = 0;
+    for (i = 0; i < list.length; ++i) {
+      length += list[i].length;
+    }
+  }
+
+  const buffer = Buffer.alloc(length);
+  let pos = 0;
+  for (i = 0; i < list.length; ++i) {
+    let buf = list[i];
+    if (isInstance(buf, Uint8Array)) {
+      buf = Buffer.from(buf);
+    }
+    if (!Buffer.isBuffer(buf)) {
+      throw new TypeError('"list" argument must be an Array of Buffers');
+    }
+    buf.copy(buffer, pos);
+    pos += buf.length;
+  }
+  return buffer;
+};
+
+Buffer.prototype._isBuffer = true;
+
+Buffer.prototype.includes = function includes(val, byteOffset, encoding) {
+  return this.indexOf(val, byteOffset, encoding) !== -1;
+};
+
+function blitBuffer(src, dst, offset, length) {
+  let i = 0;
+  for (; i < length; ++i) {
+    if (i + offset >= dst.length || i >= src.length) break;
+    dst[i + offset] = src[i];
+  }
+  return i;
+}
+
+function utf8Write(buf, input, offset, length) {
+  return blitBuffer(
+    utf8ToBytes(input, buf.length - offset),
+    buf,
+    offset,
+    length
+  );
+}
+
+Buffer.prototype.write = function write(input, offset, length, encoding) {
+  if (offset === undefined) {
+    encoding = 'utf8';
+    length = this.length;
+    offset = 0;
+    // Buffer#write(string, encoding)
+  } else if (length === undefined && typeof offset === 'string') {
+    encoding = offset;
+    length = this.length;
+    offset = 0;
+    // Buffer#write(string, offset[, length][, encoding])
+  } else if (isFinite(offset)) {
+    offset = offset >>> 0;
+    if (length === undefined) {
+      encoding = 'utf8';
+      length = this.length;
+    } else if (isFinite(length)) {
+      length = length >>> 0;
+      if (encoding === undefined) encoding = 'utf8';
+    } else {
+      encoding = length;
+      length = this.length;
+    }
+  } else {
+    throw new Error(
+      'Buffer.write(string, encoding, offset[, length]) is no longer supported'
+    );
+  }
+  switch (encoding) {
+    case 'utf8':
+      return utf8Write(this, input, offset, length);
+    default:
+      throw new TypeError('Unknown encoding: ' + encoding);
+  }
+};
+
+const MAX_ARGUMENTS_LENGTH = 0x1000;
+
+function decodeCodePointsArray(codePoints) {
+  const len = codePoints.length;
+  if (len <= MAX_ARGUMENTS_LENGTH) {
+    return String.fromCharCode.apply(String, codePoints); // avoid extra slice()
+  }
+
+  // Decode in chunks to avoid "call stack size exceeded".
+  let res = '';
+  let i = 0;
+  while (i < len) {
+    res += String.fromCharCode.apply(
+      String,
+      codePoints.slice(i, (i += MAX_ARGUMENTS_LENGTH))
+    );
+  }
+  return res;
+}
+
+function asciiSlice(buf, start, end) {
+  let ret = '';
+  end = Math.min(buf.length, end);
+
+  for (let i = start; i < end; ++i) {
+    ret += String.fromCharCode(buf[i] & 0x7f);
+  }
+  return ret;
+}
+
+Buffer.prototype.slice = function slice(start, end) {
+  const len = this.length;
+  start = ~~start;
+  end = end === undefined ? len : ~~end;
+
+  if (start < 0) {
+    start += len;
+    if (start < 0) start = 0;
+  } else if (start > len) {
+    start = len;
+  }
+
+  if (end < 0) {
+    end += len;
+    if (end < 0) end = 0;
+  } else if (end > len) {
+    end = len;
+  }
+
+  if (end < start) end = start;
+
+  const newBuf = this.subarray(start, end);
+  // Return an augmented `Uint8Array` instance
+  newBuf.__proto__ = Buffer.prototype;
+  return newBuf;
+};
+
+function checkOffset(offset, ext, length) {
+  if (offset % 1 !== 0 || offset < 0)
+    throw new RangeError('offset is not uint');
+  if (offset + ext > length)
+    throw new RangeError('Trying to access beyond buffer length');
+}
+
+Buffer.prototype.readUInt8 = function readUInt8(offset, noAssert) {
+  offset = offset >>> 0;
+  if (!noAssert) checkOffset(offset, 1, this.length);
+  return this[offset];
+};
+
+Buffer.prototype.readUInt16BE = function readUInt16BE(offset, noAssert) {
+  offset = offset >>> 0;
+  if (!noAssert) checkOffset(offset, 2, this.length);
+  return this[offset] << 8 | this[offset + 1];
+};
+
+Buffer.prototype.readUInt32BE = function readUInt32BE(offset, noAssert) {
+  offset = offset >>> 0;
+  if (!noAssert) checkOffset(offset, 4, this.length);
+
+  return this[offset] * 0x1000000 +
+    (this[offset + 1] << 16 | this[offset + 2] << 8 | this[offset + 3]);
+};
+
+Buffer.prototype.readInt8 = function readInt8(offset, noAssert) {
+  offset = offset >>> 0;
+  if (!noAssert) checkOffset(offset, 1, this.length);
+  if (!(this[offset] & 0x80)) return this[offset];
+  return (0xff - this[offset] + 1) * -1;
+};
+
+Buffer.prototype.readInt16BE = function readInt16BE(offset, noAssert) {
+  offset = offset >>> 0;
+  if (!noAssert) checkOffset(offset, 2, this.length);
+  const val = this[offset + 1] | this[offset] << 8;
+  return val & 0x8000 ? val | 0xffff0000 : val;
+};
+
+Buffer.prototype.readInt32BE = function readInt32BE(offset, noAssert) {
+  offset = offset >>> 0;
+  if (!noAssert) checkOffset(offset, 4, this.length);
+
+  return this[offset] << 24 |
+    this[offset + 1] << 16 |
+    this[offset + 2] << 8 |
+    this[offset + 3];
+};
+
+function checkInt(buf, value, offset, ext, max, min) {
+  if (!Buffer.isBuffer(buf))
+    throw new TypeError('"buffer" argument must be a Buffer instance');
+  if (value > max || value < min)
+    throw new RangeError('"value" argument is out of bounds');
+  if (offset + ext > buf.length) throw new RangeError('Index out of range');
+}
+
+Buffer.prototype.writeUInt8 = function writeUInt8(value, offset, noAssert) {
+  value = +value;
+  offset = offset >>> 0;
+  if (!noAssert) checkInt(this, value, offset, 1, 0xff, 0);
+  this[offset] = value & 0xff;
+  return offset + 1;
+};
+
+Buffer.prototype.writeUInt16BE = function writeUInt16BE(
+  value,
+  offset,
+  noAssert
+) {
+  value = +value;
+  offset = offset >>> 0;
+  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0);
+  this[offset] = value >>> 8;
+  this[offset + 1] = value & 0xff;
+  return offset + 2;
+};
+
+Buffer.prototype.writeUInt32BE = function writeUInt32BE(
+  value,
+  offset,
+  noAssert
+) {
+  value = +value;
+  offset = offset >>> 0;
+  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0);
+  this[offset] = value >>> 24;
+  this[offset + 1] = value >>> 16;
+  this[offset + 2] = value >>> 8;
+  this[offset + 3] = value & 0xff;
+  return offset + 4;
+};
+
+Buffer.prototype.writeInt16BE = function writeInt16BE(value, offset, noAssert) {
+  value = +value;
+  offset = offset >>> 0;
+  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000);
+  this[offset] = value >>> 8;
+  this[offset + 1] = value & 0xff;
+  return offset + 2;
+};
+
+Buffer.prototype.writeInt32BE = function writeInt32BE(value, offset, noAssert) {
+  value = +value;
+  offset = offset >>> 0;
+  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000);
+  if (value < 0) value = 0xffffffff + value + 1;
+  this[offset] = value >>> 24;
+  this[offset + 1] = value >>> 16;
+  this[offset + 2] = value >>> 8;
+  this[offset + 3] = value & 0xff;
+  return offset + 4;
+};
+
+// $FlowFixMe
+Buffer.prototype.toString = function toString() {
+  const length = this.length;
+  if (length === 0) return '';
+  return slowToString.apply(this, arguments);
+};
+
+function slowToString(encoding, start, end) {
+  let loweredCase = false;
+
+  if (start === undefined || start < 0) {
+    start = 0;
+  }
+
+  if (start > this.length) {
+    return '';
+  }
+
+  if (end === undefined || end > this.length) {
+    end = this.length;
+  }
+
+  if (end <= 0) {
+    return '';
+  }
+
+  // Force coersion to uint32. This will also coerce falsey/NaN values to 0.
+  end >>>= 0;
+  start >>>= 0;
+
+  if (end <= start) {
+    return '';
+  }
+
+  if (!encoding) encoding = 'utf8';
+
+  while (true) {
+    switch (encoding) {
+      case 'utf8':
+      case 'utf-8':
+        return utf8Slice(this, start, end);
+      default:
+        if (loweredCase)
+          throw new TypeError('Unsupported encoding: ' + encoding);
+        encoding = (encoding + '').toLowerCase();
+        loweredCase = true;
+    }
+  }
+}
+function utf8ToBytes(str, pUnits = Infinity) {
+  let units = pUnits;
+  let codePoint;
+  const length = str.length;
+  let leadSurrogate = null;
+  const bytes = [];
+
+  for (let i = 0; i < length; ++i) {
+    codePoint = str.charCodeAt(i);
+
+    // is surrogate component
+    if (codePoint > 0xd7ff && codePoint < 0xe000) {
+      // last char was a lead
+      if (!leadSurrogate) {
+        // no lead yet
+        if (codePoint > 0xdbff) {
+          // unexpected trail
+          if ((units -= 3) > -1) bytes.push(0xef, 0xbf, 0xbd);
+          continue;
+        } else if (i + 1 === length) {
+          // unpaired lead
+          if ((units -= 3) > -1) bytes.push(0xef, 0xbf, 0xbd);
+          continue;
+        }
+
+        // valid lead
+        leadSurrogate = codePoint;
+
+        continue;
+      }
+
+      // 2 leads in a row
+      if (codePoint < 0xdc00) {
+        if ((units -= 3) > -1) bytes.push(0xef, 0xbf, 0xbd);
+        leadSurrogate = codePoint;
+        continue;
+      }
+
+      // valid surrogate pair
+      codePoint = (leadSurrogate - 0xd800 << 10 | codePoint - 0xdc00) + 0x10000;
+    } else if (leadSurrogate) {
+      // valid bmp char, but last char was a lead
+      if ((units -= 3) > -1) bytes.push(0xef, 0xbf, 0xbd);
+    }
+
+    leadSurrogate = null;
+
+    // encode utf8
+    if (codePoint < 0x80) {
+      if ((units -= 1) < 0) break;
+      bytes.push(codePoint);
+    } else if (codePoint < 0x800) {
+      if ((units -= 2) < 0) break;
+      bytes.push(codePoint >> 0x6 | 0xc0, codePoint & 0x3f | 0x80);
+    } else if (codePoint < 0x10000) {
+      if ((units -= 3) < 0) break;
+      bytes.push(
+        codePoint >> 0xc | 0xe0,
+        codePoint >> 0x6 & 0x3f | 0x80,
+        codePoint & 0x3f | 0x80
+      );
+    } else if (codePoint < 0x110000) {
+      if ((units -= 4) < 0) break;
+      bytes.push(
+        codePoint >> 0x12 | 0xf0,
+        codePoint >> 0xc & 0x3f | 0x80,
+        codePoint >> 0x6 & 0x3f | 0x80,
+        codePoint & 0x3f | 0x80
+      );
+    } else {
+      throw new Error('Invalid code point');
+    }
+  }
+
+  return bytes;
+}
+
+function byteLength(string, encoding) {
+  if (Buffer.isBuffer(string)) {
+    return string.length;
+  }
+  if (ArrayBuffer.isView(string) || isInstance(string, ArrayBuffer)) {
+    return string.byteLength;
+  }
+  if (typeof string !== 'string') {
+    throw new TypeError(
+      'The "string" argument must be one of type string, Buffer, or ' +
+        'ArrayBuffer. Received type ' +
+        typeof string
+    );
+  }
+
+  const len = string.length;
+  const mustMatch = arguments.length > 2 && arguments[2] === true;
+  if (!mustMatch && len === 0) return 0;
+
+  // Use a for loop to avoid recursion
+  let loweredCase = false;
+  for (;;) {
+    switch (encoding) {
+      case 'utf8':
+      case 'utf-8':
+        return utf8ToBytes(string).length;
+
+      default:
+        if (loweredCase) {
+          return mustMatch ? -1 : utf8ToBytes(string).length; // assume utf8
+        }
+        encoding = ('' + encoding).toLowerCase();
+        loweredCase = true;
+    }
+  }
+  throw new Error('Unexpected path in function');
+}
+
+Buffer.byteLength = byteLength;
+
+function utf8Slice(buf, start, end) {
+  end = Math.min(buf.length, end);
+  const res = [];
+
+  let i = start;
+  while (i < end) {
+    const firstByte = buf[i];
+    let codePoint = null;
+    let bytesPerSequence = firstByte > 0xef
+      ? 4
+      : firstByte > 0xdf ? 3 : firstByte > 0xbf ? 2 : 1;
+
+    if (i + bytesPerSequence <= end) {
+      let secondByte, thirdByte, fourthByte, tempCodePoint;
+
+      switch (bytesPerSequence) {
+        case 1:
+          if (firstByte < 0x80) {
+            codePoint = firstByte;
+          }
+          break;
+        case 2:
+          secondByte = buf[i + 1];
+          if ((secondByte & 0xc0) === 0x80) {
+            tempCodePoint = (firstByte & 0x1f) << 0x6 | secondByte & 0x3f;
+            if (tempCodePoint > 0x7f) {
+              codePoint = tempCodePoint;
+            }
+          }
+          break;
+        case 3:
+          secondByte = buf[i + 1];
+          thirdByte = buf[i + 2];
+          if ((secondByte & 0xc0) === 0x80 && (thirdByte & 0xc0) === 0x80) {
+            tempCodePoint = (firstByte & 0xf) << 0xc |
+              (secondByte & 0x3f) << 0x6 |
+              thirdByte & 0x3f;
+            if (
+              tempCodePoint > 0x7ff &&
+              (tempCodePoint < 0xd800 || tempCodePoint > 0xdfff)
+            ) {
+              codePoint = tempCodePoint;
+            }
+          }
+          break;
+        case 4:
+          secondByte = buf[i + 1];
+          thirdByte = buf[i + 2];
+          fourthByte = buf[i + 3];
+          if (
+            (secondByte & 0xc0) === 0x80 &&
+            (thirdByte & 0xc0) === 0x80 &&
+            (fourthByte & 0xc0) === 0x80
+          ) {
+            tempCodePoint = (firstByte & 0xf) << 0x12 |
+              (secondByte & 0x3f) << 0xc |
+              (thirdByte & 0x3f) << 0x6 |
+              fourthByte & 0x3f;
+            if (tempCodePoint > 0xffff && tempCodePoint < 0x110000) {
+              codePoint = tempCodePoint;
+            }
+          }
+      }
+    }
+
+    if (codePoint === null) {
+      // we did not generate a valid codePoint so insert a
+      // replacement char (U+FFFD) and advance only 1 byte
+      codePoint = 0xfffd;
+      bytesPerSequence = 1;
+    } else if (codePoint > 0xffff) {
+      // encode to utf16 (surrogate pair dance)
+      codePoint -= 0x10000;
+      res.push(codePoint >>> 10 & 0x3ff | 0xd800);
+      codePoint = 0xdc00 | codePoint & 0x3ff;
+    }
+
+    res.push(codePoint);
+    i += bytesPerSequence;
+  }
+
+  return decodeCodePointsArray(res);
+}
+
+// copy(targetBuffer, targetStart=0, sourceStart=0, sourceEnd=buffer.length)
+Buffer.prototype.copy = function copy(target, targetStart, start, end) {
+  if (!Buffer.isBuffer(target))
+    throw new TypeError('argument should be a Buffer');
+  if (!start) start = 0;
+  if (!end && end !== 0) end = this.length;
+  if (targetStart >= target.length) targetStart = target.length;
+  if (!targetStart) targetStart = 0;
+  if (end > 0 && end < start) end = start;
+
+  // Copy 0 bytes; we're done
+  if (end === start) return 0;
+  if (target.length === 0 || this.length === 0) return 0;
+
+  // Fatal error conditions
+  if (targetStart < 0) {
+    throw new RangeError('targetStart out of bounds');
+  }
+  if (start < 0 || start >= this.length)
+    throw new RangeError('Index out of range');
+  if (end < 0) throw new RangeError('sourceEnd out of bounds');
+
+  // Are we oob?
+  if (end > this.length) end = this.length;
+  if (target.length - targetStart < end - start) {
+    end = target.length - targetStart + start;
+  }
+
+  const len = end - start;
+
+  if (
+    this === target && typeof Uint8Array.prototype.copyWithin === 'function'
+  ) {
+    // Use built-in when available, missing from IE11
+    this.copyWithin(targetStart, start, end);
+  } else if (this === target && start < targetStart && targetStart < end) {
+    // descending copy from end
+    for (let i = len - 1; i >= 0; --i) {
+      target[i + targetStart] = this[i + start];
+    }
+  } else {
+    Uint8Array.prototype.set.call(
+      target,
+      this.subarray(start, end),
+      targetStart
+    );
+  }
+
+  return len;
+};
+
+function isInstance(obj, type) {
+  return obj instanceof type ||
+    (obj != null &&
+      obj.constructor != null &&
+      obj.constructor.name != null &&
+      obj.constructor.name === type.name);
+}
+function numberIsNaN(obj) {
+  // For IE11 support
+  return obj !== obj; // eslint-disable-line no-self-compare
+}
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/** Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * 
+ */
+
+
+Object.defineProperty(exports, '__esModule', {value: true});
+exports.encodeAndAddWellKnownMetadata = (exports.encodeAndAddCustomMetadata = (exports.ExplicitMimeTimeEntry = (exports.WellKnownMimeTypeEntry = (exports.ReservedMimeTypeEntry = (exports.CompositeMetadata = (exports.MESSAGE_RSOCKET_COMPOSITE_METADATA = (exports.MESSAGE_RSOCKET_ROUTING = (exports.MESSAGE_RSOCKET_TRACING_ZIPKIN = (exports.APPLICATION_CLOUDEVENTS_JSON = (exports.APPLICATION_JAVA_OBJECT = (exports.APPLICATION_HESSIAN = (exports.VIDEO_VP8 = (exports.VIDEO_H265 = (exports.VIDEO_H264 = (exports.TEXT_XML = (exports.TEXT_PLAIN = (exports.TEXT_HTML = (exports.TEXT_CSV = (exports.TEXT_CSS = (exports.MULTIPART_MIXED = (exports.IMAGE_TIFF = (exports.IMAGE_PNG = (exports.IMAGE_JPEG = (exports.IMAGE_HEIF = (exports.IMAGE_HEIF_SEQUENCE = (exports.IMAGE_HEIC = (exports.IMAGE_HEIC_SEQUENCE = (exports.IMAGE_GIG = (exports.IMAGE_BMP = (exports.AUDIO_VORBIS = (exports.AUDIO_OPUS = (exports.AUDIO_OGG = (exports.AUDIO_MPEG = (exports.AUDIO_MPEG3 = (exports.AUDIO_MP4 = (exports.AUDIO_MP3 = (exports.AUDIO_AAC = (exports.APPLICATION_ZIP = (exports.APPLICATION_XML = (exports.APPLICATION_PROTOBUF = (exports.APPLICATION_THRIFT = (exports.APPLICATION_PDF = (exports.APPLICATION_OCTET_STREAM = (exports.APPLICATION_JSON = (exports.APPLICATION_JAVASCRIPT = (exports.APPLICATION_GZIP = (exports.APPLICATION_GRAPHQL = (exports.APPLICATION_CBOR = (exports.APPLICATION_AVRO = (exports.UNKNOWN_RESERVED_MIME_TYPE = (exports.UNPARSEABLE_MIME_TYPE = (exports.Lease = (exports.Leases = (exports.JsonSerializers = (exports.JsonSerializer = (exports.IdentitySerializers = (exports.IdentitySerializer = (exports.UTF8Encoder = (exports.Utf8Encoders = (exports.BufferEncoder = (exports.BufferEncoders = (exports.writeUInt24BE = (exports.toBuffer = (exports.readUInt24BE = (exports.createBuffer = (exports.byteLength = (exports.serializeFrameWithLength = (exports.serializeFrame = (exports.deserializeFrames = (exports.deserializeFrameWithLength = (exports.deserializeFrame = (exports.printFrame = (exports.isResumeEnable = (exports.isRespond = (exports.isNext = (exports.isMetadata = (exports.isLease = (exports.isIgnore = (exports.isComplete = (exports.getErrorCodeExplanation = (exports.createErrorFromFrame = (exports.MAX_VERSION = (exports.MAX_STREAM_ID = (exports.MAX_RESUME_LENGTH = (exports.MAX_MIME_LENGTH = (exports.MAX_LIFETIME = (exports.MAX_KEEPALIVE = (exports.MAX_CODE = (exports.FRAME_TYPES = (exports.FRAME_TYPE_OFFFSET = (exports.FLAGS = (exports.FLAGS_MASK = (exports.ERROR_EXPLANATIONS = (exports.ERROR_CODES = (exports.CONNECTION_STREAM_ID = (exports.WellKnownMimeType = (exports.RSocketResumableTransport = (exports.RSocketServer = (exports.RSocketClient = undefined)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+var _RSocketFrame = __webpack_require__(1);
+Object.defineProperty(exports, 'CONNECTION_STREAM_ID', {
+  enumerable: true,
+  get: function() {
+    return _RSocketFrame.CONNECTION_STREAM_ID;
+  },
+});
+Object.defineProperty(exports, 'ERROR_CODES', {
+  enumerable: true,
+  get: function() {
+    return _RSocketFrame.ERROR_CODES;
+  },
+});
+Object.defineProperty(exports, 'ERROR_EXPLANATIONS', {
+  enumerable: true,
+  get: function() {
+    return _RSocketFrame.ERROR_EXPLANATIONS;
+  },
+});
+Object.defineProperty(exports, 'FLAGS_MASK', {
+  enumerable: true,
+  get: function() {
+    return _RSocketFrame.FLAGS_MASK;
+  },
+});
+Object.defineProperty(exports, 'FLAGS', {
+  enumerable: true,
+  get: function() {
+    return _RSocketFrame.FLAGS;
+  },
+});
+Object.defineProperty(exports, 'FRAME_TYPE_OFFFSET', {
+  enumerable: true,
+  get: function() {
+    return _RSocketFrame.FRAME_TYPE_OFFFSET;
+  },
+});
+Object.defineProperty(exports, 'FRAME_TYPES', {
+  enumerable: true,
+  get: function() {
+    return _RSocketFrame.FRAME_TYPES;
+  },
+});
+Object.defineProperty(exports, 'MAX_CODE', {
+  enumerable: true,
+  get: function() {
+    return _RSocketFrame.MAX_CODE;
+  },
+});
+Object.defineProperty(exports, 'MAX_KEEPALIVE', {
+  enumerable: true,
+  get: function() {
+    return _RSocketFrame.MAX_KEEPALIVE;
+  },
+});
+Object.defineProperty(exports, 'MAX_LIFETIME', {
+  enumerable: true,
+  get: function() {
+    return _RSocketFrame.MAX_LIFETIME;
+  },
+});
+Object.defineProperty(exports, 'MAX_MIME_LENGTH', {
+  enumerable: true,
+  get: function() {
+    return _RSocketFrame.MAX_MIME_LENGTH;
+  },
+});
+Object.defineProperty(exports, 'MAX_RESUME_LENGTH', {
+  enumerable: true,
+  get: function() {
+    return _RSocketFrame.MAX_RESUME_LENGTH;
+  },
+});
+Object.defineProperty(exports, 'MAX_STREAM_ID', {
+  enumerable: true,
+  get: function() {
+    return _RSocketFrame.MAX_STREAM_ID;
+  },
+});
+Object.defineProperty(exports, 'MAX_VERSION', {
+  enumerable: true,
+  get: function() {
+    return _RSocketFrame.MAX_VERSION;
+  },
+});
+Object.defineProperty(exports, 'createErrorFromFrame', {
+  enumerable: true,
+  get: function() {
+    return _RSocketFrame.createErrorFromFrame;
+  },
+});
+Object.defineProperty(exports, 'getErrorCodeExplanation', {
+  enumerable: true,
+  get: function() {
+    return _RSocketFrame.getErrorCodeExplanation;
+  },
+});
+Object.defineProperty(exports, 'isComplete', {
+  enumerable: true,
+  get: function() {
+    return _RSocketFrame.isComplete;
+  },
+});
+Object.defineProperty(exports, 'isIgnore', {
+  enumerable: true,
+  get: function() {
+    return _RSocketFrame.isIgnore;
+  },
+});
+Object.defineProperty(exports, 'isLease', {
+  enumerable: true,
+  get: function() {
+    return _RSocketFrame.isLease;
+  },
+});
+Object.defineProperty(exports, 'isMetadata', {
+  enumerable: true,
+  get: function() {
+    return _RSocketFrame.isMetadata;
+  },
+});
+Object.defineProperty(exports, 'isNext', {
+  enumerable: true,
+  get: function() {
+    return _RSocketFrame.isNext;
+  },
+});
+Object.defineProperty(exports, 'isRespond', {
+  enumerable: true,
+  get: function() {
+    return _RSocketFrame.isRespond;
+  },
+});
+Object.defineProperty(exports, 'isResumeEnable', {
+  enumerable: true,
+  get: function() {
+    return _RSocketFrame.isResumeEnable;
+  },
+});
+Object.defineProperty(exports, 'printFrame', {
+  enumerable: true,
+  get: function() {
+    return _RSocketFrame.printFrame;
+  },
+});
+var _RSocketBinaryFraming = __webpack_require__(10);
+Object.defineProperty(exports, 'deserializeFrame', {
+  enumerable: true,
+  get: function() {
+    return _RSocketBinaryFraming.deserializeFrame;
+  },
+});
+Object.defineProperty(exports, 'deserializeFrameWithLength', {
+  enumerable: true,
+  get: function() {
+    return _RSocketBinaryFraming.deserializeFrameWithLength;
+  },
+});
+Object.defineProperty(exports, 'deserializeFrames', {
+  enumerable: true,
+  get: function() {
+    return _RSocketBinaryFraming.deserializeFrames;
+  },
+});
+Object.defineProperty(exports, 'serializeFrame', {
+  enumerable: true,
+  get: function() {
+    return _RSocketBinaryFraming.serializeFrame;
+  },
+});
+Object.defineProperty(exports, 'serializeFrameWithLength', {
+  enumerable: true,
+  get: function() {
+    return _RSocketBinaryFraming.serializeFrameWithLength;
+  },
+});
+var _RSocketBufferUtils = __webpack_require__(3);
+Object.defineProperty(exports, 'byteLength', {
+  enumerable: true,
+  get: function() {
+    return _RSocketBufferUtils.byteLength;
+  },
+});
+Object.defineProperty(exports, 'createBuffer', {
+  enumerable: true,
+  get: function() {
+    return _RSocketBufferUtils.createBuffer;
+  },
+});
+Object.defineProperty(exports, 'readUInt24BE', {
+  enumerable: true,
+  get: function() {
+    return _RSocketBufferUtils.readUInt24BE;
+  },
+});
+Object.defineProperty(exports, 'toBuffer', {
+  enumerable: true,
+  get: function() {
+    return _RSocketBufferUtils.toBuffer;
+  },
+});
+Object.defineProperty(exports, 'writeUInt24BE', {
+  enumerable: true,
+  get: function() {
+    return _RSocketBufferUtils.writeUInt24BE;
+  },
+});
+var _RSocketEncoding = __webpack_require__(12);
+Object.defineProperty(exports, 'BufferEncoders', {
+  enumerable: true,
+  get: function() {
+    return _RSocketEncoding.BufferEncoders;
+  },
+});
+Object.defineProperty(exports, 'BufferEncoder', {
+  enumerable: true,
+  get: function() {
+    return _RSocketEncoding.BufferEncoder;
+  },
+});
+Object.defineProperty(exports, 'Utf8Encoders', {
+  enumerable: true,
+  get: function() {
+    return _RSocketEncoding.Utf8Encoders;
+  },
+});
+Object.defineProperty(exports, 'UTF8Encoder', {
+  enumerable: true,
+  get: function() {
+    return _RSocketEncoding.UTF8Encoder;
+  },
+});
+var _RSocketSerialization = __webpack_require__(4);
+Object.defineProperty(exports, 'IdentitySerializer', {
+  enumerable: true,
+  get: function() {
+    return _RSocketSerialization.IdentitySerializer;
+  },
+});
+Object.defineProperty(exports, 'IdentitySerializers', {
+  enumerable: true,
+  get: function() {
+    return _RSocketSerialization.IdentitySerializers;
+  },
+});
+Object.defineProperty(exports, 'JsonSerializer', {
+  enumerable: true,
+  get: function() {
+    return _RSocketSerialization.JsonSerializer;
+  },
+});
+Object.defineProperty(exports, 'JsonSerializers', {
+  enumerable: true,
+  get: function() {
+    return _RSocketSerialization.JsonSerializers;
+  },
+});
+var _RSocketLease = __webpack_require__(5);
+Object.defineProperty(exports, 'Leases', {
+  enumerable: true,
+  get: function() {
+    return _RSocketLease.Leases;
+  },
+});
+Object.defineProperty(exports, 'Lease', {
+  enumerable: true,
+  get: function() {
+    return _RSocketLease.Lease;
+  },
+});
+var _WellKnownMimeType = __webpack_require__(16);
+Object.defineProperty(exports, 'UNPARSEABLE_MIME_TYPE', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.UNPARSEABLE_MIME_TYPE;
+  },
+});
+Object.defineProperty(exports, 'UNKNOWN_RESERVED_MIME_TYPE', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.UNKNOWN_RESERVED_MIME_TYPE;
+  },
+});
+Object.defineProperty(exports, 'APPLICATION_AVRO', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.APPLICATION_AVRO;
+  },
+});
+Object.defineProperty(exports, 'APPLICATION_CBOR', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.APPLICATION_CBOR;
+  },
+});
+Object.defineProperty(exports, 'APPLICATION_GRAPHQL', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.APPLICATION_GRAPHQL;
+  },
+});
+Object.defineProperty(exports, 'APPLICATION_GZIP', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.APPLICATION_GZIP;
+  },
+});
+Object.defineProperty(exports, 'APPLICATION_JAVASCRIPT', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.APPLICATION_JAVASCRIPT;
+  },
+});
+Object.defineProperty(exports, 'APPLICATION_JSON', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.APPLICATION_JSON;
+  },
+});
+Object.defineProperty(exports, 'APPLICATION_OCTET_STREAM', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.APPLICATION_OCTET_STREAM;
+  },
+});
+Object.defineProperty(exports, 'APPLICATION_PDF', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.APPLICATION_PDF;
+  },
+});
+Object.defineProperty(exports, 'APPLICATION_THRIFT', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.APPLICATION_THRIFT;
+  },
+});
+Object.defineProperty(exports, 'APPLICATION_PROTOBUF', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.APPLICATION_PROTOBUF;
+  },
+});
+Object.defineProperty(exports, 'APPLICATION_XML', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.APPLICATION_XML;
+  },
+});
+Object.defineProperty(exports, 'APPLICATION_ZIP', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.APPLICATION_ZIP;
+  },
+});
+Object.defineProperty(exports, 'AUDIO_AAC', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.AUDIO_AAC;
+  },
+});
+Object.defineProperty(exports, 'AUDIO_MP3', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.AUDIO_MP3;
+  },
+});
+Object.defineProperty(exports, 'AUDIO_MP4', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.AUDIO_MP4;
+  },
+});
+Object.defineProperty(exports, 'AUDIO_MPEG3', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.AUDIO_MPEG3;
+  },
+});
+Object.defineProperty(exports, 'AUDIO_MPEG', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.AUDIO_MPEG;
+  },
+});
+Object.defineProperty(exports, 'AUDIO_OGG', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.AUDIO_OGG;
+  },
+});
+Object.defineProperty(exports, 'AUDIO_OPUS', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.AUDIO_OPUS;
+  },
+});
+Object.defineProperty(exports, 'AUDIO_VORBIS', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.AUDIO_VORBIS;
+  },
+});
+Object.defineProperty(exports, 'IMAGE_BMP', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.IMAGE_BMP;
+  },
+});
+Object.defineProperty(exports, 'IMAGE_GIG', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.IMAGE_GIG;
+  },
+});
+Object.defineProperty(exports, 'IMAGE_HEIC_SEQUENCE', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.IMAGE_HEIC_SEQUENCE;
+  },
+});
+Object.defineProperty(exports, 'IMAGE_HEIC', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.IMAGE_HEIC;
+  },
+});
+Object.defineProperty(exports, 'IMAGE_HEIF_SEQUENCE', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.IMAGE_HEIF_SEQUENCE;
+  },
+});
+Object.defineProperty(exports, 'IMAGE_HEIF', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.IMAGE_HEIF;
+  },
+});
+Object.defineProperty(exports, 'IMAGE_JPEG', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.IMAGE_JPEG;
+  },
+});
+Object.defineProperty(exports, 'IMAGE_PNG', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.IMAGE_PNG;
+  },
+});
+Object.defineProperty(exports, 'IMAGE_TIFF', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.IMAGE_TIFF;
+  },
+});
+Object.defineProperty(exports, 'MULTIPART_MIXED', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.MULTIPART_MIXED;
+  },
+});
+Object.defineProperty(exports, 'TEXT_CSS', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.TEXT_CSS;
+  },
+});
+Object.defineProperty(exports, 'TEXT_CSV', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.TEXT_CSV;
+  },
+});
+Object.defineProperty(exports, 'TEXT_HTML', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.TEXT_HTML;
+  },
+});
+Object.defineProperty(exports, 'TEXT_PLAIN', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.TEXT_PLAIN;
+  },
+});
+Object.defineProperty(exports, 'TEXT_XML', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.TEXT_XML;
+  },
+});
+Object.defineProperty(exports, 'VIDEO_H264', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.VIDEO_H264;
+  },
+});
+Object.defineProperty(exports, 'VIDEO_H265', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.VIDEO_H265;
+  },
+});
+Object.defineProperty(exports, 'VIDEO_VP8', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.VIDEO_VP8;
+  },
+});
+Object.defineProperty(exports, 'APPLICATION_HESSIAN', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.APPLICATION_HESSIAN;
+  },
+});
+Object.defineProperty(exports, 'APPLICATION_JAVA_OBJECT', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.APPLICATION_JAVA_OBJECT;
+  },
+});
+Object.defineProperty(exports, 'APPLICATION_CLOUDEVENTS_JSON', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.APPLICATION_CLOUDEVENTS_JSON;
+  },
+});
+Object.defineProperty(exports, 'MESSAGE_RSOCKET_TRACING_ZIPKIN', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.MESSAGE_RSOCKET_TRACING_ZIPKIN;
+  },
+});
+Object.defineProperty(exports, 'MESSAGE_RSOCKET_ROUTING', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.MESSAGE_RSOCKET_ROUTING;
+  },
+});
+Object.defineProperty(exports, 'MESSAGE_RSOCKET_COMPOSITE_METADATA', {
+  enumerable: true,
+  get: function() {
+    return _WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA;
+  },
+});
+var _CompositeMetadata = __webpack_require__(31);
+Object.defineProperty(exports, 'CompositeMetadata', {
+  enumerable: true,
+  get: function() {
+    return _CompositeMetadata.CompositeMetadata;
+  },
+});
+Object.defineProperty(exports, 'ReservedMimeTypeEntry', {
+  enumerable: true,
+  get: function() {
+    return _CompositeMetadata.ReservedMimeTypeEntry;
+  },
+});
+Object.defineProperty(exports, 'WellKnownMimeTypeEntry', {
+  enumerable: true,
+  get: function() {
+    return _CompositeMetadata.WellKnownMimeTypeEntry;
+  },
+});
+Object.defineProperty(exports, 'ExplicitMimeTimeEntry', {
+  enumerable: true,
+  get: function() {
+    return _CompositeMetadata.ExplicitMimeTimeEntry;
+  },
+});
+Object.defineProperty(exports, 'encodeAndAddCustomMetadata', {
+  enumerable: true,
+  get: function() {
+    return _CompositeMetadata.encodeAndAddCustomMetadata;
+  },
+});
+Object.defineProperty(exports, 'encodeAndAddWellKnownMetadata', {
+  enumerable: true,
+  get: function() {
+    return _CompositeMetadata.encodeAndAddWellKnownMetadata;
+  },
+});
+var _RSocketClient = __webpack_require__(32);
+var _RSocketClient2 = _interopRequireDefault(_RSocketClient);
+var _RSocketServer = __webpack_require__(34);
+var _RSocketServer2 = _interopRequireDefault(_RSocketServer);
+var _RSocketResumableTransport = __webpack_require__(35);
+var _RSocketResumableTransport2 = _interopRequireDefault(
+  _RSocketResumableTransport
+);
+var _WellKnownMimeType2 = _interopRequireDefault(_WellKnownMimeType);
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : {default: obj};
+}
+exports.RSocketClient = _RSocketClient2.default;
+exports.RSocketServer = _RSocketServer2.default;
+exports.RSocketResumableTransport = _RSocketResumableTransport2.default;
+exports.WellKnownMimeType = _WellKnownMimeType2.default;
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/** Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * 
+ */
+
+
+
+/* eslint-disable consistent-return, no-bitwise */ Object.defineProperty(
+  exports,
+  '__esModule',
+  {value: true}
+);
+exports.deserializeFrameWithLength = deserializeFrameWithLength;
+exports.deserializeFrames = deserializeFrames;
+exports.serializeFrameWithLength = serializeFrameWithLength;
+exports.deserializeFrame = deserializeFrame;
+exports.serializeFrame = serializeFrame;
+exports.sizeOfFrame = sizeOfFrame;
+var _invariant = __webpack_require__(0);
+var _invariant2 = _interopRequireDefault(_invariant);
+var _RSocketFrame = __webpack_require__(1);
+var _RSocketEncoding = __webpack_require__(12);
+var _RSocketBufferUtils = __webpack_require__(3);
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : {default: obj};
+}
+/**
+                                                                                                                                                                                                                                                                                                                                                                                         * Frame header is:
+                                                                                                                                                                                                                                                                                                                                                                                         * - stream id (uint32 = 4)
+                                                                                                                                                                                                                                                                                                                                                                                         * - type + flags (uint 16 = 2)
+                                                                                                                                                                                                                                                                                                                                                                                         */ const FRAME_HEADER_SIZE = 6;
+/**
+                                                                                                                                                                                                                                                                                                                                                                                                                         * Size of frame length and metadata length fields.
+                                                                                                                                                                                                                                                                                                                                                                                                                         */ const UINT24_SIZE = 3;
+/**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                   * Reads a frame from a buffer that is prefixed with the frame length.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                   */ function deserializeFrameWithLength(
+  buffer,
+  encoders
+) {
+  const frameLength = (0, _RSocketBufferUtils.readUInt24BE)(buffer, 0);
+  return deserializeFrame(
+    buffer.slice(UINT24_SIZE, UINT24_SIZE + frameLength),
+    encoders
+  );
+}
+/**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            * Given a buffer that may contain zero or more length-prefixed frames followed
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            * by zero or more bytes of a (partial) subsequent frame, returns an array of
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            * the frames and a buffer of the leftover bytes.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            */ function deserializeFrames(
+  buffer,
+  encoders
+) {
+  const frames = [];
+  let offset = 0;
+  while (offset + UINT24_SIZE < buffer.length) {
+    const frameLength = (0, _RSocketBufferUtils.readUInt24BE)(buffer, offset);
+    const frameStart = offset + UINT24_SIZE;
+    const frameEnd = frameStart + frameLength;
+    if (frameEnd > buffer.length) {
+      // not all bytes of next frame received
+      break;
+    }
+    const frameBuffer = buffer.slice(frameStart, frameEnd);
+    const frame = deserializeFrame(frameBuffer, encoders);
+    frames.push(frame);
+    offset = frameEnd;
+  }
+  return [frames, buffer.slice(offset, buffer.length)];
+}
+/**
+                                                                                                                                                                                                                        * Writes a frame to a buffer with a length prefix.
+                                                                                                                                                                                                                        */ function serializeFrameWithLength(
+  frame,
+  encoders
+) {
+  const buffer = serializeFrame(frame, encoders);
+  const lengthPrefixed = (0, _RSocketBufferUtils.createBuffer)(
+    buffer.length + UINT24_SIZE
+  );
+  (0, _RSocketBufferUtils.writeUInt24BE)(lengthPrefixed, buffer.length, 0);
+  buffer.copy(lengthPrefixed, UINT24_SIZE, 0, buffer.length);
+  return lengthPrefixed;
+}
+/**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    * Read a frame from the buffer.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    */ function deserializeFrame(
+  buffer,
+  encoders
+) {
+  encoders = encoders || _RSocketEncoding.Utf8Encoders;
+  let offset = 0;
+  const streamId = buffer.readInt32BE(offset);
+  offset += 4;
+  (0, _invariant2.default)(
+    streamId >= 0,
+    'RSocketBinaryFraming: Invalid frame, expected a positive stream id, got `%s.',
+    streamId
+  );
+  const typeAndFlags = buffer.readUInt16BE(offset);
+  offset += 2;
+  const type = typeAndFlags >>> _RSocketFrame.FRAME_TYPE_OFFFSET; // keep highest 6 bits
+  const flags = typeAndFlags & _RSocketFrame.FLAGS_MASK; // keep lowest 10 bits
+  switch (type) {
+    case _RSocketFrame.FRAME_TYPES.SETUP:
+      return deserializeSetupFrame(buffer, streamId, flags, encoders);
+    case _RSocketFrame.FRAME_TYPES.PAYLOAD:
+      return deserializePayloadFrame(buffer, streamId, flags, encoders);
+    case _RSocketFrame.FRAME_TYPES.ERROR:
+      return deserializeErrorFrame(buffer, streamId, flags, encoders);
+    case _RSocketFrame.FRAME_TYPES.KEEPALIVE:
+      return deserializeKeepAliveFrame(buffer, streamId, flags, encoders);
+    case _RSocketFrame.FRAME_TYPES.REQUEST_FNF:
+      return deserializeRequestFnfFrame(buffer, streamId, flags, encoders);
+    case _RSocketFrame.FRAME_TYPES.REQUEST_RESPONSE:
+      return deserializeRequestResponseFrame(buffer, streamId, flags, encoders);
+    case _RSocketFrame.FRAME_TYPES.REQUEST_STREAM:
+      return deserializeRequestStreamFrame(buffer, streamId, flags, encoders);
+    case _RSocketFrame.FRAME_TYPES.REQUEST_CHANNEL:
+      return deserializeRequestChannelFrame(buffer, streamId, flags, encoders);
+    case _RSocketFrame.FRAME_TYPES.REQUEST_N:
+      return deserializeRequestNFrame(buffer, streamId, flags, encoders);
+    case _RSocketFrame.FRAME_TYPES.RESUME:
+      return deserializeResumeFrame(buffer, streamId, flags, encoders);
+    case _RSocketFrame.FRAME_TYPES.RESUME_OK:
+      return deserializeResumeOkFrame(buffer, streamId, flags, encoders);
+    case _RSocketFrame.FRAME_TYPES.CANCEL:
+      return deserializeCancelFrame(buffer, streamId, flags, encoders);
+    case _RSocketFrame.FRAME_TYPES.LEASE:
+      return deserializeLeaseFrame(buffer, streamId, flags, encoders);
+    default:
+      (0, _invariant2.default)(
+        false,
+        'RSocketBinaryFraming: Unsupported frame type `%s`.',
+        (0, _RSocketFrame.getFrameTypeName)(type)
+      );
+  }
+}
+/**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 * Convert the frame to a (binary) buffer.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 */ function serializeFrame(
+  frame,
+  encoders
+) {
+  encoders = encoders || _RSocketEncoding.Utf8Encoders;
+  switch (frame.type) {
+    case _RSocketFrame.FRAME_TYPES.SETUP:
+      return serializeSetupFrame(frame, encoders);
+    case _RSocketFrame.FRAME_TYPES.PAYLOAD:
+      return serializePayloadFrame(frame, encoders);
+    case _RSocketFrame.FRAME_TYPES.ERROR:
+      return serializeErrorFrame(frame, encoders);
+    case _RSocketFrame.FRAME_TYPES.KEEPALIVE:
+      return serializeKeepAliveFrame(frame, encoders);
+    case _RSocketFrame.FRAME_TYPES.REQUEST_FNF:
+    case _RSocketFrame.FRAME_TYPES.REQUEST_RESPONSE:
+      return serializeRequestFrame(frame, encoders);
+    case _RSocketFrame.FRAME_TYPES.REQUEST_STREAM:
+    case _RSocketFrame.FRAME_TYPES.REQUEST_CHANNEL:
+      return serializeRequestManyFrame(frame, encoders);
+    case _RSocketFrame.FRAME_TYPES.REQUEST_N:
+      return serializeRequestNFrame(frame, encoders);
+    case _RSocketFrame.FRAME_TYPES.RESUME:
+      return serializeResumeFrame(frame, encoders);
+    case _RSocketFrame.FRAME_TYPES.RESUME_OK:
+      return serializeResumeOkFrame(frame, encoders);
+    case _RSocketFrame.FRAME_TYPES.CANCEL:
+      return serializeCancelFrame(frame, encoders);
+    case _RSocketFrame.FRAME_TYPES.LEASE:
+      return serializeLeaseFrame(frame, encoders);
+    default:
+      (0, _invariant2.default)(
+        false,
+        'RSocketBinaryFraming: Unsupported frame type `%s`.',
+        (0, _RSocketFrame.getFrameTypeName)(frame.type)
+      );
+  }
+}
+/**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         * Byte size of frame without size prefix
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         */ function sizeOfFrame(
+  frame,
+  encoders
+) {
+  encoders = encoders || _RSocketEncoding.Utf8Encoders;
+  switch (frame.type) {
+    case _RSocketFrame.FRAME_TYPES.SETUP:
+      return sizeOfSetupFrame(frame, encoders);
+    case _RSocketFrame.FRAME_TYPES.PAYLOAD:
+      return sizeOfPayloadFrame(frame, encoders);
+    case _RSocketFrame.FRAME_TYPES.ERROR:
+      return sizeOfErrorFrame(frame, encoders);
+    case _RSocketFrame.FRAME_TYPES.KEEPALIVE:
+      return sizeOfKeepAliveFrame(frame, encoders);
+    case _RSocketFrame.FRAME_TYPES.REQUEST_FNF:
+    case _RSocketFrame.FRAME_TYPES.REQUEST_RESPONSE:
+      return sizeOfRequestFrame(frame, encoders);
+    case _RSocketFrame.FRAME_TYPES.REQUEST_STREAM:
+    case _RSocketFrame.FRAME_TYPES.REQUEST_CHANNEL:
+      return sizeOfRequestManyFrame(frame, encoders);
+    case _RSocketFrame.FRAME_TYPES.REQUEST_N:
+      return sizeOfRequestNFrame(frame, encoders);
+    case _RSocketFrame.FRAME_TYPES.RESUME:
+      return sizeOfResumeFrame(frame, encoders);
+    case _RSocketFrame.FRAME_TYPES.RESUME_OK:
+      return sizeOfResumeOkFrame(frame, encoders);
+    case _RSocketFrame.FRAME_TYPES.CANCEL:
+      return sizeOfCancelFrame(frame, encoders);
+    case _RSocketFrame.FRAME_TYPES.LEASE:
+      return sizeOfLeaseFrame(frame, encoders);
+    default:
+      (0, _invariant2.default)(
+        false,
+        'RSocketBinaryFraming: Unsupported frame type `%s`.',
+        (0, _RSocketFrame.getFrameTypeName)(frame.type)
+      );
+  }
+}
+
+/**
+   * Writes a SETUP frame into a new buffer and returns it.
+   *
+   * Prefix size is:
+   * - version (2x uint16 = 4)
+   * - keepalive (uint32 = 4)
+   * - lifetime (uint32 = 4)
+   * - mime lengths (2x uint8 = 2)
+   */
+const SETUP_FIXED_SIZE = 14;
+const RESUME_TOKEN_LENGTH_SIZE = 2;
+function serializeSetupFrame(frame, encoders) {
+  const resumeTokenLength = frame.resumeToken != null
+    ? encoders.resumeToken.byteLength(frame.resumeToken)
+    : 0;
+  const metadataMimeTypeLength = frame.metadataMimeType != null
+    ? encoders.metadataMimeType.byteLength(frame.metadataMimeType)
+    : 0;
+  const dataMimeTypeLength = frame.dataMimeType != null
+    ? encoders.dataMimeType.byteLength(frame.dataMimeType)
+    : 0;
+  const payloadLength = getPayloadLength(frame, encoders);
+  const buffer = (0, _RSocketBufferUtils.createBuffer)(
+    FRAME_HEADER_SIZE +
+      SETUP_FIXED_SIZE + //
+      (resumeTokenLength ? RESUME_TOKEN_LENGTH_SIZE + resumeTokenLength : 0) +
+      metadataMimeTypeLength +
+      dataMimeTypeLength +
+      payloadLength
+  );
+
+  let offset = writeHeader(frame, buffer);
+  offset = buffer.writeUInt16BE(frame.majorVersion, offset);
+  offset = buffer.writeUInt16BE(frame.minorVersion, offset);
+  offset = buffer.writeUInt32BE(frame.keepAlive, offset);
+  offset = buffer.writeUInt32BE(frame.lifetime, offset);
+
+  if (frame.flags & _RSocketFrame.FLAGS.RESUME_ENABLE) {
+    offset = buffer.writeUInt16BE(resumeTokenLength, offset);
+    if (frame.resumeToken != null) {
+      offset = encoders.resumeToken.encode(
+        frame.resumeToken,
+        buffer,
+        offset,
+        offset + resumeTokenLength
+      );
+    }
+  }
+
+  offset = buffer.writeUInt8(metadataMimeTypeLength, offset);
+  if (frame.metadataMimeType != null) {
+    offset = encoders.metadataMimeType.encode(
+      frame.metadataMimeType,
+      buffer,
+      offset,
+      offset + metadataMimeTypeLength
+    );
+  }
+
+  offset = buffer.writeUInt8(dataMimeTypeLength, offset);
+  if (frame.dataMimeType != null) {
+    offset = encoders.dataMimeType.encode(
+      frame.dataMimeType,
+      buffer,
+      offset,
+      offset + dataMimeTypeLength
+    );
+  }
+
+  writePayload(frame, buffer, encoders, offset);
+  return buffer;
+}
+
+function sizeOfSetupFrame(frame, encoders) {
+  const resumeTokenLength = frame.resumeToken != null
+    ? encoders.resumeToken.byteLength(frame.resumeToken)
+    : 0;
+  const metadataMimeTypeLength = frame.metadataMimeType != null
+    ? encoders.metadataMimeType.byteLength(frame.metadataMimeType)
+    : 0;
+  const dataMimeTypeLength = frame.dataMimeType != null
+    ? encoders.dataMimeType.byteLength(frame.dataMimeType)
+    : 0;
+  const payloadLength = getPayloadLength(frame, encoders);
+  return FRAME_HEADER_SIZE +
+    SETUP_FIXED_SIZE + //
+    (resumeTokenLength ? RESUME_TOKEN_LENGTH_SIZE + resumeTokenLength : 0) +
+    metadataMimeTypeLength +
+    dataMimeTypeLength +
+    payloadLength;
+}
+
+/**
+   * Reads a SETUP frame from the buffer and returns it.
+   */
+function deserializeSetupFrame(buffer, streamId, flags, encoders) {
+  (0, _invariant2.default)(
+    streamId === 0,
+    'RSocketBinaryFraming: Invalid SETUP frame, expected stream id to be 0.'
+  );
+
+  const length = buffer.length;
+  let offset = FRAME_HEADER_SIZE;
+  const majorVersion = buffer.readUInt16BE(offset);
+  offset += 2;
+  const minorVersion = buffer.readUInt16BE(offset);
+  offset += 2;
+
+  const keepAlive = buffer.readInt32BE(offset);
+  offset += 4;
+  (0, _invariant2.default)(
+    keepAlive >= 0 && keepAlive <= _RSocketFrame.MAX_KEEPALIVE,
+    'RSocketBinaryFraming: Invalid SETUP frame, expected keepAlive to be ' +
+      '>= 0 and <= %s. Got `%s`.',
+    _RSocketFrame.MAX_KEEPALIVE,
+    keepAlive
+  );
+
+  const lifetime = buffer.readInt32BE(offset);
+  offset += 4;
+  (0, _invariant2.default)(
+    lifetime >= 0 && lifetime <= _RSocketFrame.MAX_LIFETIME,
+    'RSocketBinaryFraming: Invalid SETUP frame, expected lifetime to be ' +
+      '>= 0 and <= %s. Got `%s`.',
+    _RSocketFrame.MAX_LIFETIME,
+    lifetime
+  );
+
+  let resumeToken = null;
+  if (flags & _RSocketFrame.FLAGS.RESUME_ENABLE) {
+    const resumeTokenLength = buffer.readInt16BE(offset);
+    offset += 2;
+    (0, _invariant2.default)(
+      resumeTokenLength >= 0 &&
+        resumeTokenLength <= _RSocketFrame.MAX_RESUME_LENGTH,
+      'RSocketBinaryFraming: Invalid SETUP frame, expected resumeToken length ' +
+        'to be >= 0 and <= %s. Got `%s`.',
+      _RSocketFrame.MAX_RESUME_LENGTH,
+      resumeTokenLength
+    );
+
+    resumeToken = encoders.resumeToken.decode(
+      buffer,
+      offset,
+      offset + resumeTokenLength
+    );
+
+    offset += resumeTokenLength;
+  }
+
+  const metadataMimeTypeLength = buffer.readUInt8(offset);
+  offset += 1;
+  const metadataMimeType = encoders.metadataMimeType.decode(
+    buffer,
+    offset,
+    offset + metadataMimeTypeLength
+  );
+
+  offset += metadataMimeTypeLength;
+
+  const dataMimeTypeLength = buffer.readUInt8(offset);
+  offset += 1;
+  const dataMimeType = encoders.dataMimeType.decode(
+    buffer,
+    offset,
+    offset + dataMimeTypeLength
+  );
+
+  offset += dataMimeTypeLength;
+
+  const frame = {
+    data: null,
+    dataMimeType,
+    flags,
+    keepAlive,
+    length,
+    lifetime,
+    majorVersion,
+    metadata: null,
+    metadataMimeType,
+    minorVersion,
+    resumeToken,
+    streamId,
+    type: _RSocketFrame.FRAME_TYPES.SETUP,
+  };
+
+  readPayload(buffer, frame, encoders, offset);
+  return frame;
+}
+
+/**
+   * Writes an ERROR frame into a new buffer and returns it.
+   *
+   * Prefix size is for the error code (uint32 = 4).
+   */
+const ERROR_FIXED_SIZE = 4;
+function serializeErrorFrame(frame, encoders) {
+  const messageLength = frame.message != null
+    ? encoders.message.byteLength(frame.message)
+    : 0;
+  const buffer = (0, _RSocketBufferUtils.createBuffer)(
+    FRAME_HEADER_SIZE + ERROR_FIXED_SIZE + messageLength
+  );
+
+  let offset = writeHeader(frame, buffer);
+  offset = buffer.writeUInt32BE(frame.code, offset);
+  if (frame.message != null) {
+    encoders.message.encode(
+      frame.message,
+      buffer,
+      offset,
+      offset + messageLength
+    );
+  }
+  return buffer;
+}
+
+function sizeOfErrorFrame(frame, encoders) {
+  const messageLength = frame.message != null
+    ? encoders.message.byteLength(frame.message)
+    : 0;
+  return FRAME_HEADER_SIZE + ERROR_FIXED_SIZE + messageLength;
+}
+
+/**
+   * Reads an ERROR frame from the buffer and returns it.
+   */
+function deserializeErrorFrame(buffer, streamId, flags, encoders) {
+  const length = buffer.length;
+  let offset = FRAME_HEADER_SIZE;
+  const code = buffer.readInt32BE(offset);
+  offset += 4;
+  (0, _invariant2.default)(
+    code >= 0 && code <= _RSocketFrame.MAX_CODE,
+    'RSocketBinaryFraming: Invalid ERROR frame, expected code to be >= 0 and <= %s. Got `%s`.',
+    _RSocketFrame.MAX_CODE,
+    code
+  );
+
+  const messageLength = buffer.length - offset;
+  let message = '';
+  if (messageLength > 0) {
+    message = encoders.message.decode(buffer, offset, offset + messageLength);
+    offset += messageLength;
+  }
+
+  return {
+    code,
+    flags,
+    length,
+    message,
+    streamId,
+    type: _RSocketFrame.FRAME_TYPES.ERROR,
+  };
+}
+
+/**
+   * Writes a KEEPALIVE frame into a new buffer and returns it.
+   *
+   * Prefix size is for the last received position (uint64 = 8).
+   */
+const KEEPALIVE_FIXED_SIZE = 8;
+function serializeKeepAliveFrame(frame, encoders) {
+  const dataLength = frame.data != null
+    ? encoders.data.byteLength(frame.data)
+    : 0;
+  const buffer = (0, _RSocketBufferUtils.createBuffer)(
+    FRAME_HEADER_SIZE + KEEPALIVE_FIXED_SIZE + dataLength
+  );
+
+  let offset = writeHeader(frame, buffer);
+  offset = (0, _RSocketBufferUtils.writeUInt64BE)(
+    buffer,
+    frame.lastReceivedPosition,
+    offset
+  );
+  if (frame.data != null) {
+    encoders.data.encode(frame.data, buffer, offset, offset + dataLength);
+  }
+  return buffer;
+}
+
+function sizeOfKeepAliveFrame(frame, encoders) {
+  const dataLength = frame.data != null
+    ? encoders.data.byteLength(frame.data)
+    : 0;
+  return FRAME_HEADER_SIZE + KEEPALIVE_FIXED_SIZE + dataLength;
+}
+
+/**
+   * Reads a KEEPALIVE frame from the buffer and returns it.
+   */
+function deserializeKeepAliveFrame(buffer, streamId, flags, encoders) {
+  (0, _invariant2.default)(
+    streamId === 0,
+    'RSocketBinaryFraming: Invalid KEEPALIVE frame, expected stream id to be 0.'
+  );
+
+  const length = buffer.length;
+  let offset = FRAME_HEADER_SIZE;
+  const lastReceivedPosition = (0, _RSocketBufferUtils.readUInt64BE)(
+    buffer,
+    offset
+  );
+  offset += 8;
+  let data = null;
+  if (offset < buffer.length) {
+    data = encoders.data.decode(buffer, offset, buffer.length);
+  }
+
+  return {
+    data,
+    flags,
+    lastReceivedPosition,
+    length,
+    streamId,
+    type: _RSocketFrame.FRAME_TYPES.KEEPALIVE,
+  };
+}
+
+/**
+   * Writes a LEASE frame into a new buffer and returns it.
+   *
+   * Prefix size is for the ttl (uint32) and requestcount (uint32).
+   */
+const LEASE_FIXED_SIZE = 8;
+function serializeLeaseFrame(frame, encoders) {
+  const metaLength = frame.metadata != null
+    ? encoders.metadata.byteLength(frame.metadata)
+    : 0;
+  const buffer = (0, _RSocketBufferUtils.createBuffer)(
+    FRAME_HEADER_SIZE + LEASE_FIXED_SIZE + metaLength
+  );
+
+  let offset = writeHeader(frame, buffer);
+  offset = buffer.writeUInt32BE(frame.ttl, offset);
+  offset = buffer.writeUInt32BE(frame.requestCount, offset);
+  if (frame.metadata != null) {
+    encoders.metadata.encode(
+      frame.metadata,
+      buffer,
+      offset,
+      offset + metaLength
+    );
+  }
+  return buffer;
+}
+
+function sizeOfLeaseFrame(frame, encoders) {
+  const metaLength = frame.metadata != null
+    ? encoders.metadata.byteLength(frame.metadata)
+    : 0;
+  return FRAME_HEADER_SIZE + LEASE_FIXED_SIZE + metaLength;
+}
+
+/**
+   * Reads a LEASE frame from the buffer and returns it.
+   */
+function deserializeLeaseFrame(buffer, streamId, flags, encoders) {
+  (0, _invariant2.default)(
+    streamId === 0,
+    'RSocketBinaryFraming: Invalid LEASE frame, expected stream id to be 0.'
+  );
+
+  const length = buffer.length;
+  let offset = FRAME_HEADER_SIZE;
+  const ttl = buffer.readUInt32BE(offset);
+  offset += 4;
+  const requestCount = buffer.readUInt32BE(offset);
+  offset += 4;
+  let metadata = null;
+  if (offset < buffer.length) {
+    metadata = encoders.metadata.decode(buffer, offset, buffer.length);
+  }
+  return {
+    flags,
+    length,
+    metadata,
+    requestCount,
+    streamId,
+    ttl,
+    type: _RSocketFrame.FRAME_TYPES.LEASE,
+  };
+}
+
+/**
+   * Writes a REQUEST_FNF or REQUEST_RESPONSE frame to a new buffer and returns
+   * it.
+   *
+   * Note that these frames have the same shape and only differ in their type.
+   */
+function serializeRequestFrame(frame, encoders) {
+  const payloadLength = getPayloadLength(frame, encoders);
+  const buffer = (0, _RSocketBufferUtils.createBuffer)(
+    FRAME_HEADER_SIZE + payloadLength
+  );
+  const offset = writeHeader(frame, buffer);
+  writePayload(frame, buffer, encoders, offset);
+  return buffer;
+}
+
+function sizeOfRequestFrame(frame, encoders) {
+  const payloadLength = getPayloadLength(frame, encoders);
+  return FRAME_HEADER_SIZE + payloadLength;
+}
+
+function deserializeRequestFnfFrame(buffer, streamId, flags, encoders) {
+  (0, _invariant2.default)(
+    streamId > 0,
+    'RSocketBinaryFraming: Invalid REQUEST_FNF frame, expected stream id to be > 0.'
+  );
+
+  const length = buffer.length;
+  const frame = {
+    data: null,
+    flags,
+    length,
+    metadata: null,
+    streamId,
+    type: _RSocketFrame.FRAME_TYPES.REQUEST_FNF,
+  };
+
+  readPayload(buffer, frame, encoders, FRAME_HEADER_SIZE);
+  return frame;
+}
+
+function deserializeRequestResponseFrame(buffer, streamId, flags, encoders) {
+  (0, _invariant2.default)(
+    streamId > 0,
+    'RSocketBinaryFraming: Invalid REQUEST_RESPONSE frame, expected stream id to be > 0.'
+  );
+
+  const length = buffer.length;
+  const frame = {
+    data: null,
+    flags,
+    length,
+    metadata: null,
+    streamId,
+    type: _RSocketFrame.FRAME_TYPES.REQUEST_RESPONSE,
+  };
+
+  readPayload(buffer, frame, encoders, FRAME_HEADER_SIZE);
+  return frame;
+}
+
+/**
+   * Writes a REQUEST_STREAM or REQUEST_CHANNEL frame to a new buffer and returns
+   * it.
+   *
+   * Note that these frames have the same shape and only differ in their type.
+   *
+   * Prefix size is for requestN (uint32 = 4).
+   */
+const REQUEST_MANY_HEADER = 4;
+function serializeRequestManyFrame(frame, encoders) {
+  const payloadLength = getPayloadLength(frame, encoders);
+  const buffer = (0, _RSocketBufferUtils.createBuffer)(
+    FRAME_HEADER_SIZE + REQUEST_MANY_HEADER + payloadLength
+  );
+
+  let offset = writeHeader(frame, buffer);
+  offset = buffer.writeUInt32BE(frame.requestN, offset);
+  writePayload(frame, buffer, encoders, offset);
+  return buffer;
+}
+
+function sizeOfRequestManyFrame(frame, encoders) {
+  const payloadLength = getPayloadLength(frame, encoders);
+  return FRAME_HEADER_SIZE + REQUEST_MANY_HEADER + payloadLength;
+}
+
+function deserializeRequestStreamFrame(buffer, streamId, flags, encoders) {
+  (0, _invariant2.default)(
+    streamId > 0,
+    'RSocketBinaryFraming: Invalid REQUEST_STREAM frame, expected stream id to be > 0.'
+  );
+
+  const length = buffer.length;
+  let offset = FRAME_HEADER_SIZE;
+  const requestN = buffer.readInt32BE(offset);
+  offset += 4;
+  (0, _invariant2.default)(
+    requestN > 0,
+    'RSocketBinaryFraming: Invalid REQUEST_STREAM frame, expected requestN to be > 0, got `%s`.',
+    requestN
+  );
+
+  const frame = {
+    data: null,
+    flags,
+    length,
+    metadata: null,
+    requestN,
+    streamId,
+    type: _RSocketFrame.FRAME_TYPES.REQUEST_STREAM,
+  };
+
+  readPayload(buffer, frame, encoders, offset);
+  return frame;
+}
+
+function deserializeRequestChannelFrame(buffer, streamId, flags, encoders) {
+  (0, _invariant2.default)(
+    streamId > 0,
+    'RSocketBinaryFraming: Invalid REQUEST_CHANNEL frame, expected stream id to be > 0.'
+  );
+
+  const length = buffer.length;
+  let offset = FRAME_HEADER_SIZE;
+  const requestN = buffer.readInt32BE(offset);
+  offset += 4;
+  (0, _invariant2.default)(
+    requestN > 0,
+    'RSocketBinaryFraming: Invalid REQUEST_STREAM frame, expected requestN to be > 0, got `%s`.',
+    requestN
+  );
+
+  const frame = {
+    data: null,
+    flags,
+    length,
+    metadata: null,
+    requestN,
+    streamId,
+    type: _RSocketFrame.FRAME_TYPES.REQUEST_CHANNEL,
+  };
+
+  readPayload(buffer, frame, encoders, offset);
+  return frame;
+}
+
+/**
+   * Writes a REQUEST_N frame to a new buffer and returns it.
+   *
+   * Prefix size is for requestN (uint32 = 4).
+   */
+const REQUEST_N_HEADER = 4;
+function serializeRequestNFrame(frame, encoders) {
+  const buffer = (0, _RSocketBufferUtils.createBuffer)(
+    FRAME_HEADER_SIZE + REQUEST_N_HEADER
+  );
+  const offset = writeHeader(frame, buffer);
+  buffer.writeUInt32BE(frame.requestN, offset);
+  return buffer;
+}
+
+function sizeOfRequestNFrame(frame, encoders) {
+  return FRAME_HEADER_SIZE + REQUEST_N_HEADER;
+}
+
+function deserializeRequestNFrame(buffer, streamId, flags, encoders) {
+  (0, _invariant2.default)(
+    streamId > 0,
+    'RSocketBinaryFraming: Invalid REQUEST_N frame, expected stream id to be > 0.'
+  );
+
+  const length = buffer.length;
+  const requestN = buffer.readInt32BE(FRAME_HEADER_SIZE);
+  (0, _invariant2.default)(
+    requestN > 0,
+    'RSocketBinaryFraming: Invalid REQUEST_STREAM frame, expected requestN to be > 0, got `%s`.',
+    requestN
+  );
+
+  return {
+    flags,
+    length,
+    requestN,
+    streamId,
+    type: _RSocketFrame.FRAME_TYPES.REQUEST_N,
+  };
+}
+
+/**
+   * Writes a CANCEL frame to a new buffer and returns it.
+   */
+function serializeCancelFrame(frame, encoders) {
+  const buffer = (0, _RSocketBufferUtils.createBuffer)(FRAME_HEADER_SIZE);
+  writeHeader(frame, buffer);
+  return buffer;
+}
+
+function sizeOfCancelFrame(frame, encoders) {
+  return FRAME_HEADER_SIZE;
+}
+
+function deserializeCancelFrame(buffer, streamId, flags, encoders) {
+  (0, _invariant2.default)(
+    streamId > 0,
+    'RSocketBinaryFraming: Invalid CANCEL frame, expected stream id to be > 0.'
+  );
+
+  const length = buffer.length;
+  return {
+    flags,
+    length,
+    streamId,
+    type: _RSocketFrame.FRAME_TYPES.CANCEL,
+  };
+}
+
+/**
+   * Writes a PAYLOAD frame to a new buffer and returns it.
+   */
+function serializePayloadFrame(frame, encoders) {
+  const payloadLength = getPayloadLength(frame, encoders);
+  const buffer = (0, _RSocketBufferUtils.createBuffer)(
+    FRAME_HEADER_SIZE + payloadLength
+  );
+  const offset = writeHeader(frame, buffer);
+  writePayload(frame, buffer, encoders, offset);
+  return buffer;
+}
+
+function sizeOfPayloadFrame(frame, encoders) {
+  const payloadLength = getPayloadLength(frame, encoders);
+  return FRAME_HEADER_SIZE + payloadLength;
+}
+
+function deserializePayloadFrame(buffer, streamId, flags, encoders) {
+  (0, _invariant2.default)(
+    streamId > 0,
+    'RSocketBinaryFraming: Invalid PAYLOAD frame, expected stream id to be > 0.'
+  );
+
+  const length = buffer.length;
+  const frame = {
+    data: null,
+    flags,
+    length,
+    metadata: null,
+    streamId,
+    type: _RSocketFrame.FRAME_TYPES.PAYLOAD,
+  };
+
+  readPayload(buffer, frame, encoders, FRAME_HEADER_SIZE);
+  return frame;
+}
+
+/**
+   * Writes a RESUME frame into a new buffer and returns it.
+   *
+   * Fixed size is:
+   * - major version (uint16 = 2)
+   * - minor version (uint16 = 2)
+   * - token length (uint16 = 2)
+   * - client position (uint64 = 8)
+   * - server position (uint64 = 8)
+   */
+const RESUME_FIXED_SIZE = 22;
+function serializeResumeFrame(frame, encoders) {
+  const resumeTokenLength = encoders.resumeToken.byteLength(frame.resumeToken);
+  const buffer = (0, _RSocketBufferUtils.createBuffer)(
+    FRAME_HEADER_SIZE + RESUME_FIXED_SIZE + resumeTokenLength
+  );
+
+  let offset = writeHeader(frame, buffer);
+  offset = buffer.writeUInt16BE(frame.majorVersion, offset);
+  offset = buffer.writeUInt16BE(frame.minorVersion, offset);
+  offset = buffer.writeUInt16BE(resumeTokenLength, offset);
+  offset = encoders.resumeToken.encode(
+    frame.resumeToken,
+    buffer,
+    offset,
+    offset + resumeTokenLength
+  );
+
+  offset = (0, _RSocketBufferUtils.writeUInt64BE)(
+    buffer,
+    frame.serverPosition,
+    offset
+  );
+  (0, _RSocketBufferUtils.writeUInt64BE)(buffer, frame.clientPosition, offset);
+  return buffer;
+}
+
+function sizeOfResumeFrame(frame, encoders) {
+  const resumeTokenLength = encoders.resumeToken.byteLength(frame.resumeToken);
+  return FRAME_HEADER_SIZE + RESUME_FIXED_SIZE + resumeTokenLength;
+}
+
+function deserializeResumeFrame(buffer, streamId, flags, encoders) {
+  (0, _invariant2.default)(
+    streamId === 0,
+    'RSocketBinaryFraming: Invalid RESUME frame, expected stream id to be 0.'
+  );
+
+  const length = buffer.length;
+  let offset = FRAME_HEADER_SIZE;
+  const majorVersion = buffer.readUInt16BE(offset);
+  offset += 2;
+  const minorVersion = buffer.readUInt16BE(offset);
+  offset += 2;
+
+  const resumeTokenLength = buffer.readInt16BE(offset);
+  offset += 2;
+  (0, _invariant2.default)(
+    resumeTokenLength >= 0 &&
+      resumeTokenLength <= _RSocketFrame.MAX_RESUME_LENGTH,
+    'RSocketBinaryFraming: Invalid SETUP frame, expected resumeToken length ' +
+      'to be >= 0 and <= %s. Got `%s`.',
+    _RSocketFrame.MAX_RESUME_LENGTH,
+    resumeTokenLength
+  );
+
+  const resumeToken = encoders.resumeToken.decode(
+    buffer,
+    offset,
+    offset + resumeTokenLength
+  );
+
+  offset += resumeTokenLength;
+  const serverPosition = (0, _RSocketBufferUtils.readUInt64BE)(buffer, offset);
+  offset += 8;
+  const clientPosition = (0, _RSocketBufferUtils.readUInt64BE)(buffer, offset);
+  offset += 8;
+  return {
+    clientPosition,
+    flags,
+    length,
+    majorVersion,
+    minorVersion,
+    resumeToken,
+    serverPosition,
+    streamId,
+    type: _RSocketFrame.FRAME_TYPES.RESUME,
+  };
+}
+
+/**
+   * Writes a RESUME_OK frame into a new buffer and returns it.
+   *
+   * Fixed size is:
+   * - client position (uint64 = 8)
+   */
+const RESUME_OK_FIXED_SIZE = 8;
+function serializeResumeOkFrame(frame, encoders) {
+  const buffer = (0, _RSocketBufferUtils.createBuffer)(
+    FRAME_HEADER_SIZE + RESUME_OK_FIXED_SIZE
+  );
+  const offset = writeHeader(frame, buffer);
+  (0, _RSocketBufferUtils.writeUInt64BE)(buffer, frame.clientPosition, offset);
+  return buffer;
+}
+
+function sizeOfResumeOkFrame(frame, encoders) {
+  return FRAME_HEADER_SIZE + RESUME_OK_FIXED_SIZE;
+}
+
+function deserializeResumeOkFrame(buffer, streamId, flags, encoders) {
+  (0, _invariant2.default)(
+    streamId === 0,
+    'RSocketBinaryFraming: Invalid RESUME frame, expected stream id to be 0.'
+  );
+
+  const length = buffer.length;
+  const clientPosition = (0, _RSocketBufferUtils.readUInt64BE)(
+    buffer,
+    FRAME_HEADER_SIZE
+  );
+  return {
+    clientPosition,
+    flags,
+    length,
+    streamId,
+    type: _RSocketFrame.FRAME_TYPES.RESUME_OK,
+  };
+}
+
+/**
+   * Write the header of the frame into the buffer.
+   */
+function writeHeader(frame, buffer) {
+  const offset = buffer.writeInt32BE(frame.streamId, 0);
+  // shift frame to high 6 bits, extract lowest 10 bits from flags
+  return buffer.writeUInt16BE(
+    frame.type << _RSocketFrame.FRAME_TYPE_OFFFSET |
+      frame.flags & _RSocketFrame.FLAGS_MASK,
+    offset
+  );
+}
+
+/**
+   * Determine the length of the payload section of a frame. Only applies to
+   * frame types that MAY have both metadata and data.
+   */
+function getPayloadLength(frame, encoders) {
+  let payloadLength = 0;
+  if (frame.data != null) {
+    payloadLength += encoders.data.byteLength(frame.data);
+  }
+  if ((0, _RSocketFrame.isMetadata)(frame.flags)) {
+    payloadLength += UINT24_SIZE;
+    if (frame.metadata != null) {
+      payloadLength += encoders.metadata.byteLength(frame.metadata);
+    }
+  }
+  return payloadLength;
+}
+
+/**
+   * Write the payload of a frame into the given buffer. Only applies to frame
+   * types that MAY have both metadata and data.
+   */
+function writePayload(frame, buffer, encoders, offset) {
+  if ((0, _RSocketFrame.isMetadata)(frame.flags)) {
+    if (frame.metadata != null) {
+      const metaLength = encoders.metadata.byteLength(frame.metadata);
+      offset = (0, _RSocketBufferUtils.writeUInt24BE)(
+        buffer,
+        metaLength,
+        offset
+      );
+      offset = encoders.metadata.encode(
+        frame.metadata,
+        buffer,
+        offset,
+        offset + metaLength
+      );
+    } else {
+      offset = (0, _RSocketBufferUtils.writeUInt24BE)(buffer, 0, offset);
+    }
+  }
+  if (frame.data != null) {
+    encoders.data.encode(frame.data, buffer, offset, buffer.length);
+  }
+}
+
+/**
+   * Read the payload from a buffer and write it into the frame. Only applies to
+   * frame types that MAY have both metadata and data.
+   */
+function readPayload(buffer, frame, encoders, offset) {
+  if ((0, _RSocketFrame.isMetadata)(frame.flags)) {
+    const metaLength = (0, _RSocketBufferUtils.readUInt24BE)(buffer, offset);
+    offset += UINT24_SIZE;
+    if (metaLength > 0) {
+      frame.metadata = encoders.metadata.decode(
+        buffer,
+        offset,
+        offset + metaLength
+      );
+
+      offset += metaLength;
+    }
+  }
+  if (offset < buffer.length) {
+    frame.data = encoders.data.decode(buffer, offset, buffer.length);
+  }
+}
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports) {
+
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(Buffer) {/** Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * 
+ */
+
+
+Object.defineProperty(exports, '__esModule', {value: true});
+exports.BufferEncoders = (exports.Utf8Encoders = (exports.BufferEncoder = (exports.UTF8Encoder = undefined)));
+
+var _RSocketBufferUtils = __webpack_require__(3);
+var _invariant = __webpack_require__(0);
+var _invariant2 = _interopRequireDefault(_invariant);
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : {default: obj};
+}
+
+/**
+                                                                                                                                                                                                   * Commonly used subset of the allowed Node Buffer Encoder types.
+                                                                                                                                                                                                   */
+
+/**
+                                                                                                                                                                                                       * The Encoders object specifies how values should be serialized/deserialized
+                                                                                                                                                                                                       * to/from binary.
+                                                                                                                                                                                                       */
+
+const UTF8Encoder = (exports.UTF8Encoder = {
+  byteLength: value => (0, _RSocketBufferUtils.byteLength)(value, 'utf8'),
+  decode: (buffer, start, end) => {
+    return buffer.toString('utf8', start, end);
+  },
+  encode: (value, buffer, start, end) => {
+    (0, _invariant2.default)(
+      typeof value === 'string',
+      'RSocketEncoding: Expected value to be a string, got `%s`.',
+      value
+    );
+
+    buffer.write(value, start, end - start, 'utf8');
+    return end;
+  },
+});
+
+const BufferEncoder = (exports.BufferEncoder = {
+  byteLength: value => {
+    (0, _invariant2.default)(
+      Buffer.isBuffer(value),
+      'RSocketEncoding: Expected value to be a buffer, got `%s`.',
+      value
+    );
+
+    return value.length;
+  },
+  decode: (buffer, start, end) => {
+    return buffer.slice(start, end);
+  },
+  encode: (value, buffer, start, end) => {
+    (0, _invariant2.default)(
+      Buffer.isBuffer(value),
+      'RSocketEncoding: Expected value to be a buffer, got `%s`.',
+      value
+    );
+
+    value.copy(buffer, start, 0, value.length);
+    return end;
+  },
+});
+
+/**
+        * Encode all values as UTF8 strings.
+        */
+const Utf8Encoders = (exports.Utf8Encoders = {
+  data: UTF8Encoder,
+  dataMimeType: UTF8Encoder,
+  message: UTF8Encoder,
+  metadata: UTF8Encoder,
+  metadataMimeType: UTF8Encoder,
+  resumeToken: UTF8Encoder,
+});
+
+/**
+                               * Encode all values as buffers.
+                               */
+const BufferEncoders = (exports.BufferEncoders = {
+  data: BufferEncoder,
+  dataMimeType: UTF8Encoder,
+  message: UTF8Encoder,
+  metadata: BufferEncoder,
+  metadataMimeType: UTF8Encoder,
+  resumeToken: BufferEncoder,
+});
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22).Buffer))
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/** Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * 
+ */
+
+
+Object.defineProperty(exports, '__esModule', {value: true});
+
+var _FlowableMapOperator = __webpack_require__(26);
+var _FlowableMapOperator2 = _interopRequireDefault(_FlowableMapOperator);
+var _FlowableTakeOperator = __webpack_require__(27);
+var _FlowableTakeOperator2 = _interopRequireDefault(_FlowableTakeOperator);
+
+var _invariant = __webpack_require__(0);
+var _invariant2 = _interopRequireDefault(_invariant);
+var _warning = __webpack_require__(6);
+var _warning2 = _interopRequireDefault(_warning);
+var _emptyFunction = __webpack_require__(7);
+var _emptyFunction2 = _interopRequireDefault(_emptyFunction);
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : {default: obj};
+}
+
+/**
+                                                                                                                                                                                                                   * Implements the ReactiveStream `Publisher` interface with Rx-style operators.
+                                                                                                                                                                                                                   */
+class Flowable {
+  static just(...values) {
+    return new Flowable(subscriber => {
+      let cancelled = false;
+      let i = 0;
+      subscriber.onSubscribe({
+        cancel: () => {
+          cancelled = true;
+        },
+        request: n => {
+          while (!cancelled && n > 0 && i < values.length) {
+            subscriber.onNext(values[i++]);
+            n--;
+          }
+          if (!cancelled && i == values.length) {
+            subscriber.onComplete();
+          }
+        },
+      });
+    });
+  }
+
+  static error(error) {
+    return new Flowable(subscriber => {
+      subscriber.onSubscribe({
+        cancel: () => {},
+        request: () => {
+          subscriber.onError(error);
+        },
+      });
+    });
+  }
+
+  static never() {
+    return new Flowable(subscriber => {
+      subscriber.onSubscribe({
+        cancel: _emptyFunction2.default,
+        request: _emptyFunction2.default,
+      });
+    });
+  }
+
+  constructor(source, max = Number.MAX_SAFE_INTEGER) {
+    this._max = max;
+    this._source = source;
+  }
+
+  subscribe(subscriberOrCallback) {
+    let partialSubscriber;
+    if (typeof subscriberOrCallback === 'function') {
+      partialSubscriber = this._wrapCallback(subscriberOrCallback);
+    } else {
+      partialSubscriber = subscriberOrCallback;
+    }
+    const subscriber = new FlowableSubscriber(partialSubscriber, this._max);
+    this._source(subscriber);
+  }
+
+  lift(onSubscribeLift) {
+    return new Flowable(subscriber =>
+      this._source(onSubscribeLift(subscriber)));
+  }
+
+  map(fn) {
+    return this.lift(
+      subscriber => new _FlowableMapOperator2.default(subscriber, fn)
+    );
+  }
+
+  take(toTake) {
+    return this.lift(
+      subscriber => new _FlowableTakeOperator2.default(subscriber, toTake)
+    );
+  }
+
+  _wrapCallback(callback) {
+    const max = this._max;
+    return {
+      onNext: callback,
+      onSubscribe(subscription) {
+        subscription.request(max);
+      },
+    };
+  }
+}
+exports.default = Flowable;
+
+/**
+                                 * @private
+                                 */
+class FlowableSubscriber {
+  constructor(subscriber, max) {
+    this._cancel = () => {
+      if (!this._active) {
+        return;
+      }
+      this._active = false;
+      if (this._subscription) {
+        this._subscription.cancel();
+      }
+    };
+    this._request = n => {
+      (0, _invariant2.default)(
+        Number.isInteger(n) && n >= 1 && n <= this._max,
+        'Flowable: Expected request value to be an integer with a ' +
+          'value greater than 0 and less than or equal to %s, got ' +
+          '`%s`.',
+        this._max,
+        n
+      );
+
+      if (!this._active) {
+        return;
+      }
+      if (n === this._max) {
+        this._pending = this._max;
+      } else {
+        this._pending += n;
+        if (this._pending >= this._max) {
+          this._pending = this._max;
+        }
+      }
+      if (this._subscription) {
+        this._subscription.request(n);
+      }
+    };
+    this._active = false;
+    this._max = max;
+    this._pending = 0;
+    this._started = false;
+    this._subscriber = subscriber || {};
+    this._subscription = null;
+  }
+  onComplete() {
+    if (!this._active) {
+      (0, _warning2.default)(
+        false,
+        'Flowable: Invalid call to onComplete(): %s.',
+        this._started
+          ? 'onComplete/onError was already called'
+          : 'onSubscribe has not been called'
+      );
+      return;
+    }
+    this._active = false;
+    this._started = true;
+    try {
+      if (this._subscriber.onComplete) {
+        this._subscriber.onComplete();
+      }
+    } catch (error) {
+      if (this._subscriber.onError) {
+        this._subscriber.onError(error);
+      }
+    }
+  }
+  onError(error) {
+    if (this._started && !this._active) {
+      (0, _warning2.default)(
+        false,
+        'Flowable: Invalid call to onError(): %s.',
+        this._active
+          ? 'onComplete/onError was already called'
+          : 'onSubscribe has not been called'
+      );
+      return;
+    }
+    this._active = false;
+    this._started = true;
+    this._subscriber.onError && this._subscriber.onError(error);
+  }
+  onNext(data) {
+    if (!this._active) {
+      (0, _warning2.default)(
+        false,
+        'Flowable: Invalid call to onNext(): %s.',
+        this._active
+          ? 'onComplete/onError was already called'
+          : 'onSubscribe has not been called'
+      );
+      return;
+    }
+    if (this._pending === 0) {
+      (0, _warning2.default)(
+        false,
+        'Flowable: Invalid call to onNext(), all request()ed values have been ' +
+          'published.'
+      );
+      return;
+    }
+    if (this._pending !== this._max) {
+      this._pending--;
+    }
+    try {
+      this._subscriber.onNext && this._subscriber.onNext(data);
+    } catch (error) {
+      if (this._subscription) {
+        this._subscription.cancel();
+      }
+      this.onError(error);
+    }
+  }
+  onSubscribe(subscription) {
+    if (this._started) {
+      (0, _warning2.default)(
+        false,
+        'Flowable: Invalid call to onSubscribe(): already called.'
+      );
+      return;
+    }
+    this._active = true;
+    this._started = true;
+    this._subscription = subscription;
+    try {
+      this._subscriber.onSubscribe &&
+        this._subscriber.onSubscribe({
+          cancel: this._cancel,
+          request: this._request,
+        });
+    } catch (error) {
+      this.onError(error);
+    }
+  }
+}
+
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * 
+ */
+var nullthrows = function nullthrows(x) {
+  if (x != null) {
+    return x;
+  }
+
+  throw new Error("Got unexpected null or undefined");
+};
+
+module.exports = nullthrows;
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, '__esModule', {value: true});
+
+class WellKnownMimeType {
+  constructor(str, identifier) {
+    this._string = str;
+    this._identifier = identifier;
+  }
+
+  /**
+     * Find the {@link WellKnownMimeType} for the given identifier (as an {@code int}). Valid
+     * identifiers are defined to be integers between 0 and 127, inclusive. Identifiers outside of
+     * this range will produce the {@link #UNPARSEABLE_MIME_TYPE}. Additionally, some identifiers in
+     * that range are still only reserved and don't have a type associated yet: this method returns
+     * the {@link #UNKNOWN_RESERVED_MIME_TYPE} when passing such an identifier, which lets call sites
+     * potentially detect this and keep the original representation when transmitting the associated
+     * metadata buffer.
+     *
+     * @param id the looked up identifier
+     * @return the {@link WellKnownMimeType}, or {@link #UNKNOWN_RESERVED_MIME_TYPE} if the id is out
+     *     of the specification's range, or {@link #UNKNOWN_RESERVED_MIME_TYPE} if the id is one that
+     *     is merely reserved but unknown to this implementation.
+     */
+  static fromIdentifier(id) {
+    if (id < 0x00 || id > 0x7f) {
+      return UNPARSEABLE_MIME_TYPE;
+    }
+    return TYPES_BY_MIME_ID[id];
+  }
+
+  /**
+     * Find the {@link WellKnownMimeType} for the given {@link String} representation. If the
+     * representation is {@code null} or doesn't match a {@link WellKnownMimeType}, the {@link
+     * #UNPARSEABLE_MIME_TYPE} is returned.
+     *
+     * @param mimeType the looked up mime type
+     * @return the matching {@link WellKnownMimeType}, or {@link #UNPARSEABLE_MIME_TYPE} if none
+     *     matches
+     */
+  static fromString(mimeType) {
+    if (!mimeType) throw new Error('type must be non-null');
+
+    // force UNPARSEABLE if by chance UNKNOWN_RESERVED_MIME_TYPE's text has been used
+    if (mimeType === UNKNOWN_RESERVED_MIME_TYPE.string) {
+      return UNPARSEABLE_MIME_TYPE;
+    }
+
+    return TYPES_BY_MIME_STRING.get(mimeType) || UNPARSEABLE_MIME_TYPE;
+  }
+
+  /** @return the byte identifier of the mime type, guaranteed to be positive or zero. */
+  get identifier() {
+    return this._identifier;
+  }
+
+  /**
+     * @return the mime type represented as a {@link String}, which is made of US_ASCII compatible
+     *     characters only
+     */
+  get string() {
+    return this._string;
+  }
+
+  /** @see #getString() */
+  toString() {
+    return this._string;
+  }
+}
+exports.default = WellKnownMimeType;
+
+const UNPARSEABLE_MIME_TYPE = (exports.UNPARSEABLE_MIME_TYPE = new WellKnownMimeType(
+  'UNPARSEABLE_MIME_TYPE_DO_NOT_USE',
+  -2
+));
+
+const UNKNOWN_RESERVED_MIME_TYPE = (exports.UNKNOWN_RESERVED_MIME_TYPE = new WellKnownMimeType(
+  'UNKNOWN_YET_RESERVED_DO_NOT_USE',
+  -1
+));
+
+const APPLICATION_AVRO = (exports.APPLICATION_AVRO = new WellKnownMimeType(
+  'application/avro',
+  0x00
+));
+const APPLICATION_CBOR = (exports.APPLICATION_CBOR = new WellKnownMimeType(
+  'application/cbor',
+  0x01
+));
+const APPLICATION_GRAPHQL = (exports.APPLICATION_GRAPHQL = new WellKnownMimeType(
+  'application/graphql',
+  0x02
+));
+
+const APPLICATION_GZIP = (exports.APPLICATION_GZIP = new WellKnownMimeType(
+  'application/gzip',
+  0x03
+));
+const APPLICATION_JAVASCRIPT = (exports.APPLICATION_JAVASCRIPT = new WellKnownMimeType(
+  'application/javascript',
+  0x04
+));
+
+const APPLICATION_JSON = (exports.APPLICATION_JSON = new WellKnownMimeType(
+  'application/json',
+  0x05
+));
+const APPLICATION_OCTET_STREAM = (exports.APPLICATION_OCTET_STREAM = new WellKnownMimeType(
+  'application/octet-stream',
+  0x06
+));
+
+const APPLICATION_PDF = (exports.APPLICATION_PDF = new WellKnownMimeType(
+  'application/pdf',
+  0x07
+));
+const APPLICATION_THRIFT = (exports.APPLICATION_THRIFT = new WellKnownMimeType(
+  'application/vnd.apache.thrift.binary',
+  0x08
+));
+
+const APPLICATION_PROTOBUF = (exports.APPLICATION_PROTOBUF = new WellKnownMimeType(
+  'application/vnd.google.protobuf',
+  0x09
+));
+
+const APPLICATION_XML = (exports.APPLICATION_XML = new WellKnownMimeType(
+  'application/xml',
+  0x0a
+));
+const APPLICATION_ZIP = (exports.APPLICATION_ZIP = new WellKnownMimeType(
+  'application/zip',
+  0x0b
+));
+const AUDIO_AAC = (exports.AUDIO_AAC = new WellKnownMimeType(
+  'audio/aac',
+  0x0c
+));
+const AUDIO_MP3 = (exports.AUDIO_MP3 = new WellKnownMimeType(
+  'audio/mp3',
+  0x0d
+));
+const AUDIO_MP4 = (exports.AUDIO_MP4 = new WellKnownMimeType(
+  'audio/mp4',
+  0x0e
+));
+const AUDIO_MPEG3 = (exports.AUDIO_MPEG3 = new WellKnownMimeType(
+  'audio/mpeg3',
+  0x0f
+));
+const AUDIO_MPEG = (exports.AUDIO_MPEG = new WellKnownMimeType(
+  'audio/mpeg',
+  0x10
+));
+const AUDIO_OGG = (exports.AUDIO_OGG = new WellKnownMimeType(
+  'audio/ogg',
+  0x11
+));
+const AUDIO_OPUS = (exports.AUDIO_OPUS = new WellKnownMimeType(
+  'audio/opus',
+  0x12
+));
+const AUDIO_VORBIS = (exports.AUDIO_VORBIS = new WellKnownMimeType(
+  'audio/vorbis',
+  0x13
+));
+const IMAGE_BMP = (exports.IMAGE_BMP = new WellKnownMimeType(
+  'image/bmp',
+  0x14
+));
+const IMAGE_GIG = (exports.IMAGE_GIG = new WellKnownMimeType(
+  'image/gif',
+  0x15
+));
+const IMAGE_HEIC_SEQUENCE = (exports.IMAGE_HEIC_SEQUENCE = new WellKnownMimeType(
+  'image/heic-sequence',
+  0x16
+));
+
+const IMAGE_HEIC = (exports.IMAGE_HEIC = new WellKnownMimeType(
+  'image/heic',
+  0x17
+));
+const IMAGE_HEIF_SEQUENCE = (exports.IMAGE_HEIF_SEQUENCE = new WellKnownMimeType(
+  'image/heif-sequence',
+  0x18
+));
+
+const IMAGE_HEIF = (exports.IMAGE_HEIF = new WellKnownMimeType(
+  'image/heif',
+  0x19
+));
+const IMAGE_JPEG = (exports.IMAGE_JPEG = new WellKnownMimeType(
+  'image/jpeg',
+  0x1a
+));
+const IMAGE_PNG = (exports.IMAGE_PNG = new WellKnownMimeType(
+  'image/png',
+  0x1b
+));
+const IMAGE_TIFF = (exports.IMAGE_TIFF = new WellKnownMimeType(
+  'image/tiff',
+  0x1c
+));
+const MULTIPART_MIXED = (exports.MULTIPART_MIXED = new WellKnownMimeType(
+  'multipart/mixed',
+  0x1d
+));
+const TEXT_CSS = (exports.TEXT_CSS = new WellKnownMimeType('text/css', 0x1e));
+const TEXT_CSV = (exports.TEXT_CSV = new WellKnownMimeType('text/csv', 0x1f));
+const TEXT_HTML = (exports.TEXT_HTML = new WellKnownMimeType(
+  'text/html',
+  0x20
+));
+const TEXT_PLAIN = (exports.TEXT_PLAIN = new WellKnownMimeType(
+  'text/plain',
+  0x21
+));
+const TEXT_XML = (exports.TEXT_XML = new WellKnownMimeType('text/xml', 0x22));
+const VIDEO_H264 = (exports.VIDEO_H264 = new WellKnownMimeType(
+  'video/H264',
+  0x23
+));
+const VIDEO_H265 = (exports.VIDEO_H265 = new WellKnownMimeType(
+  'video/H265',
+  0x24
+));
+const VIDEO_VP8 = (exports.VIDEO_VP8 = new WellKnownMimeType(
+  'video/VP8',
+  0x25
+));
+const APPLICATION_HESSIAN = (exports.APPLICATION_HESSIAN = new WellKnownMimeType(
+  'application/x-hessian',
+  0x26
+));
+
+const APPLICATION_JAVA_OBJECT = (exports.APPLICATION_JAVA_OBJECT = new WellKnownMimeType(
+  'application/x-java-object',
+  0x27
+));
+
+const APPLICATION_CLOUDEVENTS_JSON = (exports.APPLICATION_CLOUDEVENTS_JSON = new WellKnownMimeType(
+  'application/cloudevents+json',
+  0x28
+));
+
+// ... reserved for future use ...
+
+const MESSAGE_RSOCKET_TRACING_ZIPKIN = (exports.MESSAGE_RSOCKET_TRACING_ZIPKIN = new WellKnownMimeType(
+  'message/x.rsocket.tracing-zipkin.v0',
+  0x7d
+));
+
+const MESSAGE_RSOCKET_ROUTING = (exports.MESSAGE_RSOCKET_ROUTING = new WellKnownMimeType(
+  'message/x.rsocket.routing.v0',
+  0x7e
+));
+
+const MESSAGE_RSOCKET_COMPOSITE_METADATA = (exports.MESSAGE_RSOCKET_COMPOSITE_METADATA = new WellKnownMimeType(
+  'message/x.rsocket.composite-metadata.v0',
+  0x7f
+));
+
+const TYPES_BY_MIME_ID = (exports.TYPES_BY_MIME_ID = new Array(128));
+const TYPES_BY_MIME_STRING = (exports.TYPES_BY_MIME_STRING = new Map());
+
+const ALL_MIME_TYPES = [
+  UNPARSEABLE_MIME_TYPE,
+  UNKNOWN_RESERVED_MIME_TYPE,
+  APPLICATION_AVRO,
+  APPLICATION_CBOR,
+  APPLICATION_GRAPHQL,
+  APPLICATION_GZIP,
+  APPLICATION_JAVASCRIPT,
+  APPLICATION_JSON,
+  APPLICATION_OCTET_STREAM,
+  APPLICATION_PDF,
+  APPLICATION_THRIFT,
+  APPLICATION_PROTOBUF,
+  APPLICATION_XML,
+  APPLICATION_ZIP,
+  AUDIO_AAC,
+  AUDIO_MP3,
+  AUDIO_MP4,
+  AUDIO_MPEG3,
+  AUDIO_MPEG,
+  AUDIO_OGG,
+  AUDIO_OPUS,
+  AUDIO_VORBIS,
+  IMAGE_BMP,
+  IMAGE_GIG,
+  IMAGE_HEIC_SEQUENCE,
+  IMAGE_HEIC,
+  IMAGE_HEIF_SEQUENCE,
+  IMAGE_HEIF,
+  IMAGE_JPEG,
+  IMAGE_PNG,
+  IMAGE_TIFF,
+  MULTIPART_MIXED,
+  TEXT_CSS,
+  TEXT_CSV,
+  TEXT_HTML,
+  TEXT_PLAIN,
+  TEXT_XML,
+  VIDEO_H264,
+  VIDEO_H265,
+  VIDEO_VP8,
+  APPLICATION_HESSIAN,
+  APPLICATION_JAVA_OBJECT,
+  APPLICATION_CLOUDEVENTS_JSON,
+  MESSAGE_RSOCKET_TRACING_ZIPKIN,
+  MESSAGE_RSOCKET_ROUTING,
+  MESSAGE_RSOCKET_COMPOSITE_METADATA,
+];
+
+TYPES_BY_MIME_ID.fill(UNKNOWN_RESERVED_MIME_TYPE);
+
+for (let value of ALL_MIME_TYPES) {
+  if (value.identifier >= 0) {
+    TYPES_BY_MIME_ID[value.identifier] = value;
+    TYPES_BY_MIME_STRING.set(value.string, value);
+  }
+}
+
+if (Object.seal) {
+  Object.seal(TYPES_BY_MIME_ID);
+}
+
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/** Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * 
+ */
+
+
+Object.defineProperty(exports, '__esModule', {value: true});
+exports.createServerMachine = createServerMachine;
+exports.createClientMachine = createClientMachine;
+var _rsocketFlowable = __webpack_require__(2);
+var _emptyFunction = __webpack_require__(7);
+var _emptyFunction2 = _interopRequireDefault(_emptyFunction);
+var _invariant = __webpack_require__(0);
+var _invariant2 = _interopRequireDefault(_invariant);
+var _warning = __webpack_require__(6);
+var _warning2 = _interopRequireDefault(_warning);
+var _RSocketFrame = __webpack_require__(1);
+var _RSocketSerialization = __webpack_require__(4);
+var _RSocketLease = __webpack_require__(5);
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : {default: obj};
+}
+class ResponderWrapper {
+  constructor(responder) {
+    this._responder = responder || {};
+  }
+  setResponder(responder) {
+    this._responder = responder || {};
+  }
+  fireAndForget(payload) {
+    if (this._responder.fireAndForget) {
+      try {
+        this._responder.fireAndForget(payload);
+      } catch (error) {
+        console.error('fireAndForget threw an exception', error);
+      }
+    }
+  }
+  requestResponse(payload) {
+    let error;
+    if (this._responder.requestResponse) {
+      try {
+        return this._responder.requestResponse(payload);
+      } catch (_error) {
+        console.error('requestResponse threw an exception', _error);
+        error = _error;
+      }
+    }
+    return _rsocketFlowable.Single.error(error || new Error('not implemented'));
+  }
+  requestStream(payload) {
+    let error;
+    if (this._responder.requestStream) {
+      try {
+        return this._responder.requestStream(payload);
+      } catch (_error) {
+        console.error('requestStream threw an exception', _error);
+        error = _error;
+      }
+    }
+    return _rsocketFlowable.Flowable.error(
+      error || new Error('not implemented')
+    );
+  }
+  requestChannel(payloads) {
+    let error;
+    if (this._responder.requestChannel) {
+      try {
+        return this._responder.requestChannel(payloads);
+      } catch (_error) {
+        console.error('requestChannel threw an exception', _error);
+        error = _error;
+      }
+    }
+    return _rsocketFlowable.Flowable.error(
+      error || new Error('not implemented')
+    );
+  }
+  metadataPush(payload) {
+    let error;
+    if (this._responder.metadataPush) {
+      try {
+        return this._responder.metadataPush(payload);
+      } catch (_error) {
+        console.error('metadataPush threw an exception', _error);
+        error = _error;
+      }
+    }
+    return _rsocketFlowable.Single.error(error || new Error('not implemented'));
+  }
+}
+function createServerMachine(
+  connection,
+  connectionPublisher,
+  keepAliveTimeout,
+  serializers,
+  errorHandler,
+  requesterLeaseHandler,
+  responderLeaseHandler
+) {
+  return new RSocketMachineImpl(
+    'SERVER',
+    connection,
+    connectionPublisher,
+    keepAliveTimeout,
+    serializers,
+    undefined,
+    errorHandler,
+    requesterLeaseHandler,
+    responderLeaseHandler
+  );
+}
+function createClientMachine(
+  connection,
+  connectionPublisher,
+  keepAliveTimeout,
+  serializers,
+  requestHandler,
+  errorHandler,
+  requesterLeaseHandler,
+  responderLeaseHandler
+) {
+  return new RSocketMachineImpl(
+    'CLIENT',
+    connection,
+    connectionPublisher,
+    keepAliveTimeout,
+    serializers,
+    requestHandler,
+    errorHandler,
+    requesterLeaseHandler,
+    responderLeaseHandler
+  );
+}
+
+class RSocketMachineImpl {
+  constructor(
+    role,
+    connection,
+    connectionPublisher,
+    keepAliveTimeout,
+    serializers,
+    requestHandler,
+    errorHandler,
+    requesterLeaseHandler,
+    responderLeaseHandler
+  ) {
+    this._connectionAvailability = 1.0;
+    this._handleTransportClose = () => {
+      this._handleError(new Error('RSocket: The connection was closed.'));
+    };
+    this._handleError = error => {
+      // Error any open request streams
+      this._receivers.forEach(receiver => {
+        receiver.onError(error);
+      });
+      this._receivers.clear();
+      // Cancel any active subscriptions
+      this._subscriptions.forEach(subscription => {
+        subscription.cancel();
+      });
+      this._subscriptions.clear();
+      this._connectionAvailability = 0.0;
+      this._dispose(
+        this._requesterLeaseHandler,
+        this._responderLeaseSenderDisposable
+      );
+
+      const handle = this._keepAliveTimerHandle;
+      if (handle) {
+        clearTimeout(handle);
+        this._keepAliveTimerHandle = null;
+      }
+    };
+    this._handleFrame = frame => {
+      const {streamId} = frame;
+      if (streamId === _RSocketFrame.CONNECTION_STREAM_ID) {
+        this._handleConnectionFrame(frame);
+      } else {
+        this._handleStreamFrame(streamId, frame);
+      }
+    };
+    this._connection = connection;
+    this._requesterLeaseHandler = requesterLeaseHandler;
+    this._responderLeaseHandler = responderLeaseHandler;
+    this._nextStreamId = role === 'CLIENT' ? 1 : 2;
+    this._receivers = new Map();
+    this._subscriptions = new Map();
+    this._serializers = serializers ||
+      _RSocketSerialization.IdentitySerializers;
+    this._requestHandler = new ResponderWrapper(requestHandler);
+    this._errorHandler = errorHandler; // Subscribe to completion/errors before sending anything
+    connectionPublisher({
+      onComplete: this._handleTransportClose,
+      onError: this._handleError,
+      onNext: this._handleFrame,
+      onSubscribe: subscription =>
+        subscription.request(Number.MAX_SAFE_INTEGER),
+    });
+    const responderHandler = this._responderLeaseHandler;
+    if (responderHandler) {
+      this._responderLeaseSenderDisposable = responderHandler.send(
+        this._leaseFrameSender()
+      );
+    } // Cleanup when the connection closes
+    this._connection.connectionStatus().subscribe({
+      onNext: status => {
+        if (status.kind === 'CLOSED') {
+          this._handleTransportClose();
+        } else if (status.kind === 'ERROR') {
+          this._handleError(status.error);
+        }
+      },
+      onSubscribe: subscription =>
+        subscription.request(Number.MAX_SAFE_INTEGER),
+    });
+    const MIN_TICK_DURATION = 100;
+    this._keepAliveLastReceivedMillis = Date.now();
+    const keepAliveHandler = () => {
+      const now = Date.now();
+      const noKeepAliveDuration = now - this._keepAliveLastReceivedMillis;
+      if (noKeepAliveDuration >= keepAliveTimeout) {
+        this._handleConnectionError(
+          new Error(`No keep-alive acks for ${keepAliveTimeout} millis`)
+        );
+      } else {
+        this._keepAliveTimerHandle = setTimeout(
+          keepAliveHandler,
+          Math.max(MIN_TICK_DURATION, keepAliveTimeout - noKeepAliveDuration)
+        );
+      }
+    };
+    this._keepAliveTimerHandle = setTimeout(keepAliveHandler, keepAliveTimeout);
+  }
+  setRequestHandler(requestHandler) {
+    this._requestHandler.setResponder(requestHandler);
+  }
+  close() {
+    this._connection.close();
+  }
+  connectionStatus() {
+    return this._connection.connectionStatus();
+  }
+  availability() {
+    const r = this._requesterLeaseHandler;
+    const requesterAvailability = r ? r.availability() : 1.0;
+    return Math.min(this._connectionAvailability, requesterAvailability);
+  }
+  fireAndForget(payload) {
+    if (this._useLeaseOrError(this._requesterLeaseHandler)) {
+      return;
+    }
+    const streamId = this._getNextStreamId(this._receivers);
+    const data = this._serializers.data.serialize(payload.data);
+    const metadata = this._serializers.metadata.serialize(payload.metadata);
+    const frame = {
+      data,
+      flags: payload.metadata !== undefined ? _RSocketFrame.FLAGS.METADATA : 0,
+      metadata,
+      streamId,
+      type: _RSocketFrame.FRAME_TYPES.REQUEST_FNF,
+    };
+    this._connection.sendOne(frame);
+  }
+  requestResponse(payload) {
+    const leaseError = this._useLeaseOrError(this._requesterLeaseHandler);
+    if (leaseError) {
+      return _rsocketFlowable.Single.error(new Error(leaseError));
+    }
+    const streamId = this._getNextStreamId(this._receivers);
+    return new _rsocketFlowable.Single(subscriber => {
+      this._receivers.set(streamId, {
+        onComplete: _emptyFunction2.default,
+        onError: error => subscriber.onError(error),
+        onNext: data => subscriber.onComplete(data),
+      });
+      const data = this._serializers.data.serialize(payload.data);
+      const metadata = this._serializers.metadata.serialize(payload.metadata);
+      const frame = {
+        data,
+        flags: payload.metadata !== undefined
+          ? _RSocketFrame.FLAGS.METADATA
+          : 0,
+        metadata,
+        streamId,
+        type: _RSocketFrame.FRAME_TYPES.REQUEST_RESPONSE,
+      };
+      this._connection.sendOne(frame);
+      subscriber.onSubscribe(() => {
+        this._receivers.delete(streamId);
+        const cancelFrame = {
+          flags: 0,
+          streamId,
+          type: _RSocketFrame.FRAME_TYPES.CANCEL,
+        };
+        this._connection.sendOne(cancelFrame);
+      });
+    });
+  }
+  requestStream(payload) {
+    const leaseError = this._useLeaseOrError(this._requesterLeaseHandler);
+    if (leaseError) {
+      return _rsocketFlowable.Flowable.error(new Error(leaseError));
+    }
+    const streamId = this._getNextStreamId(this._receivers);
+    return new _rsocketFlowable.Flowable(
+      subscriber => {
+        this._receivers.set(streamId, subscriber);
+        let initialized = false;
+        subscriber.onSubscribe({
+          cancel: () => {
+            this._receivers.delete(streamId);
+            if (!initialized) {
+              return;
+            }
+            const cancelFrame = {
+              flags: 0,
+              streamId,
+              type: _RSocketFrame.FRAME_TYPES.CANCEL,
+            };
+            this._connection.sendOne(cancelFrame);
+          },
+          request: n => {
+            if (n > _RSocketFrame.MAX_REQUEST_N) {
+              n = _RSocketFrame.MAX_REQUEST_N;
+            }
+            if (initialized) {
+              const requestNFrame = {
+                flags: 0,
+                requestN: n,
+                streamId,
+                type: _RSocketFrame.FRAME_TYPES.REQUEST_N,
+              };
+              this._connection.sendOne(requestNFrame);
+            } else {
+              initialized = true;
+              const data = this._serializers.data.serialize(payload.data);
+              const metadata = this._serializers.metadata.serialize(
+                payload.metadata
+              );
+              const requestStreamFrame = {
+                data,
+                flags: payload.metadata !== undefined
+                  ? _RSocketFrame.FLAGS.METADATA
+                  : 0,
+                metadata,
+                requestN: n,
+                streamId,
+                type: _RSocketFrame.FRAME_TYPES.REQUEST_STREAM,
+              };
+              this._connection.sendOne(requestStreamFrame);
+            }
+          },
+        });
+      },
+      _RSocketFrame.MAX_REQUEST_N
+    );
+  }
+  requestChannel(payloads) {
+    const leaseError = this._useLeaseOrError(this._requesterLeaseHandler);
+    if (leaseError) {
+      return _rsocketFlowable.Flowable.error(new Error(leaseError));
+    }
+    const streamId = this._getNextStreamId(this._receivers);
+    let payloadsSubscribed = false;
+    return new _rsocketFlowable.Flowable(
+      subscriber => {
+        try {
+          this._receivers.set(streamId, subscriber);
+          let initialized = false;
+          subscriber.onSubscribe({
+            cancel: () => {
+              this._receivers.delete(streamId);
+              if (!initialized) {
+                return;
+              }
+              const cancelFrame = {
+                flags: 0,
+                streamId,
+                type: _RSocketFrame.FRAME_TYPES.CANCEL,
+              };
+              this._connection.sendOne(cancelFrame);
+            },
+            request: n => {
+              if (n > _RSocketFrame.MAX_REQUEST_N) {
+                n = _RSocketFrame.MAX_REQUEST_N;
+              }
+              if (initialized) {
+                const requestNFrame = {
+                  flags: 0,
+                  requestN: n,
+                  streamId,
+                  type: _RSocketFrame.FRAME_TYPES.REQUEST_N,
+                };
+                this._connection.sendOne(requestNFrame);
+              } else {
+                if (!payloadsSubscribed) {
+                  payloadsSubscribed = true;
+                  payloads.subscribe({
+                    onComplete: () => {
+                      this._sendStreamComplete(streamId);
+                    },
+                    onError: error => {
+                      this._sendStreamError(streamId, error.message);
+                    }, //Subscriber methods
+                    onNext: payload => {
+                      const data = this._serializers.data.serialize(
+                        payload.data
+                      );
+                      const metadata = this._serializers.metadata.serialize(
+                        payload.metadata
+                      );
+                      if (!initialized) {
+                        initialized = true;
+                        const requestChannelFrame = {
+                          data,
+                          flags: payload.metadata !== undefined
+                            ? _RSocketFrame.FLAGS.METADATA
+                            : 0,
+                          metadata,
+                          requestN: n,
+                          streamId,
+                          type: _RSocketFrame.FRAME_TYPES.REQUEST_CHANNEL,
+                        };
+                        this._connection.sendOne(requestChannelFrame);
+                      } else {
+                        const payloadFrame = {
+                          data,
+                          flags: _RSocketFrame.FLAGS.NEXT |
+                            (payload.metadata !== undefined
+                              ? _RSocketFrame.FLAGS.METADATA
+                              : 0),
+                          metadata,
+                          streamId,
+                          type: _RSocketFrame.FRAME_TYPES.PAYLOAD,
+                        };
+                        this._connection.sendOne(payloadFrame);
+                      }
+                    },
+                    onSubscribe: subscription => {
+                      this._subscriptions.set(streamId, subscription);
+                      subscription.request(1);
+                    },
+                  });
+                } else {
+                  (0, _warning2.default)(
+                    false,
+                    'RSocketClient: re-entrant call to request n before initial' +
+                      ' channel established.'
+                  );
+                }
+              }
+            },
+          });
+        } catch (err) {
+          console.warn(
+            'Exception while subscribing to channel flowable:' + err
+          );
+        }
+      },
+      _RSocketFrame.MAX_REQUEST_N
+    );
+  }
+  metadataPush(payload) {
+    // TODO #18065331: implement metadataPush
+    throw new Error('metadataPush() is not implemented');
+  }
+  _getNextStreamId(streamIds) {
+    const streamId = this._nextStreamId;
+    do {
+      this._nextStreamId = this._nextStreamId + 2 & _RSocketFrame.MAX_STREAM_ID;
+    } while (this._nextStreamId === 0 || streamIds.has(streamId));
+    return streamId;
+  }
+  _useLeaseOrError(leaseHandler) {
+    if (leaseHandler) {
+      if (!leaseHandler.use()) {
+        return leaseHandler.errorMessage();
+      }
+    }
+  }
+  _leaseFrameSender() {
+    return lease =>
+      this._connection.sendOne({
+        flags: 0,
+        metadata: lease.metadata,
+        requestCount: lease.allowedRequests,
+        streamId: _RSocketFrame.CONNECTION_STREAM_ID,
+        ttl: lease.timeToLiveMillis,
+        type: _RSocketFrame.FRAME_TYPES.LEASE,
+      });
+  }
+  _dispose(...disposables) {
+    disposables.forEach(d => {
+      if (d) {
+        d.dispose();
+      }
+    });
+  }
+  _isRequest(frameType) {
+    switch (frameType) {
+      case _RSocketFrame.FRAME_TYPES.REQUEST_FNF:
+      case _RSocketFrame.FRAME_TYPES.REQUEST_RESPONSE:
+      case _RSocketFrame.FRAME_TYPES.REQUEST_STREAM:
+      case _RSocketFrame.FRAME_TYPES.REQUEST_CHANNEL:
+        return true;
+      default:
+        return false;
+    }
+  }
+  /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * Handle the connection closing normally: this is an error for any open streams.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              */ /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  * Handle the transport connection closing abnormally or a connection-level protocol error.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  */ _handleConnectionError(
+    error
+  ) {
+    this._handleError(error);
+    this._connection.close();
+    const errorHandler = this._errorHandler;
+    if (errorHandler) {
+      errorHandler(error);
+    }
+  }
+  /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        * Handle a frame received from the transport client.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        */ /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            * Handle connection frames (stream id === 0).
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            */ _handleConnectionFrame(
+    frame
+  ) {
+    switch (frame.type) {
+      case _RSocketFrame.FRAME_TYPES.ERROR:
+        const error = (0, _RSocketFrame.createErrorFromFrame)(frame);
+        this._handleConnectionError(error);
+        break;
+      case _RSocketFrame.FRAME_TYPES.EXT: // Extensions are not supported
+        break;
+      case _RSocketFrame.FRAME_TYPES.KEEPALIVE:
+        this._keepAliveLastReceivedMillis = Date.now();
+        if ((0, _RSocketFrame.isRespond)(frame.flags)) {
+          this._connection.sendOne(
+            Object.assign({}, frame, {
+              flags: frame.flags ^ _RSocketFrame.FLAGS.RESPOND, // eslint-disable-line no-bitwise
+              lastReceivedPosition: 0,
+            })
+          );
+        }
+        break;
+      case _RSocketFrame.FRAME_TYPES.LEASE:
+        const r = this._requesterLeaseHandler;
+        if (r) {
+          r.receive(frame);
+        }
+        break;
+      case _RSocketFrame.FRAME_TYPES.METADATA_PUSH:
+      case _RSocketFrame.FRAME_TYPES.REQUEST_CHANNEL:
+      case _RSocketFrame.FRAME_TYPES.REQUEST_FNF:
+      case _RSocketFrame.FRAME_TYPES.REQUEST_RESPONSE:
+      case _RSocketFrame.FRAME_TYPES.REQUEST_STREAM:
+        // TODO #18064706: handle requests from server
+        break;
+      case _RSocketFrame.FRAME_TYPES.RESERVED:
+        // No-op
+        break;
+      case _RSocketFrame.FRAME_TYPES.RESUME:
+      case _RSocketFrame.FRAME_TYPES.RESUME_OK:
+        // TODO #18065016: support resumption
+        break;
+      default:
+        if (false) {
+          console.log(
+            'RSocketClient: Unsupported frame type `%s` on stream `%s`.',
+            (0, _RSocketFrame.getFrameTypeName)(frame.type),
+            _RSocketFrame.CONNECTION_STREAM_ID
+          );
+        }
+        break;
+    }
+  }
+
+  /**
+     * Handle stream-specific frames (stream id !== 0).
+     */
+  _handleStreamFrame(streamId, frame) {
+    if (this._isRequest(frame.type)) {
+      const leaseError = this._useLeaseOrError(this._responderLeaseHandler);
+      if (leaseError) {
+        this._sendStreamError(streamId, leaseError);
+        return;
+      }
+    }
+    switch (frame.type) {
+      case _RSocketFrame.FRAME_TYPES.CANCEL:
+        this._handleCancel(streamId, frame);
+        break;
+      case _RSocketFrame.FRAME_TYPES.REQUEST_N:
+        this._handleRequestN(streamId, frame);
+        break;
+      case _RSocketFrame.FRAME_TYPES.REQUEST_FNF:
+        this._handleFireAndForget(streamId, frame);
+        break;
+      case _RSocketFrame.FRAME_TYPES.REQUEST_RESPONSE:
+        this._handleRequestResponse(streamId, frame);
+        break;
+      case _RSocketFrame.FRAME_TYPES.REQUEST_STREAM:
+        this._handleRequestStream(streamId, frame);
+        break;
+      case _RSocketFrame.FRAME_TYPES.REQUEST_CHANNEL:
+        this._handleRequestChannel(streamId, frame);
+        break;
+      case _RSocketFrame.FRAME_TYPES.ERROR:
+        const error = (0, _RSocketFrame.createErrorFromFrame)(frame);
+        this._handleStreamError(streamId, error);
+        break;
+      case _RSocketFrame.FRAME_TYPES.PAYLOAD:
+        const receiver = this._receivers.get(streamId);
+        if (receiver != null) {
+          if ((0, _RSocketFrame.isNext)(frame.flags)) {
+            const payload = {
+              data: this._serializers.data.deserialize(frame.data),
+              metadata: this._serializers.metadata.deserialize(frame.metadata),
+            };
+
+            receiver.onNext(payload);
+          }
+          if ((0, _RSocketFrame.isComplete)(frame.flags)) {
+            this._receivers.delete(streamId);
+            receiver.onComplete();
+          }
+        }
+        break;
+      default:
+        if (false) {
+          console.log(
+            'RSocketClient: Unsupported frame type `%s` on stream `%s`.',
+            (0, _RSocketFrame.getFrameTypeName)(frame.type),
+            streamId
+          );
+        }
+        break;
+    }
+  }
+
+  _handleCancel(streamId, frame) {
+    const subscription = this._subscriptions.get(streamId);
+    if (subscription) {
+      subscription.cancel();
+      this._subscriptions.delete(streamId);
+    }
+  }
+
+  _handleRequestN(streamId, frame) {
+    const subscription = this._subscriptions.get(streamId);
+    if (subscription) {
+      subscription.request(frame.requestN);
+    }
+  }
+
+  _handleFireAndForget(streamId, frame) {
+    const payload = this._deserializePayload(frame);
+    this._requestHandler.fireAndForget(payload);
+  }
+
+  _handleRequestResponse(streamId, frame) {
+    const payload = this._deserializePayload(frame);
+    this._requestHandler.requestResponse(payload).subscribe({
+      onComplete: payload => {
+        this._sendStreamPayload(streamId, payload, true);
+      },
+      onError: error => this._sendStreamError(streamId, error.message),
+      onSubscribe: cancel => {
+        const subscription = {
+          cancel,
+          request: _emptyFunction2.default,
+        };
+
+        this._subscriptions.set(streamId, subscription);
+      },
+    });
+  }
+
+  _handleRequestStream(streamId, frame) {
+    const payload = this._deserializePayload(frame);
+    this._requestHandler.requestStream(payload).subscribe({
+      onComplete: () => this._sendStreamComplete(streamId),
+      onError: error => this._sendStreamError(streamId, error.message),
+      onNext: payload => this._sendStreamPayload(streamId, payload),
+      onSubscribe: subscription => {
+        this._subscriptions.set(streamId, subscription);
+        subscription.request(frame.requestN);
+      },
+    });
+  }
+
+  _handleRequestChannel(streamId, frame) {
+    const existingSubscription = this._subscriptions.get(streamId);
+    if (existingSubscription) {
+      //Likely a duplicate REQUEST_CHANNEL frame, ignore per spec
+      return;
+    }
+
+    const payloads = new _rsocketFlowable.Flowable(
+      subscriber => {
+        let firstRequest = true;
+
+        subscriber.onSubscribe({
+          cancel: () => {
+            this._receivers.delete(streamId);
+            const cancelFrame = {
+              flags: 0,
+              streamId,
+              type: _RSocketFrame.FRAME_TYPES.CANCEL,
+            };
+
+            this._connection.sendOne(cancelFrame);
+          },
+          request: n => {
+            if (n > _RSocketFrame.MAX_REQUEST_N) {
+              n = _RSocketFrame.MAX_REQUEST_N;
+            }
+            if (firstRequest) {
+              n--;
+            }
+
+            if (n > 0) {
+              const requestNFrame = {
+                flags: 0,
+                requestN: n,
+                streamId,
+                type: _RSocketFrame.FRAME_TYPES.REQUEST_N,
+              };
+
+              this._connection.sendOne(requestNFrame);
+            }
+            //critically, if n is 0 now, that's okay because we eagerly decremented it
+            if (firstRequest && n >= 0) {
+              firstRequest = false;
+              //release the initial frame we received in frame form due to map operator
+              subscriber.onNext(frame);
+            }
+          },
+        });
+      },
+      _RSocketFrame.MAX_REQUEST_N
+    );
+
+    const framesToPayloads = new _rsocketFlowable.FlowableProcessor(
+      payloads,
+      frame => this._deserializePayload(frame)
+    );
+    this._receivers.set(streamId, framesToPayloads);
+
+    this._requestHandler.requestChannel(framesToPayloads).subscribe({
+      onComplete: () => this._sendStreamComplete(streamId),
+      onError: error => this._sendStreamError(streamId, error.message),
+      onNext: payload => this._sendStreamPayload(streamId, payload),
+      onSubscribe: subscription => {
+        this._subscriptions.set(streamId, subscription);
+        subscription.request(frame.requestN);
+      },
+    });
+  }
+
+  _sendStreamComplete(streamId) {
+    this._subscriptions.delete(streamId);
+    this._connection.sendOne({
+      data: null,
+      flags: _RSocketFrame.FLAGS.COMPLETE,
+      metadata: null,
+      streamId,
+      type: _RSocketFrame.FRAME_TYPES.PAYLOAD,
+    });
+  }
+
+  _sendStreamError(streamId, errorMessage) {
+    this._subscriptions.delete(streamId);
+    this._connection.sendOne({
+      code: _RSocketFrame.ERROR_CODES.APPLICATION_ERROR,
+      flags: 0,
+      message: errorMessage,
+      streamId,
+      type: _RSocketFrame.FRAME_TYPES.ERROR,
+    });
+  }
+
+  _sendStreamPayload(streamId, payload, complete = false) {
+    let flags = _RSocketFrame.FLAGS.NEXT;
+    if (complete) {
+      // eslint-disable-next-line no-bitwise
+      flags |= _RSocketFrame.FLAGS.COMPLETE;
+      this._subscriptions.delete(streamId);
+    }
+    const data = this._serializers.data.serialize(payload.data);
+    const metadata = this._serializers.metadata.serialize(payload.metadata);
+    this._connection.sendOne({
+      data,
+      flags,
+      metadata,
+      streamId,
+      type: _RSocketFrame.FRAME_TYPES.PAYLOAD,
+    });
+  }
+
+  _deserializePayload(frame) {
+    return deserializePayload(this._serializers, frame);
+  }
+
+  /**
+     * Handle an error specific to a stream.
+     */
+  _handleStreamError(streamId, error) {
+    const receiver = this._receivers.get(streamId);
+    if (receiver != null) {
+      this._receivers.delete(streamId);
+      receiver.onError(error);
+    }
+  }
+}
+
+function deserializePayload(serializers, frame) {
+  return {
+    data: serializers.data.deserialize(frame.data),
+    metadata: serializers.metadata.deserialize(frame.metadata),
+  };
+}
+
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/** Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * 
+ */
+
+
+Object.defineProperty(exports, '__esModule', {value: true});
+var _ReactiveSocketTypes = __webpack_require__(36);
+
+Object.keys(_ReactiveSocketTypes).forEach(function(key) {
+  if (key === 'default' || key === '__esModule') return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function() {
+      return _ReactiveSocketTypes[key];
+    },
+  });
+});
+var _ReactiveStreamTypes = __webpack_require__(37);
+
+Object.keys(_ReactiveStreamTypes).forEach(function(key) {
+  if (key === 'default' || key === '__esModule') return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function() {
+      return _ReactiveStreamTypes[key];
+    },
+  });
+});
+
+
+/***/ }),
+/* 19 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rsocket_core__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rsocket_core___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rsocket_core__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rsocket_websocket_client__ = __webpack_require__(38);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rsocket_websocket_client___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_rsocket_websocket_client__);
+
+
+
+function addMessage(message) {
+  var ul = document.getElementById("messages");
+  var li = document.createElement("li");
+  li.appendChild(document.createTextNode(message));
+  if (ul.childNodes.length == 0) {
+    ul.appendChild(li);
+  } else {
+    if (ul.childNodes.length > 19) {
+      ul.removeChild(ul.lastChild);
+    }
+    ul.insertBefore(li, ul.firstChild);
+  }
+}
+
+function main() {
+  const url = "ws://localhost:8080/rsocket";
+
+  // Create an instance of a client
+  const client = new __WEBPACK_IMPORTED_MODULE_0_rsocket_core__["RSocketClient"]({
+    setup: {
+      keepAlive: 60000,
+      lifetime: 180000,
+      dataMimeType: 'application/json',
+      metadataMimeType: 'application/json'
+    },
+    transport: new __WEBPACK_IMPORTED_MODULE_1_rsocket_websocket_client___default.a({ url: url })
+  });
+
+  // Open the connection
+  client.connect().subscribe({
+    onComplete: socket => {
+      socket.requestStream({
+        data: null,
+        metadata: null
+      }).subscribe({
+        onComplete: () => console.log('complete'),
+        onError: error => console.error(error),
+        onNext: payload => {
+          addMessage(payload.data);
+        },
+        onSubscribe: subscription => {
+          subscription.request(10000000);
+        }
+      });
+    },
+    onError: error => console.error(error),
+    onSubscribe: cancel => {/* call cancel() to abort */}
+  });
+}
+
+document.addEventListener('DOMContentLoaded', main);
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @typechecks
+ */
+
+
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+/**
+ * Executes the provided `callback` once for each enumerable own property in the
+ * object. The `callback` is invoked with three arguments:
+ *
+ *  - the property value
+ *  - the property name
+ *  - the object being traversed
+ *
+ * Properties that are added after the call to `forEachObject` will not be
+ * visited by `callback`. If the values of existing properties are changed, the
+ * value passed to `callback` will be the value at the time `forEachObject`
+ * visits them. Properties that are deleted before being visited are not
+ * visited.
+ *
+ * @param {?object} object
+ * @param {function} callback
+ * @param {*} context
+ */
+
+function forEachObject(object, callback, context) {
+  for (var name in object) {
+    if (hasOwnProperty.call(object, name)) {
+      callback.call(context, object[name], name, object);
+    }
+  }
+}
+
+module.exports = forEachObject;
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @typechecks
+ */
+
+/**
+ * Simple function for formatting strings.
+ *
+ * Replaces placeholders with values passed as extra arguments
+ *
+ * @param {string} format the base string
+ * @param ...args the values to insert
+ * @return {string} the replaced string
+ */
+function sprintf(format) {
+  for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    args[_key - 1] = arguments[_key];
+  }
+
+  var index = 0;
+  return format.replace(/%s/g, function (match) {
+    return args[index++];
+  });
+}
+
+module.exports = sprintf;
+
+/***/ }),
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -473,9 +5518,9 @@ module.exports = emptyFunction;
 
 
 
-var base64 = __webpack_require__(20)
-var ieee754 = __webpack_require__(21)
-var isArray = __webpack_require__(22)
+var base64 = __webpack_require__(23)
+var ieee754 = __webpack_require__(24)
+var isArray = __webpack_require__(25)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -2253,2913 +7298,10 @@ function isnan (val) {
   return val !== val // eslint-disable-line no-self-compare
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(19)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
 
 /***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/** Copyright (c) Facebook, Inc. and its affiliates.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * 
- */
-
-
-
-/* eslint-disable no-bitwise */ Object.defineProperty(exports, '__esModule', {
-  value: true,
-});
-exports.createBuffer = undefined;
-exports.readUInt24BE = readUInt24BE;
-exports.writeUInt24BE = writeUInt24BE;
-exports.readUInt64BE = readUInt64BE;
-exports.writeUInt64BE = writeUInt64BE;
-exports.byteLength = byteLength;
-exports.toBuffer = toBuffer;
-var _buffer = __webpack_require__(4);
-var _invariant = __webpack_require__(0);
-var _invariant2 = _interopRequireDefault(_invariant);
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : {default: obj};
-}
-/**
-                                                                                                                                                                                                                                                       * Mimimum value that would overflow bitwise operators (2^32).
-                                                                                                                                                                                                                                                       */ const BITWISE_OVERFLOW = 0x100000000; /**
-                                                                                                                                                                                                                                                                                                * Read a uint24 from a buffer starting at the given offset.
-                                                                                                                                                                                                                                                                                                */ // rewritten for browsers
-function readUInt24BE(buffer, offset) {
-  const val1 = buffer.readUInt8(offset) << 16;
-  const val2 = buffer.readUInt8(offset + 1) << 8;
-  const val3 = buffer.readUInt8(offset + 2);
-  return val1 | val2 | val3;
-}
-/**
-                                                                                                                                                                                                         * Writes a uint24 to a buffer starting at the given offset, returning the
-                                                                                                                                                                                                         * offset of the next byte.
-                                                                                                                                                                                                         */ function writeUInt24BE(
-  buffer,
-  value,
-  offset
-) {
-  offset = buffer.writeUInt8(value >>> 16, offset); // 3rd byte
-  offset = buffer.writeUInt8(value >>> 8 & 0xff, offset); // 2nd byte
-  return buffer.writeUInt8(value & 0xff, offset); // 1st byte
-}
-/**
-   * Read a uint64 (technically supports up to 53 bits per JS number
-   * representation).
-   */ function readUInt64BE(
-  buffer,
-  offset
-) {
-  const high = buffer.readUInt32BE(offset);
-  const low = buffer.readUInt32BE(offset + 4);
-  return high * BITWISE_OVERFLOW + low;
-}
-/**
-                                                                                                                                                                         * Write a uint64 (technically supports up to 53 bits per JS number
-                                                                                                                                                                         * representation).
-                                                                                                                                                                         */ function writeUInt64BE(
-  buffer,
-  value,
-  offset
-) {
-  const high = value / BITWISE_OVERFLOW | 0;
-  const low = value % BITWISE_OVERFLOW;
-  offset = buffer.writeUInt32BE(high, offset); // first half of uint64
-  return buffer.writeUInt32BE(low, offset); // second half of uint64
-}
-/**
-   * Determine the number of bytes it would take to encode the given data with the
-   * given encoding.
-   */ function byteLength(
-  data,
-  encoding
-) {
-  if (data == null) {
-    return 0;
-  }
-  return _buffer.Buffer.byteLength(data, encoding);
-}
-/**
-                                                                                                                           * Attempts to construct a buffer from the input, throws if invalid.
-                                                                                                                           */ function toBuffer(
-  data
-) {
-  // Buffer.from(buffer) copies which we don't want here
-  if (data instanceof _buffer.Buffer) {
-    return data;
-  }
-  (0, _invariant2.default)(
-    data instanceof ArrayBuffer,
-    'RSocketBufferUtils: Cannot construct buffer. Expected data to be an ' +
-      'arraybuffer, got `%s`.',
-    data
-  );
-  return _buffer.Buffer.from(data);
-}
-/**
-                                                                                                                                                                                                                                                       * Function to create a buffer of a given sized filled with zeros.
-                                                                                                                                                                                                                                                       */ const createBuffer = (exports.createBuffer = typeof _buffer.Buffer.alloc ===
-  'function'
-  ? length => _buffer.Buffer.alloc(length)
-  : length => new _buffer.Buffer(length).fill(0));
-
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/** Copyright (c) Facebook, Inc. and its affiliates.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * 
- */
-
-Object.defineProperty(exports, '__esModule', {value: true});
-exports.IdentitySerializers = (exports.IdentitySerializer = (exports.JsonSerializers = (exports.JsonSerializer = undefined)));
-
-var _buffer = __webpack_require__(4);
-var _invariant = __webpack_require__(0);
-var _invariant2 = _interopRequireDefault(_invariant);
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : {default: obj};
-}
-
-// JSON serializer
-/**
- * A Serializer transforms data between the application encoding used in
- * Payloads and the Encodable type accepted by the transport client.
- */ const JsonSerializer = (exports.JsonSerializer = {
-  deserialize: data => {
-    let str;
-    if (data == null) {
-      return null;
-    } else if (typeof data === 'string') {
-      str = data;
-    } else if (_buffer.Buffer.isBuffer(data)) {
-      const buffer = data;
-      str = buffer.toString('utf8');
-    } else {
-      const buffer = _buffer.Buffer.from(data);
-      str = buffer.toString('utf8');
-    }
-    return JSON.parse(str);
-  },
-  serialize: JSON.stringify,
-}); // rewritten for browsers
-
-const JsonSerializers = (exports.JsonSerializers = {
-  data: JsonSerializer,
-  metadata: JsonSerializer,
-});
-
-// Pass-through serializer
-const IdentitySerializer = (exports.IdentitySerializer = {
-  deserialize: data => {
-    (0, _invariant2.default)(
-      data == null ||
-        typeof data === 'string' ||
-        _buffer.Buffer.isBuffer(data) ||
-        data instanceof Uint8Array,
-      'RSocketSerialization: Expected data to be a string, Buffer, or ' +
-        'Uint8Array. Got `%s`.',
-      data
-    );
-
-    return data;
-  },
-  serialize: data => data,
-});
-
-const IdentitySerializers = (exports.IdentitySerializers = {
-  data: IdentitySerializer,
-  metadata: IdentitySerializer,
-});
-
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(process) {/**
- * Copyright 2014-2015, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
-
-
-var emptyFunction = __webpack_require__(3);
-
-/**
- * Similar to invariant but only logs a warning if the condition is not met.
- * This can be used to log issues in development environments in critical
- * paths. Removing the logging code for production environments will keep the
- * same logic and follow the same code paths.
- */
-
-var warning = emptyFunction;
-
-if (process.env.NODE_ENV !== 'production') {
-  (function () {
-    var printWarning = function printWarning(format) {
-      for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-        args[_key - 1] = arguments[_key];
-      }
-
-      var argIndex = 0;
-      var message = 'Warning: ' + format.replace(/%s/g, function () {
-        return args[argIndex++];
-      });
-      if (typeof console !== 'undefined') {
-        console.error(message);
-      }
-      try {
-        // --- Welcome to debugging React ---
-        // This error was thrown as a convenience so that you can use this stack
-        // to find the callsite that caused this warning to fire.
-        throw new Error(message);
-      } catch (x) {}
-    };
-
-    warning = function warning(condition, format) {
-      if (format === undefined) {
-        throw new Error('`warning(condition, format, ...args)` requires a warning ' + 'message argument');
-      }
-
-      if (format.indexOf('Failed Composite propType: ') === 0) {
-        return; // Ignore CompositeComponent proptype check.
-      }
-
-      if (!condition) {
-        for (var _len2 = arguments.length, args = Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
-          args[_key2 - 2] = arguments[_key2];
-        }
-
-        printWarning.apply(undefined, [format].concat(args));
-      }
-    };
-  })();
-}
-
-module.exports = warning;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/** Copyright (c) Facebook, Inc. and its affiliates.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * 
- */
-
-
-Object.defineProperty(exports, '__esModule', {value: true});
-exports.JsonSerializers = (exports.JsonSerializer = (exports.IdentitySerializers = (exports.IdentitySerializer = (exports.UTF8Encoder = (exports.Utf8Encoders = (exports.BufferEncoder = (exports.BufferEncoders = (exports.writeUInt24BE = (exports.toBuffer = (exports.readUInt24BE = (exports.createBuffer = (exports.byteLength = (exports.serializeFrameWithLength = (exports.serializeFrame = (exports.deserializeFrames = (exports.deserializeFrameWithLength = (exports.deserializeFrame = (exports.printFrame = (exports.isResumeEnable = (exports.isRespond = (exports.isNext = (exports.isMetadata = (exports.isLease = (exports.isIgnore = (exports.isComplete = (exports.getErrorCodeExplanation = (exports.createErrorFromFrame = (exports.MAX_VERSION = (exports.MAX_STREAM_ID = (exports.MAX_RESUME_LENGTH = (exports.MAX_MIME_LENGTH = (exports.MAX_LIFETIME = (exports.MAX_KEEPALIVE = (exports.MAX_CODE = (exports.FRAME_TYPES = (exports.FRAME_TYPE_OFFFSET = (exports.FLAGS = (exports.FLAGS_MASK = (exports.ERROR_EXPLANATIONS = (exports.ERROR_CODES = (exports.CONNECTION_STREAM_ID = (exports.RSocketResumableTransport = (exports.RSocketServer = (exports.RSocketClient = undefined))))))))))))))))))))))))))))))))))))))))))));
-var _RSocketFrame = __webpack_require__(1);
-Object.defineProperty(exports, 'CONNECTION_STREAM_ID', {
-  enumerable: true,
-  get: function() {
-    return _RSocketFrame.CONNECTION_STREAM_ID;
-  },
-});
-Object.defineProperty(exports, 'ERROR_CODES', {
-  enumerable: true,
-  get: function() {
-    return _RSocketFrame.ERROR_CODES;
-  },
-});
-Object.defineProperty(exports, 'ERROR_EXPLANATIONS', {
-  enumerable: true,
-  get: function() {
-    return _RSocketFrame.ERROR_EXPLANATIONS;
-  },
-});
-Object.defineProperty(exports, 'FLAGS_MASK', {
-  enumerable: true,
-  get: function() {
-    return _RSocketFrame.FLAGS_MASK;
-  },
-});
-Object.defineProperty(exports, 'FLAGS', {
-  enumerable: true,
-  get: function() {
-    return _RSocketFrame.FLAGS;
-  },
-});
-Object.defineProperty(exports, 'FRAME_TYPE_OFFFSET', {
-  enumerable: true,
-  get: function() {
-    return _RSocketFrame.FRAME_TYPE_OFFFSET;
-  },
-});
-Object.defineProperty(exports, 'FRAME_TYPES', {
-  enumerable: true,
-  get: function() {
-    return _RSocketFrame.FRAME_TYPES;
-  },
-});
-Object.defineProperty(exports, 'MAX_CODE', {
-  enumerable: true,
-  get: function() {
-    return _RSocketFrame.MAX_CODE;
-  },
-});
-Object.defineProperty(exports, 'MAX_KEEPALIVE', {
-  enumerable: true,
-  get: function() {
-    return _RSocketFrame.MAX_KEEPALIVE;
-  },
-});
-Object.defineProperty(exports, 'MAX_LIFETIME', {
-  enumerable: true,
-  get: function() {
-    return _RSocketFrame.MAX_LIFETIME;
-  },
-});
-Object.defineProperty(exports, 'MAX_MIME_LENGTH', {
-  enumerable: true,
-  get: function() {
-    return _RSocketFrame.MAX_MIME_LENGTH;
-  },
-});
-Object.defineProperty(exports, 'MAX_RESUME_LENGTH', {
-  enumerable: true,
-  get: function() {
-    return _RSocketFrame.MAX_RESUME_LENGTH;
-  },
-});
-Object.defineProperty(exports, 'MAX_STREAM_ID', {
-  enumerable: true,
-  get: function() {
-    return _RSocketFrame.MAX_STREAM_ID;
-  },
-});
-Object.defineProperty(exports, 'MAX_VERSION', {
-  enumerable: true,
-  get: function() {
-    return _RSocketFrame.MAX_VERSION;
-  },
-});
-Object.defineProperty(exports, 'createErrorFromFrame', {
-  enumerable: true,
-  get: function() {
-    return _RSocketFrame.createErrorFromFrame;
-  },
-});
-Object.defineProperty(exports, 'getErrorCodeExplanation', {
-  enumerable: true,
-  get: function() {
-    return _RSocketFrame.getErrorCodeExplanation;
-  },
-});
-Object.defineProperty(exports, 'isComplete', {
-  enumerable: true,
-  get: function() {
-    return _RSocketFrame.isComplete;
-  },
-});
-Object.defineProperty(exports, 'isIgnore', {
-  enumerable: true,
-  get: function() {
-    return _RSocketFrame.isIgnore;
-  },
-});
-Object.defineProperty(exports, 'isLease', {
-  enumerable: true,
-  get: function() {
-    return _RSocketFrame.isLease;
-  },
-});
-Object.defineProperty(exports, 'isMetadata', {
-  enumerable: true,
-  get: function() {
-    return _RSocketFrame.isMetadata;
-  },
-});
-Object.defineProperty(exports, 'isNext', {
-  enumerable: true,
-  get: function() {
-    return _RSocketFrame.isNext;
-  },
-});
-Object.defineProperty(exports, 'isRespond', {
-  enumerable: true,
-  get: function() {
-    return _RSocketFrame.isRespond;
-  },
-});
-Object.defineProperty(exports, 'isResumeEnable', {
-  enumerable: true,
-  get: function() {
-    return _RSocketFrame.isResumeEnable;
-  },
-});
-Object.defineProperty(exports, 'printFrame', {
-  enumerable: true,
-  get: function() {
-    return _RSocketFrame.printFrame;
-  },
-});
-var _RSocketBinaryFraming = __webpack_require__(18);
-Object.defineProperty(exports, 'deserializeFrame', {
-  enumerable: true,
-  get: function() {
-    return _RSocketBinaryFraming.deserializeFrame;
-  },
-});
-Object.defineProperty(exports, 'deserializeFrameWithLength', {
-  enumerable: true,
-  get: function() {
-    return _RSocketBinaryFraming.deserializeFrameWithLength;
-  },
-});
-Object.defineProperty(exports, 'deserializeFrames', {
-  enumerable: true,
-  get: function() {
-    return _RSocketBinaryFraming.deserializeFrames;
-  },
-});
-Object.defineProperty(exports, 'serializeFrame', {
-  enumerable: true,
-  get: function() {
-    return _RSocketBinaryFraming.serializeFrame;
-  },
-});
-Object.defineProperty(exports, 'serializeFrameWithLength', {
-  enumerable: true,
-  get: function() {
-    return _RSocketBinaryFraming.serializeFrameWithLength;
-  },
-});
-var _RSocketBufferUtils = __webpack_require__(5);
-Object.defineProperty(exports, 'byteLength', {
-  enumerable: true,
-  get: function() {
-    return _RSocketBufferUtils.byteLength;
-  },
-});
-Object.defineProperty(exports, 'createBuffer', {
-  enumerable: true,
-  get: function() {
-    return _RSocketBufferUtils.createBuffer;
-  },
-});
-Object.defineProperty(exports, 'readUInt24BE', {
-  enumerable: true,
-  get: function() {
-    return _RSocketBufferUtils.readUInt24BE;
-  },
-});
-Object.defineProperty(exports, 'toBuffer', {
-  enumerable: true,
-  get: function() {
-    return _RSocketBufferUtils.toBuffer;
-  },
-});
-Object.defineProperty(exports, 'writeUInt24BE', {
-  enumerable: true,
-  get: function() {
-    return _RSocketBufferUtils.writeUInt24BE;
-  },
-});
-var _RSocketEncoding = __webpack_require__(10);
-Object.defineProperty(exports, 'BufferEncoders', {
-  enumerable: true,
-  get: function() {
-    return _RSocketEncoding.BufferEncoders;
-  },
-});
-Object.defineProperty(exports, 'BufferEncoder', {
-  enumerable: true,
-  get: function() {
-    return _RSocketEncoding.BufferEncoder;
-  },
-});
-Object.defineProperty(exports, 'Utf8Encoders', {
-  enumerable: true,
-  get: function() {
-    return _RSocketEncoding.Utf8Encoders;
-  },
-});
-Object.defineProperty(exports, 'UTF8Encoder', {
-  enumerable: true,
-  get: function() {
-    return _RSocketEncoding.UTF8Encoder;
-  },
-});
-var _RSocketSerialization = __webpack_require__(6);
-Object.defineProperty(exports, 'IdentitySerializer', {
-  enumerable: true,
-  get: function() {
-    return _RSocketSerialization.IdentitySerializer;
-  },
-});
-Object.defineProperty(exports, 'IdentitySerializers', {
-  enumerable: true,
-  get: function() {
-    return _RSocketSerialization.IdentitySerializers;
-  },
-});
-Object.defineProperty(exports, 'JsonSerializer', {
-  enumerable: true,
-  get: function() {
-    return _RSocketSerialization.JsonSerializer;
-  },
-});
-Object.defineProperty(exports, 'JsonSerializers', {
-  enumerable: true,
-  get: function() {
-    return _RSocketSerialization.JsonSerializers;
-  },
-});
-var _RSocketClient = __webpack_require__(23);
-var _RSocketClient2 = _interopRequireDefault(_RSocketClient);
-var _RSocketServer = __webpack_require__(29);
-var _RSocketServer2 = _interopRequireDefault(_RSocketServer);
-var _RSocketResumableTransport = __webpack_require__(30);
-var _RSocketResumableTransport2 = _interopRequireDefault(
-  _RSocketResumableTransport
-);
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : {default: obj};
-}
-exports.RSocketClient = _RSocketClient2.default;
-exports.RSocketServer = _RSocketServer2.default;
-exports.RSocketResumableTransport = _RSocketResumableTransport2.default;
-
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports) {
-
-// shim for using process in browser
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
-}
-(function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
-    }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
-    }
-} ())
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-
-
-
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-process.prependListener = noop;
-process.prependOnceListener = noop;
-
-process.listeners = function (name) { return [] }
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(Buffer) {/** Copyright (c) Facebook, Inc. and its affiliates.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * 
- */
-
-
-Object.defineProperty(exports, '__esModule', {value: true});
-exports.BufferEncoders = (exports.Utf8Encoders = (exports.BufferEncoder = (exports.UTF8Encoder = undefined)));
-
-var _RSocketBufferUtils = __webpack_require__(5);
-var _invariant = __webpack_require__(0);
-var _invariant2 = _interopRequireDefault(_invariant);
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : {default: obj};
-}
-
-/**
-                                                                                                                                                                                                   * Commonly used subset of the allowed Node Buffer Encoder types.
-                                                                                                                                                                                                   */
-
-/**
-                                                                                                                                                                                                       * The Encoders object specifies how values should be serialized/deserialized
-                                                                                                                                                                                                       * to/from binary.
-                                                                                                                                                                                                       */
-
-const UTF8Encoder = (exports.UTF8Encoder = {
-  byteLength: value => (0, _RSocketBufferUtils.byteLength)(value, 'utf8'),
-  decode: (buffer, start, end) => {
-    return buffer.toString('utf8', start, end);
-  },
-  encode: (value, buffer, start, end) => {
-    (0, _invariant2.default)(
-      typeof value === 'string',
-      'RSocketEncoding: Expected value to be a string, got `%s`.',
-      value
-    );
-
-    buffer.write(value, start, end - start, 'utf8');
-    return end;
-  },
-});
-
-const BufferEncoder = (exports.BufferEncoder = {
-  byteLength: value => {
-    (0, _invariant2.default)(
-      Buffer.isBuffer(value),
-      'RSocketEncoding: Expected value to be a buffer, got `%s`.',
-      value
-    );
-
-    return value.length;
-  },
-  decode: (buffer, start, end) => {
-    return buffer.slice(start, end);
-  },
-  encode: (value, buffer, start, end) => {
-    (0, _invariant2.default)(
-      Buffer.isBuffer(value),
-      'RSocketEncoding: Expected value to be a buffer, got `%s`.',
-      value
-    );
-
-    value.copy(buffer, start, 0, value.length);
-    return end;
-  },
-});
-
-/**
-        * Encode all values as UTF8 strings.
-        */
-const Utf8Encoders = (exports.Utf8Encoders = {
-  data: UTF8Encoder,
-  dataMimeType: UTF8Encoder,
-  message: UTF8Encoder,
-  metadata: UTF8Encoder,
-  metadataMimeType: UTF8Encoder,
-  resumeToken: UTF8Encoder,
-});
-
-/**
-                               * Encode all values as buffers.
-                               */
-const BufferEncoders = (exports.BufferEncoders = {
-  data: BufferEncoder,
-  dataMimeType: UTF8Encoder,
-  message: UTF8Encoder,
-  metadata: BufferEncoder,
-  metadataMimeType: UTF8Encoder,
-  resumeToken: BufferEncoder,
-});
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/** Copyright (c) Facebook, Inc. and its affiliates.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * 
- */
-
-
-Object.defineProperty(exports, '__esModule', {value: true});
-
-var _FlowableMapOperator = __webpack_require__(24);
-var _FlowableMapOperator2 = _interopRequireDefault(_FlowableMapOperator);
-var _FlowableTakeOperator = __webpack_require__(25);
-var _FlowableTakeOperator2 = _interopRequireDefault(_FlowableTakeOperator);
-
-var _invariant = __webpack_require__(0);
-var _invariant2 = _interopRequireDefault(_invariant);
-var _warning = __webpack_require__(7);
-var _warning2 = _interopRequireDefault(_warning);
-var _emptyFunction = __webpack_require__(3);
-var _emptyFunction2 = _interopRequireDefault(_emptyFunction);
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : {default: obj};
-}
-
-/**
-                                                                                                                                                                                                                   * Implements the ReactiveStream `Publisher` interface with Rx-style operators.
-                                                                                                                                                                                                                   */
-class Flowable {
-  static just(...values) {
-    return new Flowable(subscriber => {
-      let cancelled = false;
-      let i = 0;
-      subscriber.onSubscribe({
-        cancel: () => {
-          cancelled = true;
-        },
-        request: n => {
-          while (!cancelled && n > 0 && i < values.length) {
-            subscriber.onNext(values[i++]);
-            n--;
-          }
-          if (!cancelled && i == values.length) {
-            subscriber.onComplete();
-          }
-        },
-      });
-    });
-  }
-
-  static error(error) {
-    return new Flowable(subscriber => {
-      subscriber.onSubscribe({
-        cancel: () => {},
-        request: () => {
-          subscriber.onError(error);
-        },
-      });
-    });
-  }
-
-  static never() {
-    return new Flowable(subscriber => {
-      subscriber.onSubscribe({
-        cancel: _emptyFunction2.default,
-        request: _emptyFunction2.default,
-      });
-    });
-  }
-
-  constructor(source, max = Number.MAX_SAFE_INTEGER) {
-    this._max = max;
-    this._source = source;
-  }
-
-  subscribe(subscriberOrCallback) {
-    let partialSubscriber;
-    if (typeof subscriberOrCallback === 'function') {
-      partialSubscriber = this._wrapCallback(subscriberOrCallback);
-    } else {
-      partialSubscriber = subscriberOrCallback;
-    }
-    const subscriber = new FlowableSubscriber(partialSubscriber, this._max);
-    this._source(subscriber);
-  }
-
-  lift(onSubscribeLift) {
-    return new Flowable(subscriber =>
-      this._source(onSubscribeLift(subscriber)));
-  }
-
-  map(fn) {
-    return this.lift(
-      subscriber => new _FlowableMapOperator2.default(subscriber, fn)
-    );
-  }
-
-  take(toTake) {
-    return this.lift(
-      subscriber => new _FlowableTakeOperator2.default(subscriber, toTake)
-    );
-  }
-
-  _wrapCallback(callback) {
-    const max = this._max;
-    return {
-      onNext: callback,
-      onSubscribe(subscription) {
-        subscription.request(max);
-      },
-    };
-  }
-}
-exports.default = Flowable;
-
-/**
-                                 * @private
-                                 */
-class FlowableSubscriber {
-  constructor(subscriber, max) {
-    this._cancel = () => {
-      if (!this._active) {
-        return;
-      }
-      this._active = false;
-      if (this._subscription) {
-        this._subscription.cancel();
-      }
-    };
-    this._request = n => {
-      (0, _invariant2.default)(
-        Number.isInteger(n) && n >= 1 && n <= this._max,
-        'Flowable: Expected request value to be an integer with a ' +
-          'value greater than 0 and less than or equal to %s, got ' +
-          '`%s`.',
-        this._max,
-        n
-      );
-
-      if (!this._active) {
-        return;
-      }
-      if (n === this._max) {
-        this._pending = this._max;
-      } else {
-        this._pending += n;
-        if (this._pending >= this._max) {
-          this._pending = this._max;
-        }
-      }
-      if (this._subscription) {
-        this._subscription.request(n);
-      }
-    };
-    this._active = false;
-    this._max = max;
-    this._pending = 0;
-    this._started = false;
-    this._subscriber = subscriber || {};
-    this._subscription = null;
-  }
-  onComplete() {
-    if (!this._active) {
-      (0, _warning2.default)(
-        false,
-        'Flowable: Invalid call to onComplete(): %s.',
-        this._started
-          ? 'onComplete/onError was already called'
-          : 'onSubscribe has not been called'
-      );
-      return;
-    }
-    this._active = false;
-    this._started = true;
-    try {
-      if (this._subscriber.onComplete) {
-        this._subscriber.onComplete();
-      }
-    } catch (error) {
-      if (this._subscriber.onError) {
-        this._subscriber.onError(error);
-      }
-    }
-  }
-  onError(error) {
-    if (this._started && !this._active) {
-      (0, _warning2.default)(
-        false,
-        'Flowable: Invalid call to onError(): %s.',
-        this._active
-          ? 'onComplete/onError was already called'
-          : 'onSubscribe has not been called'
-      );
-      return;
-    }
-    this._active = false;
-    this._started = true;
-    this._subscriber.onError && this._subscriber.onError(error);
-  }
-  onNext(data) {
-    if (!this._active) {
-      (0, _warning2.default)(
-        false,
-        'Flowable: Invalid call to onNext(): %s.',
-        this._active
-          ? 'onComplete/onError was already called'
-          : 'onSubscribe has not been called'
-      );
-      return;
-    }
-    if (this._pending === 0) {
-      (0, _warning2.default)(
-        false,
-        'Flowable: Invalid call to onNext(), all request()ed values have been ' +
-          'published.'
-      );
-      return;
-    }
-    if (this._pending !== this._max) {
-      this._pending--;
-    }
-    try {
-      this._subscriber.onNext && this._subscriber.onNext(data);
-    } catch (error) {
-      if (this._subscription) {
-        this._subscription.cancel();
-      }
-      this.onError(error);
-    }
-  }
-  onSubscribe(subscription) {
-    if (this._started) {
-      (0, _warning2.default)(
-        false,
-        'Flowable: Invalid call to onSubscribe(): already called.'
-      );
-      return;
-    }
-    this._active = true;
-    this._started = true;
-    this._subscription = subscription;
-    try {
-      this._subscriber.onSubscribe &&
-        this._subscriber.onSubscribe({
-          cancel: this._cancel,
-          request: this._request,
-        });
-    } catch (error) {
-      this.onError(error);
-    }
-  }
-}
-
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * 
- */
-
-var nullthrows = function nullthrows(x) {
-  if (x != null) {
-    return x;
-  }
-  throw new Error("Got unexpected null or undefined");
-};
-
-module.exports = nullthrows;
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/** Copyright (c) Facebook, Inc. and its affiliates.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * 
- */
-
-
-Object.defineProperty(exports, '__esModule', {value: true});
-exports.createServerMachine = createServerMachine;
-exports.createClientMachine = createClientMachine;
-var _rsocketFlowable = __webpack_require__(2);
-var _emptyFunction = __webpack_require__(3);
-var _emptyFunction2 = _interopRequireDefault(_emptyFunction);
-var _invariant = __webpack_require__(0);
-var _invariant2 = _interopRequireDefault(_invariant);
-var _warning = __webpack_require__(7);
-var _warning2 = _interopRequireDefault(_warning);
-var _RSocketFrame = __webpack_require__(1);
-var _RSocketSerialization = __webpack_require__(6);
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : {default: obj};
-}
-class ResponderWrapper {
-  constructor(responder) {
-    this._responder = responder || {};
-  }
-  setResponder(responder) {
-    this._responder = responder || {};
-  }
-  fireAndForget(payload) {
-    if (this._responder.fireAndForget) {
-      try {
-        this._responder.fireAndForget(payload);
-      } catch (error) {
-        console.error('fireAndForget threw an exception', error);
-      }
-    }
-  }
-  requestResponse(payload) {
-    let error;
-    if (this._responder.requestResponse) {
-      try {
-        return this._responder.requestResponse(payload);
-      } catch (_error) {
-        console.error('requestResponse threw an exception', _error);
-        error = _error;
-      }
-    }
-    return _rsocketFlowable.Single.error(error || new Error('not implemented'));
-  }
-  requestStream(payload) {
-    let error;
-    if (this._responder.requestStream) {
-      try {
-        return this._responder.requestStream(payload);
-      } catch (_error) {
-        console.error('requestStream threw an exception', _error);
-        error = _error;
-      }
-    }
-    return _rsocketFlowable.Flowable.error(
-      error || new Error('not implemented')
-    );
-  }
-  requestChannel(payloads) {
-    let error;
-    if (this._responder.requestChannel) {
-      try {
-        return this._responder.requestChannel(payloads);
-      } catch (_error) {
-        console.error('requestChannel threw an exception', _error);
-        error = _error;
-      }
-    }
-    return _rsocketFlowable.Flowable.error(
-      error || new Error('not implemented')
-    );
-  }
-  metadataPush(payload) {
-    let error;
-    if (this._responder.metadataPush) {
-      try {
-        return this._responder.metadataPush(payload);
-      } catch (_error) {
-        console.error('metadataPush threw an exception', _error);
-        error = _error;
-      }
-    }
-    return _rsocketFlowable.Single.error(error || new Error('not implemented'));
-  }
-}
-function createServerMachine(
-  connection,
-  connectionPublisher,
-  serializers,
-  requestHandler
-) {
-  return new RSocketMachineImpl(
-    'SERVER',
-    connection,
-    connectionPublisher,
-    serializers,
-    requestHandler
-  );
-}
-function createClientMachine(
-  connection,
-  connectionPublisher,
-  serializers,
-  requestHandler
-) {
-  return new RSocketMachineImpl(
-    'CLIENT',
-    connection,
-    connectionPublisher,
-    serializers,
-    requestHandler
-  );
-}
-
-class RSocketMachineImpl {
-  constructor(
-    role,
-    connection,
-    connectionPublisher,
-    serializers,
-    requestHandler
-  ) {
-    this._handleTransportClose = () => {
-      this._handleError(new Error('RSocket: The connection was closed.'));
-    };
-    this._handleError = error => {
-      // Error any open request streams
-      this._receivers.forEach(receiver => {
-        receiver.onError(error);
-      });
-      this._receivers.clear();
-    };
-    this._handleFrame = frame => {
-      const {streamId} = frame;
-      if (streamId === _RSocketFrame.CONNECTION_STREAM_ID) {
-        this._handleConnectionFrame(frame);
-      } else {
-        this._handleStreamFrame(streamId, frame);
-      }
-    };
-    this._connection = connection;
-    this._nextStreamId = role === 'CLIENT' ? 1 : 2;
-    this._receivers = new Map();
-    this._subscriptions = new Map();
-    this._serializers = serializers ||
-      _RSocketSerialization.IdentitySerializers;
-    this._requestHandler = new ResponderWrapper(requestHandler); // Subscribe to completion/errors before sending anything
-    connectionPublisher({
-      onComplete: this._handleTransportClose,
-      onError: this._handleError,
-      onNext: this._handleFrame,
-      onSubscribe: subscription =>
-        subscription.request(Number.MAX_SAFE_INTEGER),
-    }); // Cleanup when the connection closes
-    this._connection.connectionStatus().subscribe({
-      onNext: status => {
-        if (status.kind === 'CLOSED') {
-          this._handleTransportClose();
-        } else if (status.kind === 'ERROR') {
-          this._handleError(status.error);
-        }
-      },
-      onSubscribe: subscription =>
-        subscription.request(Number.MAX_SAFE_INTEGER),
-    });
-  }
-  setRequestHandler(requestHandler) {
-    this._requestHandler.setResponder(requestHandler);
-  }
-  close() {
-    this._connection.close();
-  }
-  connectionStatus() {
-    return this._connection.connectionStatus();
-  }
-  fireAndForget(payload) {
-    const streamId = this._getNextStreamId();
-    const data = this._serializers.data.serialize(payload.data);
-    const metadata = this._serializers.metadata.serialize(payload.metadata);
-    const frame = {
-      data,
-      flags: payload.metadata !== undefined ? _RSocketFrame.FLAGS.METADATA : 0,
-      metadata,
-      streamId,
-      type: _RSocketFrame.FRAME_TYPES.REQUEST_FNF,
-    };
-    this._connection.sendOne(frame);
-  }
-  requestResponse(payload) {
-    const streamId = this._getNextStreamId();
-    return new _rsocketFlowable.Single(subscriber => {
-      this._receivers.set(streamId, {
-        onComplete: _emptyFunction2.default,
-        onError: error => subscriber.onError(error),
-        onNext: data => subscriber.onComplete(data),
-      });
-      const data = this._serializers.data.serialize(payload.data);
-      const metadata = this._serializers.metadata.serialize(payload.metadata);
-      const frame = {
-        data,
-        flags: payload.metadata !== undefined
-          ? _RSocketFrame.FLAGS.METADATA
-          : 0,
-        metadata,
-        streamId,
-        type: _RSocketFrame.FRAME_TYPES.REQUEST_RESPONSE,
-      };
-      this._connection.sendOne(frame);
-      subscriber.onSubscribe(() => {
-        this._receivers.delete(streamId);
-        const cancelFrame = {
-          flags: 0,
-          streamId,
-          type: _RSocketFrame.FRAME_TYPES.CANCEL,
-        };
-        this._connection.sendOne(cancelFrame);
-      });
-    });
-  }
-  requestStream(payload) {
-    const streamId = this._getNextStreamId();
-    return new _rsocketFlowable.Flowable(
-      subscriber => {
-        this._receivers.set(streamId, subscriber);
-        let initialized = false;
-        subscriber.onSubscribe({
-          cancel: () => {
-            this._receivers.delete(streamId);
-            if (!initialized) {
-              return;
-            }
-            const cancelFrame = {
-              flags: 0,
-              streamId,
-              type: _RSocketFrame.FRAME_TYPES.CANCEL,
-            };
-            this._connection.sendOne(cancelFrame);
-          },
-          request: n => {
-            if (n > _RSocketFrame.MAX_REQUEST_N) {
-              (0, _warning2.default)(
-                false,
-                'RSocketClient: Invalid request value `%s`, the maximum ' +
-                  'value supported by the RSocket protocol is `%s`. Sending ' +
-                  'the maximum supported value instead.',
-                n,
-                _RSocketFrame.MAX_REQUEST_N
-              );
-              n = _RSocketFrame.MAX_REQUEST_N;
-            }
-            if (initialized) {
-              const requestNFrame = {
-                flags: 0,
-                requestN: n,
-                streamId,
-                type: _RSocketFrame.FRAME_TYPES.REQUEST_N,
-              };
-              this._connection.sendOne(requestNFrame);
-            } else {
-              initialized = true;
-              const data = this._serializers.data.serialize(payload.data);
-              const metadata = this._serializers.metadata.serialize(
-                payload.metadata
-              );
-              const requestStreamFrame = {
-                data,
-                flags: payload.metadata !== undefined
-                  ? _RSocketFrame.FLAGS.METADATA
-                  : 0,
-                metadata,
-                requestN: n,
-                streamId,
-                type: _RSocketFrame.FRAME_TYPES.REQUEST_STREAM,
-              };
-              this._connection.sendOne(requestStreamFrame);
-            }
-          },
-        });
-      },
-      _RSocketFrame.MAX_REQUEST_N
-    );
-  }
-  requestChannel(payloads) {
-    // TODO #18065296: implement requestChannel
-    throw new Error('requestChannel() is not implemented');
-  }
-  metadataPush(payload) {
-    // TODO #18065331: implement metadataPush
-    throw new Error('metadataPush() is not implemented');
-  }
-  _getNextStreamId() {
-    const streamId = this._nextStreamId;
-    (0, _invariant2.default)(
-      streamId <= _RSocketFrame.MAX_STREAM_ID,
-      'RSocketClient: Cannot issue request, maximum stream id reached (%s).',
-      _RSocketFrame.MAX_STREAM_ID
-    );
-    this._nextStreamId += 2;
-    return streamId;
-  }
-  /**
-                                                                                                                                                                                                                                                                                                                                    * Handle the connection closing normally: this is an error for any open streams.
-                                                                                                                                                                                                                                                                                                                                    */ /**
-                                                                                                                                                                                                                                                                                                                                        * Handle the transport connection closing abnormally or a connection-level protocol error.
-                                                                                                                                                                                                                                                                                                                                        */ _handleConnectionError(
-    error
-  ) {
-    this._handleError(error);
-    this._connection.close();
-  }
-  /**
-                                                                                                                                                                                                                                                                                                                                                                                                                              * Handle a frame received from the transport client.
-                                                                                                                                                                                                                                                                                                                                                                                                                              */ /**
-                                                                                                                                                                                                                                                                                                                                                                                                                                  * Handle connection frames (stream id === 0).
-                                                                                                                                                                                                                                                                                                                                                                                                                                  */ _handleConnectionFrame(
-    frame
-  ) {
-    switch (frame.type) {
-      case _RSocketFrame.FRAME_TYPES.ERROR:
-        const error = (0, _RSocketFrame.createErrorFromFrame)(frame);
-        this._handleConnectionError(error);
-        break;
-      case _RSocketFrame.FRAME_TYPES.EXT: // Extensions are not supported
-        break;
-      case _RSocketFrame.FRAME_TYPES.KEEPALIVE:
-        if ((0, _RSocketFrame.isRespond)(frame.flags)) {
-          this._connection.sendOne(
-            Object.assign({}, frame, {
-              flags: frame.flags ^ _RSocketFrame.FLAGS.RESPOND, // eslint-disable-line no-bitwise
-              lastReceivedPosition: 0,
-            })
-          );
-        }
-        break;
-      case _RSocketFrame.FRAME_TYPES.LEASE:
-        // TODO #18064860: support lease
-        break;
-      case _RSocketFrame.FRAME_TYPES.METADATA_PUSH:
-      case _RSocketFrame.FRAME_TYPES.REQUEST_CHANNEL:
-      case _RSocketFrame.FRAME_TYPES.REQUEST_FNF:
-      case _RSocketFrame.FRAME_TYPES.REQUEST_RESPONSE:
-      case _RSocketFrame.FRAME_TYPES.REQUEST_STREAM:
-        // TODO #18064706: handle requests from server
-        break;
-      case _RSocketFrame.FRAME_TYPES.RESERVED:
-        // No-op
-        break;
-      case _RSocketFrame.FRAME_TYPES.RESUME:
-      case _RSocketFrame.FRAME_TYPES.RESUME_OK:
-        // TODO #18065016: support resumption
-        break;
-      default:
-        if (false) {
-          console.log(
-            'RSocketClient: Unsupported frame type `%s` on stream `%s`.',
-            (0, _RSocketFrame.getFrameTypeName)(frame.type),
-            _RSocketFrame.CONNECTION_STREAM_ID
-          );
-        }
-        break;
-    }
-  }
-
-  /**
-     * Handle stream-specific frames (stream id !== 0).
-     */
-  _handleStreamFrame(streamId, frame) {
-    switch (frame.type) {
-      case _RSocketFrame.FRAME_TYPES.CANCEL:
-        this._handleCancel(streamId, frame);
-        break;
-      case _RSocketFrame.FRAME_TYPES.REQUEST_N:
-        this._handleRequestN(streamId, frame);
-        break;
-      case _RSocketFrame.FRAME_TYPES.REQUEST_FNF:
-        this._handleFireAndForget(streamId, frame);
-        break;
-      case _RSocketFrame.FRAME_TYPES.REQUEST_RESPONSE:
-        this._handleRequestResponse(streamId, frame);
-        break;
-      case _RSocketFrame.FRAME_TYPES.REQUEST_STREAM:
-        this._handleRequestStream(streamId, frame);
-        break;
-      case _RSocketFrame.FRAME_TYPES.ERROR:
-        const error = (0, _RSocketFrame.createErrorFromFrame)(frame);
-        this._handleStreamError(streamId, error);
-        break;
-      case _RSocketFrame.FRAME_TYPES.PAYLOAD:
-        const receiver = this._receivers.get(streamId);
-        if (receiver != null) {
-          if ((0, _RSocketFrame.isNext)(frame.flags)) {
-            const payload = {
-              data: this._serializers.data.deserialize(frame.data),
-              metadata: this._serializers.metadata.deserialize(frame.metadata),
-            };
-
-            receiver.onNext(payload);
-          }
-          if ((0, _RSocketFrame.isComplete)(frame.flags)) {
-            this._receivers.delete(streamId);
-            receiver.onComplete();
-          }
-        }
-        break;
-      default:
-        if (false) {
-          console.log(
-            'RSocketClient: Unsupported frame type `%s` on stream `%s`.',
-            (0, _RSocketFrame.getFrameTypeName)(frame.type),
-            streamId
-          );
-        }
-        break;
-    }
-  }
-
-  _handleCancel(streamId, frame) {
-    const subscription = this._subscriptions.get(streamId);
-    if (subscription) {
-      subscription.cancel();
-      this._subscriptions.delete(streamId);
-    }
-  }
-
-  _handleRequestN(streamId, frame) {
-    const subscription = this._subscriptions.get(streamId);
-    if (subscription) {
-      subscription.request(frame.requestN);
-    }
-  }
-
-  _handleFireAndForget(streamId, frame) {
-    const payload = this._deserializePayload(frame);
-    this._requestHandler.fireAndForget(payload);
-  }
-
-  _handleRequestResponse(streamId, frame) {
-    const payload = this._deserializePayload(frame);
-    this._requestHandler.requestResponse(payload).subscribe({
-      onComplete: payload => {
-        this._sendStreamPayload(streamId, payload, true);
-      },
-      onError: error => this._sendStreamError(streamId, error),
-      onSubscribe: cancel => {
-        const subscription = {
-          cancel,
-          request: _emptyFunction2.default,
-        };
-
-        this._subscriptions.set(streamId, subscription);
-      },
-    });
-  }
-
-  _handleRequestStream(streamId, frame) {
-    const payload = this._deserializePayload(frame);
-    this._requestHandler.requestStream(payload).subscribe({
-      onComplete: () => this._sendStreamComplete(streamId),
-      onError: error => this._sendStreamError(streamId, error),
-      onNext: payload => this._sendStreamPayload(streamId, payload),
-      onSubscribe: subscription => {
-        this._subscriptions.set(streamId, subscription);
-        subscription.request(frame.requestN);
-      },
-    });
-  }
-
-  _sendStreamComplete(streamId) {
-    this._subscriptions.delete(streamId);
-    this._connection.sendOne({
-      data: null,
-      flags: _RSocketFrame.FLAGS.COMPLETE,
-      metadata: null,
-      streamId,
-      type: _RSocketFrame.FRAME_TYPES.PAYLOAD,
-    });
-  }
-
-  _sendStreamError(streamId, error) {
-    this._subscriptions.delete(streamId);
-    this._connection.sendOne({
-      code: _RSocketFrame.ERROR_CODES.APPLICATION_ERROR,
-      flags: 0,
-      message: error.message,
-      streamId,
-      type: _RSocketFrame.FRAME_TYPES.ERROR,
-    });
-  }
-
-  _sendStreamPayload(streamId, payload, complete = false) {
-    let flags = _RSocketFrame.FLAGS.NEXT;
-    if (complete) {
-      // eslint-disable-next-line no-bitwise
-      flags |= _RSocketFrame.FLAGS.COMPLETE;
-      this._subscriptions.delete(streamId);
-    }
-    const data = this._serializers.data.serialize(payload.data);
-    const metadata = this._serializers.metadata.serialize(payload.metadata);
-    this._connection.sendOne({
-      data,
-      flags,
-      metadata,
-      streamId,
-      type: _RSocketFrame.FRAME_TYPES.PAYLOAD,
-    });
-  }
-
-  _deserializePayload(frame) {
-    return deserializePayload(this._serializers, frame);
-  }
-
-  /**
-     * Handle an error specific to a stream.
-     */
-  _handleStreamError(streamId, error) {
-    const receiver = this._receivers.get(streamId);
-    if (receiver != null) {
-      this._receivers.delete(streamId);
-      receiver.onError(error);
-    }
-  }
-}
-
-function deserializePayload(serializers, frame) {
-  return {
-    data: serializers.data.deserialize(frame.data),
-    metadata: serializers.metadata.deserialize(frame.metadata),
-  };
-}
-
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/** Copyright (c) Facebook, Inc. and its affiliates.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * 
- */
-
-
-Object.defineProperty(exports, '__esModule', {value: true});
-var _ReactiveSocketTypes = __webpack_require__(31);
-
-Object.keys(_ReactiveSocketTypes).forEach(function(key) {
-  if (key === 'default' || key === '__esModule') return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function() {
-      return _ReactiveSocketTypes[key];
-    },
-  });
-});
-var _ReactiveStreamTypes = __webpack_require__(32);
-
-Object.keys(_ReactiveStreamTypes).forEach(function(key) {
-  if (key === 'default' || key === '__esModule') return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function() {
-      return _ReactiveStreamTypes[key];
-    },
-  });
-});
-
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-const {
-  RSocketClient,
-  Utf8Encoders
-} = __webpack_require__(8);
-const RSocketWebSocketClient = __webpack_require__(33).default;
-
-function addMessage(message) {
-  var ul = document.getElementById("messages");
-  var li = document.createElement("li");
-  li.appendChild(document.createTextNode(message));
-  ul.appendChild(li);
-}
-
-function main() {
-  const url = "wss://rsocket-demo.herokuapp.com/ws";
-
-  // Create an instance of a client
-  const client = new RSocketClient({
-    setup: {
-      keepAlive: 60000,
-      lifetime: 180000,
-      dataMimeType: 'binary',
-      metadataMimeType: 'binary'
-    },
-    transport: new RSocketWebSocketClient({
-      url,
-      debug: true
-    }, Utf8Encoders)
-  });
-
-  // Open the connection
-  client.connect().subscribe({
-    onComplete: socket => {
-      //       socket.onClose().catch(error => console.error(error));
-
-      socket.requestStream({
-        data: 'peace',
-        metadata: null
-      }).subscribe({
-        onComplete: () => console.log('complete'),
-        onError: error => console.error(error),
-        onNext: payload => {
-          console.log(payload.data);
-          addMessage(payload.data);
-        },
-        onSubscribe: subscription => {
-          subscription.request(100);
-        }
-      });
-    },
-    onError: error => console.error(error),
-    onSubscribe: cancel => {/* call cancel() to abort */}
-  });
-}
-
-document.addEventListener('DOMContentLoaded', main);
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * @typechecks
- */
-
-
-
-var hasOwnProperty = Object.prototype.hasOwnProperty;
-
-/**
- * Executes the provided `callback` once for each enumerable own property in the
- * object. The `callback` is invoked with three arguments:
- *
- *  - the property value
- *  - the property name
- *  - the object being traversed
- *
- * Properties that are added after the call to `forEachObject` will not be
- * visited by `callback`. If the values of existing properties are changed, the
- * value passed to `callback` will be the value at the time `forEachObject`
- * visits them. Properties that are deleted before being visited are not
- * visited.
- *
- * @param {?object} object
- * @param {function} callback
- * @param {*} context
- */
-function forEachObject(object, callback, context) {
-  for (var name in object) {
-    if (hasOwnProperty.call(object, name)) {
-      callback.call(context, object[name], name, object);
-    }
-  }
-}
-
-module.exports = forEachObject;
-
-/***/ }),
-/* 17 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * @typechecks
- */
-
-/**
- * Simple function for formatting strings.
- *
- * Replaces placeholders with values passed as extra arguments
- *
- * @param {string} format the base string
- * @param ...args the values to insert
- * @return {string} the replaced string
- */
-function sprintf(format) {
-  for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-    args[_key - 1] = arguments[_key];
-  }
-
-  var index = 0;
-  return format.replace(/%s/g, function (match) {
-    return args[index++];
-  });
-}
-
-module.exports = sprintf;
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/** Copyright (c) Facebook, Inc. and its affiliates.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * 
- */
-
-
-
-/* eslint-disable consistent-return, no-bitwise */ Object.defineProperty(
-  exports,
-  '__esModule',
-  {value: true}
-);
-exports.deserializeFrameWithLength = deserializeFrameWithLength;
-exports.deserializeFrames = deserializeFrames;
-exports.serializeFrameWithLength = serializeFrameWithLength;
-exports.deserializeFrame = deserializeFrame;
-exports.serializeFrame = serializeFrame;
-var _invariant = __webpack_require__(0);
-var _invariant2 = _interopRequireDefault(_invariant);
-var _RSocketFrame = __webpack_require__(1);
-var _RSocketEncoding = __webpack_require__(10);
-var _RSocketBufferUtils = __webpack_require__(5);
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : {default: obj};
-}
-/**
-                                                                                                                                                                                                                                                                                                                                                                                               * Frame header is:
-                                                                                                                                                                                                                                                                                                                                                                                               * - stream id (uint32 = 4)
-                                                                                                                                                                                                                                                                                                                                                                                               * - type + flags (uint 16 = 2)
-                                                                                                                                                                                                                                                                                                                                                                                               */ const FRAME_HEADER_SIZE = 6;
-/**
-                                                                                                                                                                                                                                                                                                                                                                                                                               * Size of frame length and metadata length fields.
-                                                                                                                                                                                                                                                                                                                                                                                                                               */ const UINT24_SIZE = 3;
-/**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                         * Reads a frame from a buffer that is prefixed with the frame length.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                         */ function deserializeFrameWithLength(
-  buffer,
-  encoders
-) {
-  const frameLength = (0, _RSocketBufferUtils.readUInt24BE)(buffer, 0);
-  return deserializeFrame(
-    buffer.slice(UINT24_SIZE, UINT24_SIZE + frameLength),
-    encoders
-  );
-}
-/**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  * Given a buffer that may contain zero or more length-prefixed frames followed
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  * by zero or more bytes of a (partial) subsequent frame, returns an array of
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  * the frames and a buffer of the leftover bytes.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  */ function deserializeFrames(
-  buffer,
-  encoders
-) {
-  const frames = [];
-  let offset = 0;
-  while (offset + UINT24_SIZE < buffer.length) {
-    const frameLength = (0, _RSocketBufferUtils.readUInt24BE)(buffer, offset);
-    const frameStart = offset + UINT24_SIZE;
-    const frameEnd = frameStart + frameLength;
-    if (frameEnd > buffer.length) {
-      // not all bytes of next frame received
-      break;
-    }
-    const frameBuffer = buffer.slice(frameStart, frameEnd);
-    const frame = deserializeFrame(frameBuffer, encoders);
-    frames.push(frame);
-    offset = frameEnd;
-  }
-  return [frames, buffer.slice(offset, buffer.length)];
-}
-/**
-                                                                                                                                                                                                                        * Writes a frame to a buffer with a length prefix.
-                                                                                                                                                                                                                        */ function serializeFrameWithLength(
-  frame,
-  encoders
-) {
-  const buffer = serializeFrame(frame, encoders);
-  const lengthPrefixed = (0, _RSocketBufferUtils.createBuffer)(
-    buffer.length + UINT24_SIZE
-  );
-  (0, _RSocketBufferUtils.writeUInt24BE)(lengthPrefixed, buffer.length, 0);
-  buffer.copy(lengthPrefixed, UINT24_SIZE, 0, buffer.length);
-  return lengthPrefixed;
-}
-/**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    * Read a frame from the buffer.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    */ function deserializeFrame(
-  buffer,
-  encoders
-) {
-  encoders = encoders || _RSocketEncoding.Utf8Encoders;
-  let offset = 0;
-  const streamId = buffer.readInt32BE(offset);
-  offset += 4;
-  (0, _invariant2.default)(
-    streamId >= 0,
-    'RSocketBinaryFraming: Invalid frame, expected a positive stream id, got `%s.',
-    streamId
-  );
-  const typeAndFlags = buffer.readUInt16BE(offset);
-  offset += 2;
-  const type = typeAndFlags >>> _RSocketFrame.FRAME_TYPE_OFFFSET; // keep highest 6 bits
-  const flags = typeAndFlags & _RSocketFrame.FLAGS_MASK; // keep lowest 10 bits
-  switch (type) {
-    case _RSocketFrame.FRAME_TYPES.SETUP:
-      return deserializeSetupFrame(buffer, streamId, flags, encoders);
-    case _RSocketFrame.FRAME_TYPES.PAYLOAD:
-      return deserializePayloadFrame(buffer, streamId, flags, encoders);
-    case _RSocketFrame.FRAME_TYPES.ERROR:
-      return deserializeErrorFrame(buffer, streamId, flags, encoders);
-    case _RSocketFrame.FRAME_TYPES.KEEPALIVE:
-      return deserializeKeepAliveFrame(buffer, streamId, flags, encoders);
-    case _RSocketFrame.FRAME_TYPES.REQUEST_FNF:
-      return deserializeRequestFnfFrame(buffer, streamId, flags, encoders);
-    case _RSocketFrame.FRAME_TYPES.REQUEST_RESPONSE:
-      return deserializeRequestResponseFrame(buffer, streamId, flags, encoders);
-    case _RSocketFrame.FRAME_TYPES.REQUEST_STREAM:
-      return deserializeRequestStreamFrame(buffer, streamId, flags, encoders);
-    case _RSocketFrame.FRAME_TYPES.REQUEST_CHANNEL:
-      return deserializeRequestChannelFrame(buffer, streamId, flags, encoders);
-    case _RSocketFrame.FRAME_TYPES.REQUEST_N:
-      return deserializeRequestNFrame(buffer, streamId, flags, encoders);
-    case _RSocketFrame.FRAME_TYPES.RESUME:
-      return deserializeResumeFrame(buffer, streamId, flags, encoders);
-    case _RSocketFrame.FRAME_TYPES.RESUME_OK:
-      return deserializeResumeOkFrame(buffer, streamId, flags, encoders);
-    case _RSocketFrame.FRAME_TYPES.CANCEL:
-      return deserializeCancelFrame(buffer, streamId, flags, encoders);
-    case _RSocketFrame.FRAME_TYPES.LEASE:
-      return deserializeLeaseFrame(buffer, streamId, flags, encoders);
-    default:
-      (0, _invariant2.default)(
-        false,
-        'RSocketBinaryFraming: Unsupported frame type `%s`.',
-        (0, _RSocketFrame.getFrameTypeName)(type)
-      );
-  }
-}
-/**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 * Convert the frame to a (binary) buffer.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 */ function serializeFrame(
-  frame,
-  encoders
-) {
-  encoders = encoders || _RSocketEncoding.Utf8Encoders;
-  switch (frame.type) {
-    case _RSocketFrame.FRAME_TYPES.SETUP:
-      return serializeSetupFrame(frame, encoders);
-    case _RSocketFrame.FRAME_TYPES.PAYLOAD:
-      return serializePayloadFrame(frame, encoders);
-    case _RSocketFrame.FRAME_TYPES.ERROR:
-      return serializeErrorFrame(frame, encoders);
-    case _RSocketFrame.FRAME_TYPES.KEEPALIVE:
-      return serializeKeepAliveFrame(frame, encoders);
-    case _RSocketFrame.FRAME_TYPES.REQUEST_FNF:
-    case _RSocketFrame.FRAME_TYPES.REQUEST_RESPONSE:
-      return serializeRequestFrame(frame, encoders);
-    case _RSocketFrame.FRAME_TYPES.REQUEST_STREAM:
-    case _RSocketFrame.FRAME_TYPES.REQUEST_CHANNEL:
-      return serializeRequestManyFrame(frame, encoders);
-    case _RSocketFrame.FRAME_TYPES.REQUEST_N:
-      return serializeRequestNFrame(frame, encoders);
-    case _RSocketFrame.FRAME_TYPES.RESUME:
-      return serializeResumeFrame(frame, encoders);
-    case _RSocketFrame.FRAME_TYPES.RESUME_OK:
-      return serializeResumeOkFrame(frame, encoders);
-    case _RSocketFrame.FRAME_TYPES.CANCEL:
-      return serializeCancelFrame(frame, encoders);
-    case _RSocketFrame.FRAME_TYPES.LEASE:
-      return serializeLeaseFrame(frame, encoders);
-    default:
-      (0, _invariant2.default)(
-        false,
-        'RSocketBinaryFraming: Unsupported frame type `%s`.',
-        (0, _RSocketFrame.getFrameTypeName)(frame.type)
-      );
-  }
-}
-
-/**
-   * Writes a SETUP frame into a new buffer and returns it.
-   *
-   * Prefix size is:
-   * - version (2x uint16 = 4)
-   * - keepalive (uint32 = 4)
-   * - lifetime (uint32 = 4)
-   * - mime lengths (2x uint8 = 2)
-   */
-const SETUP_FIXED_SIZE = 14;
-const RESUME_TOKEN_LENGTH_SIZE = 2;
-function serializeSetupFrame(frame, encoders) {
-  const resumeTokenLength = frame.resumeToken != null
-    ? encoders.resumeToken.byteLength(frame.resumeToken)
-    : 0;
-  const metadataMimeTypeLength = frame.metadataMimeType != null
-    ? encoders.metadataMimeType.byteLength(frame.metadataMimeType)
-    : 0;
-  const dataMimeTypeLength = frame.dataMimeType != null
-    ? encoders.dataMimeType.byteLength(frame.dataMimeType)
-    : 0;
-  const payloadLength = getPayloadLength(frame, encoders);
-  const buffer = (0, _RSocketBufferUtils.createBuffer)(
-    FRAME_HEADER_SIZE +
-      SETUP_FIXED_SIZE + //
-      (resumeTokenLength ? RESUME_TOKEN_LENGTH_SIZE + resumeTokenLength : 0) +
-      metadataMimeTypeLength +
-      dataMimeTypeLength +
-      payloadLength
-  );
-
-  let offset = writeHeader(frame, buffer);
-  offset = buffer.writeUInt16BE(frame.majorVersion, offset);
-  offset = buffer.writeUInt16BE(frame.minorVersion, offset);
-  offset = buffer.writeUInt32BE(frame.keepAlive, offset);
-  offset = buffer.writeUInt32BE(frame.lifetime, offset);
-
-  if (frame.flags & _RSocketFrame.FLAGS.RESUME_ENABLE) {
-    offset = buffer.writeUInt16BE(resumeTokenLength, offset);
-    if (frame.resumeToken != null) {
-      offset = encoders.resumeToken.encode(
-        frame.resumeToken,
-        buffer,
-        offset,
-        offset + resumeTokenLength
-      );
-    }
-  }
-
-  offset = buffer.writeUInt8(metadataMimeTypeLength, offset);
-  if (frame.metadataMimeType != null) {
-    offset = encoders.metadataMimeType.encode(
-      frame.metadataMimeType,
-      buffer,
-      offset,
-      offset + metadataMimeTypeLength
-    );
-  }
-
-  offset = buffer.writeUInt8(dataMimeTypeLength, offset);
-  if (frame.dataMimeType != null) {
-    offset = encoders.dataMimeType.encode(
-      frame.dataMimeType,
-      buffer,
-      offset,
-      offset + dataMimeTypeLength
-    );
-  }
-
-  writePayload(frame, buffer, encoders, offset);
-  return buffer;
-}
-
-/**
-   * Reads a SETUP frame from the buffer and returns it.
-   */
-function deserializeSetupFrame(buffer, streamId, flags, encoders) {
-  (0, _invariant2.default)(
-    streamId === 0,
-    'RSocketBinaryFraming: Invalid SETUP frame, expected stream id to be 0.'
-  );
-
-  let offset = FRAME_HEADER_SIZE;
-  const majorVersion = buffer.readUInt16BE(offset);
-  offset += 2;
-  const minorVersion = buffer.readUInt16BE(offset);
-  offset += 2;
-
-  const keepAlive = buffer.readInt32BE(offset);
-  offset += 4;
-  (0, _invariant2.default)(
-    keepAlive >= 0 && keepAlive <= _RSocketFrame.MAX_KEEPALIVE,
-    'RSocketBinaryFraming: Invalid SETUP frame, expected keepAlive to be ' +
-      '>= 0 and <= %s. Got `%s`.',
-    _RSocketFrame.MAX_KEEPALIVE,
-    keepAlive
-  );
-
-  const lifetime = buffer.readInt32BE(offset);
-  offset += 4;
-  (0, _invariant2.default)(
-    lifetime >= 0 && lifetime <= _RSocketFrame.MAX_LIFETIME,
-    'RSocketBinaryFraming: Invalid SETUP frame, expected lifetime to be ' +
-      '>= 0 and <= %s. Got `%s`.',
-    _RSocketFrame.MAX_LIFETIME,
-    lifetime
-  );
-
-  let resumeToken = null;
-  if (flags & _RSocketFrame.FLAGS.RESUME_ENABLE) {
-    const resumeTokenLength = buffer.readInt16BE(offset);
-    offset += 2;
-    (0, _invariant2.default)(
-      resumeTokenLength >= 0 &&
-        resumeTokenLength <= _RSocketFrame.MAX_RESUME_LENGTH,
-      'RSocketBinaryFraming: Invalid SETUP frame, expected resumeToken length ' +
-        'to be >= 0 and <= %s. Got `%s`.',
-      _RSocketFrame.MAX_RESUME_LENGTH,
-      resumeTokenLength
-    );
-
-    resumeToken = encoders.resumeToken.decode(
-      buffer,
-      offset,
-      offset + resumeTokenLength
-    );
-
-    offset += resumeTokenLength;
-  }
-
-  const metadataMimeTypeLength = buffer.readUInt8(offset);
-  offset += 1;
-  const metadataMimeType = encoders.metadataMimeType.decode(
-    buffer,
-    offset,
-    offset + metadataMimeTypeLength
-  );
-
-  offset += metadataMimeTypeLength;
-
-  const dataMimeTypeLength = buffer.readUInt8(offset);
-  offset += 1;
-  const dataMimeType = encoders.dataMimeType.decode(
-    buffer,
-    offset,
-    offset + dataMimeTypeLength
-  );
-
-  offset += dataMimeTypeLength;
-
-  const frame = {
-    data: null,
-    dataMimeType,
-    flags,
-    keepAlive,
-    lifetime,
-    majorVersion,
-    metadata: null,
-    metadataMimeType,
-    minorVersion,
-    resumeToken,
-    streamId,
-    type: _RSocketFrame.FRAME_TYPES.SETUP,
-  };
-
-  readPayload(buffer, frame, encoders, offset);
-  return frame;
-}
-
-/**
-   * Writes an ERROR frame into a new buffer and returns it.
-   *
-   * Prefix size is for the error code (uint32 = 4).
-   */
-const ERROR_FIXED_SIZE = 4;
-function serializeErrorFrame(frame, encoders) {
-  const messageLength = frame.message != null
-    ? encoders.message.byteLength(frame.message)
-    : 0;
-  const buffer = (0, _RSocketBufferUtils.createBuffer)(
-    FRAME_HEADER_SIZE + ERROR_FIXED_SIZE + messageLength
-  );
-
-  let offset = writeHeader(frame, buffer);
-  offset = buffer.writeUInt32BE(frame.code, offset);
-  if (frame.message != null) {
-    encoders.message.encode(
-      frame.message,
-      buffer,
-      offset,
-      offset + messageLength
-    );
-  }
-  return buffer;
-}
-
-/**
-   * Reads an ERROR frame from the buffer and returns it.
-   */
-function deserializeErrorFrame(buffer, streamId, flags, encoders) {
-  let offset = FRAME_HEADER_SIZE;
-  const code = buffer.readInt32BE(offset);
-  offset += 4;
-  (0, _invariant2.default)(
-    code >= 0 && code <= _RSocketFrame.MAX_CODE,
-    'RSocketBinaryFraming: Invalid ERROR frame, expected code to be >= 0 and <= %s. Got `%s`.',
-    _RSocketFrame.MAX_CODE,
-    code
-  );
-
-  const messageLength = buffer.length - offset;
-  let message = '';
-  if (messageLength > 0) {
-    message = encoders.message.decode(buffer, offset, offset + messageLength);
-    offset += messageLength;
-  }
-
-  return {
-    code,
-    flags,
-    message,
-    streamId,
-    type: _RSocketFrame.FRAME_TYPES.ERROR,
-  };
-}
-
-/**
-   * Writes a KEEPALIVE frame into a new buffer and returns it.
-   *
-   * Prefix size is for the last received position (uint64 = 8).
-   */
-const KEEPALIVE_FIXED_SIZE = 8;
-function serializeKeepAliveFrame(frame, encoders) {
-  const dataLength = frame.data != null
-    ? encoders.data.byteLength(frame.data)
-    : 0;
-  const buffer = (0, _RSocketBufferUtils.createBuffer)(
-    FRAME_HEADER_SIZE + KEEPALIVE_FIXED_SIZE + dataLength
-  );
-
-  let offset = writeHeader(frame, buffer);
-  offset = (0, _RSocketBufferUtils.writeUInt64BE)(
-    buffer,
-    frame.lastReceivedPosition,
-    offset
-  );
-  if (frame.data != null) {
-    encoders.data.encode(frame.data, buffer, offset, offset + dataLength);
-  }
-  return buffer;
-}
-
-/**
-   * Reads a KEEPALIVE frame from the buffer and returns it.
-   */
-function deserializeKeepAliveFrame(buffer, streamId, flags, encoders) {
-  (0, _invariant2.default)(
-    streamId === 0,
-    'RSocketBinaryFraming: Invalid KEEPALIVE frame, expected stream id to be 0.'
-  );
-
-  let offset = FRAME_HEADER_SIZE;
-  const lastReceivedPosition = (0, _RSocketBufferUtils.readUInt64BE)(
-    buffer,
-    offset
-  );
-  offset += 8;
-  let data = null;
-  if (offset < buffer.length) {
-    data = encoders.data.decode(buffer, offset, buffer.length);
-  }
-
-  return {
-    data,
-    flags,
-    lastReceivedPosition,
-    streamId,
-    type: _RSocketFrame.FRAME_TYPES.KEEPALIVE,
-  };
-}
-
-/**
-   * Writes a LEASE frame into a new buffer and returns it.
-   *
-   * Prefix size is for the ttl (uint32) and requestcount (uint32).
-   */
-const LEASE_FIXED_SIZE = 8;
-function serializeLeaseFrame(frame, encoders) {
-  const metaLength = frame.metadata != null
-    ? encoders.metadata.byteLength(frame.metadata)
-    : 0;
-  const buffer = (0, _RSocketBufferUtils.createBuffer)(
-    FRAME_HEADER_SIZE + LEASE_FIXED_SIZE + metaLength
-  );
-
-  let offset = writeHeader(frame, buffer);
-  offset = buffer.writeUInt32BE(frame.ttl, offset);
-  offset = buffer.writeUInt32BE(frame.requestCount, offset);
-  if (frame.metadata != null) {
-    encoders.metadata.encode(
-      frame.metadata,
-      buffer,
-      offset,
-      offset + metaLength
-    );
-  }
-  return buffer;
-}
-
-/**
-   * Reads a LEASE frame from the buffer and returns it.
-   */
-function deserializeLeaseFrame(buffer, streamId, flags, encoders) {
-  (0, _invariant2.default)(
-    streamId === 0,
-    'RSocketBinaryFraming: Invalid LEASE frame, expected stream id to be 0.'
-  );
-
-  let offset = FRAME_HEADER_SIZE;
-  const ttl = buffer.readUInt32BE(offset);
-  offset += 4;
-  const requestCount = buffer.readUInt32BE(offset);
-  offset += 4;
-  let metadata = null;
-  if (offset < buffer.length) {
-    metadata = encoders.metadata.decode(buffer, offset, buffer.length);
-  }
-  return {
-    flags,
-    metadata,
-    requestCount,
-    streamId,
-    ttl,
-    type: _RSocketFrame.FRAME_TYPES.LEASE,
-  };
-}
-
-/**
-   * Writes a REQUEST_FNF or REQUEST_RESPONSE frame to a new buffer and returns
-   * it.
-   *
-   * Note that these frames have the same shape and only differ in their type.
-   */
-function serializeRequestFrame(frame, encoders) {
-  const payloadLength = getPayloadLength(frame, encoders);
-  const buffer = (0, _RSocketBufferUtils.createBuffer)(
-    FRAME_HEADER_SIZE + payloadLength
-  );
-  const offset = writeHeader(frame, buffer);
-  writePayload(frame, buffer, encoders, offset);
-  return buffer;
-}
-
-function deserializeRequestFnfFrame(buffer, streamId, flags, encoders) {
-  (0, _invariant2.default)(
-    streamId > 0,
-    'RSocketBinaryFraming: Invalid REQUEST_FNF frame, expected stream id to be > 0.'
-  );
-
-  const frame = {
-    data: null,
-    flags,
-    metadata: null,
-    streamId,
-    type: _RSocketFrame.FRAME_TYPES.REQUEST_FNF,
-  };
-
-  readPayload(buffer, frame, encoders, FRAME_HEADER_SIZE);
-  return frame;
-}
-
-function deserializeRequestResponseFrame(buffer, streamId, flags, encoders) {
-  (0, _invariant2.default)(
-    streamId > 0,
-    'RSocketBinaryFraming: Invalid REQUEST_RESPONSE frame, expected stream id to be > 0.'
-  );
-
-  const frame = {
-    data: null,
-    flags,
-    metadata: null,
-    streamId,
-    type: _RSocketFrame.FRAME_TYPES.REQUEST_RESPONSE,
-  };
-
-  readPayload(buffer, frame, encoders, FRAME_HEADER_SIZE);
-  return frame;
-}
-
-/**
-   * Writes a REQUEST_STREAM or REQUEST_CHANNEL frame to a new buffer and returns
-   * it.
-   *
-   * Note that these frames have the same shape and only differ in their type.
-   *
-   * Prefix size is for requestN (uint32 = 4).
-   */
-const REQUEST_MANY_HEADER = 4;
-function serializeRequestManyFrame(frame, encoders) {
-  const payloadLength = getPayloadLength(frame, encoders);
-  const buffer = (0, _RSocketBufferUtils.createBuffer)(
-    FRAME_HEADER_SIZE + REQUEST_MANY_HEADER + payloadLength
-  );
-
-  let offset = writeHeader(frame, buffer);
-  offset = buffer.writeUInt32BE(frame.requestN, offset);
-  writePayload(frame, buffer, encoders, offset);
-  return buffer;
-}
-
-function deserializeRequestStreamFrame(buffer, streamId, flags, encoders) {
-  (0, _invariant2.default)(
-    streamId > 0,
-    'RSocketBinaryFraming: Invalid REQUEST_STREAM frame, expected stream id to be > 0.'
-  );
-
-  let offset = FRAME_HEADER_SIZE;
-  const requestN = buffer.readInt32BE(offset);
-  offset += 4;
-  (0, _invariant2.default)(
-    requestN > 0,
-    'RSocketBinaryFraming: Invalid REQUEST_STREAM frame, expected requestN to be > 0, got `%s`.',
-    requestN
-  );
-
-  const frame = {
-    data: null,
-    flags,
-    metadata: null,
-    requestN,
-    streamId,
-    type: _RSocketFrame.FRAME_TYPES.REQUEST_STREAM,
-  };
-
-  readPayload(buffer, frame, encoders, offset);
-  return frame;
-}
-
-function deserializeRequestChannelFrame(buffer, streamId, flags, encoders) {
-  (0, _invariant2.default)(
-    streamId > 0,
-    'RSocketBinaryFraming: Invalid REQUEST_CHANNEL frame, expected stream id to be > 0.'
-  );
-
-  let offset = FRAME_HEADER_SIZE;
-  const requestN = buffer.readInt32BE(offset);
-  offset += 4;
-  (0, _invariant2.default)(
-    requestN > 0,
-    'RSocketBinaryFraming: Invalid REQUEST_STREAM frame, expected requestN to be > 0, got `%s`.',
-    requestN
-  );
-
-  const frame = {
-    data: null,
-    flags,
-    metadata: null,
-    requestN,
-    streamId,
-    type: _RSocketFrame.FRAME_TYPES.REQUEST_CHANNEL,
-  };
-
-  readPayload(buffer, frame, encoders, offset);
-  return frame;
-}
-
-/**
-   * Writes a REQUEST_N frame to a new buffer and returns it.
-   *
-   * Prefix size is for requestN (uint32 = 4).
-   */
-const REQUEST_N_HEADER = 4;
-function serializeRequestNFrame(frame, encoders) {
-  const buffer = (0, _RSocketBufferUtils.createBuffer)(
-    FRAME_HEADER_SIZE + REQUEST_N_HEADER
-  );
-  const offset = writeHeader(frame, buffer);
-  buffer.writeUInt32BE(frame.requestN, offset);
-  return buffer;
-}
-
-function deserializeRequestNFrame(buffer, streamId, flags, encoders) {
-  (0, _invariant2.default)(
-    streamId > 0,
-    'RSocketBinaryFraming: Invalid REQUEST_N frame, expected stream id to be > 0.'
-  );
-
-  const requestN = buffer.readInt32BE(FRAME_HEADER_SIZE);
-  (0, _invariant2.default)(
-    requestN > 0,
-    'RSocketBinaryFraming: Invalid REQUEST_STREAM frame, expected requestN to be > 0, got `%s`.',
-    requestN
-  );
-
-  return {
-    flags,
-    requestN,
-    streamId,
-    type: _RSocketFrame.FRAME_TYPES.REQUEST_N,
-  };
-}
-
-/**
-   * Writes a CANCEL frame to a new buffer and returns it.
-   */
-function serializeCancelFrame(frame, encoders) {
-  const buffer = (0, _RSocketBufferUtils.createBuffer)(FRAME_HEADER_SIZE);
-  writeHeader(frame, buffer);
-  return buffer;
-}
-
-function deserializeCancelFrame(buffer, streamId, flags, encoders) {
-  (0, _invariant2.default)(
-    streamId > 0,
-    'RSocketBinaryFraming: Invalid CANCEL frame, expected stream id to be > 0.'
-  );
-
-  return {
-    flags,
-    streamId,
-    type: _RSocketFrame.FRAME_TYPES.CANCEL,
-  };
-}
-
-/**
-   * Writes a PAYLOAD frame to a new buffer and returns it.
-   */
-function serializePayloadFrame(frame, encoders) {
-  const payloadLength = getPayloadLength(frame, encoders);
-  const buffer = (0, _RSocketBufferUtils.createBuffer)(
-    FRAME_HEADER_SIZE + payloadLength
-  );
-  const offset = writeHeader(frame, buffer);
-  writePayload(frame, buffer, encoders, offset);
-  return buffer;
-}
-
-function deserializePayloadFrame(buffer, streamId, flags, encoders) {
-  (0, _invariant2.default)(
-    streamId > 0,
-    'RSocketBinaryFraming: Invalid PAYLOAD frame, expected stream id to be > 0.'
-  );
-
-  const frame = {
-    data: null,
-    flags,
-    metadata: null,
-    streamId,
-    type: _RSocketFrame.FRAME_TYPES.PAYLOAD,
-  };
-
-  readPayload(buffer, frame, encoders, FRAME_HEADER_SIZE);
-  return frame;
-}
-
-/**
-   * Writes a RESUME frame into a new buffer and returns it.
-   *
-   * Fixed size is:
-   * - major version (uint16 = 2)
-   * - minor version (uint16 = 2)
-   * - token length (uint16 = 2)
-   * - client position (uint64 = 8)
-   * - server position (uint64 = 8)
-   */
-const RESUME_FIXED_SIZE = 22;
-function serializeResumeFrame(frame, encoders) {
-  const resumeTokenLength = encoders.resumeToken.byteLength(frame.resumeToken);
-  const buffer = (0, _RSocketBufferUtils.createBuffer)(
-    FRAME_HEADER_SIZE + RESUME_FIXED_SIZE + resumeTokenLength
-  );
-
-  let offset = writeHeader(frame, buffer);
-  offset = buffer.writeUInt16BE(frame.majorVersion, offset);
-  offset = buffer.writeUInt16BE(frame.minorVersion, offset);
-  offset = buffer.writeUInt16BE(resumeTokenLength, offset);
-  offset = encoders.resumeToken.encode(
-    frame.resumeToken,
-    buffer,
-    offset,
-    offset + resumeTokenLength
-  );
-
-  offset = (0, _RSocketBufferUtils.writeUInt64BE)(
-    buffer,
-    frame.clientPosition,
-    offset
-  );
-  (0, _RSocketBufferUtils.writeUInt64BE)(buffer, frame.serverPosition, offset);
-  return buffer;
-}
-
-function deserializeResumeFrame(buffer, streamId, flags, encoders) {
-  (0, _invariant2.default)(
-    streamId === 0,
-    'RSocketBinaryFraming: Invalid RESUME frame, expected stream id to be 0.'
-  );
-
-  let offset = FRAME_HEADER_SIZE;
-  const majorVersion = buffer.readUInt16BE(offset);
-  offset += 2;
-  const minorVersion = buffer.readUInt16BE(offset);
-  offset += 2;
-
-  const resumeTokenLength = buffer.readInt16BE(offset);
-  offset += 2;
-  (0, _invariant2.default)(
-    resumeTokenLength >= 0 &&
-      resumeTokenLength <= _RSocketFrame.MAX_RESUME_LENGTH,
-    'RSocketBinaryFraming: Invalid SETUP frame, expected resumeToken length ' +
-      'to be >= 0 and <= %s. Got `%s`.',
-    _RSocketFrame.MAX_RESUME_LENGTH,
-    resumeTokenLength
-  );
-
-  const resumeToken = encoders.resumeToken.decode(
-    buffer,
-    offset,
-    offset + resumeTokenLength
-  );
-
-  offset += resumeTokenLength;
-  const clientPosition = (0, _RSocketBufferUtils.readUInt64BE)(buffer, offset);
-  offset += 8;
-  const serverPosition = (0, _RSocketBufferUtils.readUInt64BE)(buffer, offset);
-  offset += 8;
-  return {
-    clientPosition,
-    flags,
-    majorVersion,
-    minorVersion,
-    resumeToken,
-    serverPosition,
-    streamId,
-    type: _RSocketFrame.FRAME_TYPES.RESUME,
-  };
-}
-
-/**
-   * Writes a RESUME_OK frame into a new buffer and returns it.
-   *
-   * Fixed size is:
-   * - client position (uint64 = 8)
-   */
-const RESUME_OK_FIXED_SIZE = 8;
-function serializeResumeOkFrame(frame, encoders) {
-  const buffer = (0, _RSocketBufferUtils.createBuffer)(
-    FRAME_HEADER_SIZE + RESUME_OK_FIXED_SIZE
-  );
-  const offset = writeHeader(frame, buffer);
-  (0, _RSocketBufferUtils.writeUInt64BE)(buffer, frame.clientPosition, offset);
-  return buffer;
-}
-
-function deserializeResumeOkFrame(buffer, streamId, flags, encoders) {
-  (0, _invariant2.default)(
-    streamId === 0,
-    'RSocketBinaryFraming: Invalid RESUME frame, expected stream id to be 0.'
-  );
-
-  const clientPosition = (0, _RSocketBufferUtils.readUInt64BE)(
-    buffer,
-    FRAME_HEADER_SIZE
-  );
-  return {
-    clientPosition,
-    flags,
-    streamId,
-    type: _RSocketFrame.FRAME_TYPES.RESUME_OK,
-  };
-}
-
-/**
-   * Write the header of the frame into the buffer.
-   */
-function writeHeader(frame, buffer) {
-  const offset = buffer.writeInt32BE(frame.streamId, 0);
-  // shift frame to high 6 bits, extract lowest 10 bits from flags
-  return buffer.writeUInt16BE(
-    frame.type << _RSocketFrame.FRAME_TYPE_OFFFSET |
-      frame.flags & _RSocketFrame.FLAGS_MASK,
-    offset
-  );
-}
-
-/**
-   * Determine the length of the payload section of a frame. Only applies to
-   * frame types that MAY have both metadata and data.
-   */
-function getPayloadLength(frame, encoders) {
-  let payloadLength = 0;
-  if (frame.data != null) {
-    payloadLength += encoders.data.byteLength(frame.data);
-  }
-  if ((0, _RSocketFrame.isMetadata)(frame.flags)) {
-    payloadLength += UINT24_SIZE;
-    if (frame.metadata != null) {
-      payloadLength += encoders.metadata.byteLength(frame.metadata);
-    }
-  }
-  return payloadLength;
-}
-
-/**
-   * Write the payload of a frame into the given buffer. Only applies to frame
-   * types that MAY have both metadata and data.
-   */
-function writePayload(frame, buffer, encoders, offset) {
-  if ((0, _RSocketFrame.isMetadata)(frame.flags)) {
-    if (frame.metadata != null) {
-      const metaLength = encoders.metadata.byteLength(frame.metadata);
-      offset = (0, _RSocketBufferUtils.writeUInt24BE)(
-        buffer,
-        metaLength,
-        offset
-      );
-      offset = encoders.metadata.encode(
-        frame.metadata,
-        buffer,
-        offset,
-        offset + metaLength
-      );
-    } else {
-      offset = (0, _RSocketBufferUtils.writeUInt24BE)(buffer, 0, offset);
-    }
-  }
-  if (frame.data != null) {
-    encoders.data.encode(frame.data, buffer, offset, buffer.length);
-  }
-}
-
-/**
-   * Read the payload from a buffer and write it into the frame. Only applies to
-   * frame types that MAY have both metadata and data.
-   */
-function readPayload(buffer, frame, encoders, offset) {
-  if ((0, _RSocketFrame.isMetadata)(frame.flags)) {
-    const metaLength = (0, _RSocketBufferUtils.readUInt24BE)(buffer, offset);
-    offset += UINT24_SIZE;
-    if (metaLength > 0) {
-      frame.metadata = encoders.metadata.decode(
-        buffer,
-        offset,
-        offset + metaLength
-      );
-
-      offset += metaLength;
-    }
-  }
-  if (offset < buffer.length) {
-    frame.data = encoders.data.decode(buffer, offset, buffer.length);
-  }
-}
-
-
-/***/ }),
-/* 19 */
-/***/ (function(module, exports) {
-
-var g;
-
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1,eval)("this");
-} catch(e) {
-	// This works if the window reference is available
-	if(typeof window === "object")
-		g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
-
-/***/ }),
-/* 20 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5280,7 +7422,7 @@ function fromByteArray (uint8) {
 
 
 /***/ }),
-/* 21 */
+/* 24 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -5370,7 +7512,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 22 */
+/* 25 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -5381,7 +7523,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 23 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5405,183 +7547,7 @@ module.exports = Array.isArray || function (arr) {
 
 Object.defineProperty(exports, '__esModule', {value: true});
 
-var _rsocketFlowable = __webpack_require__(2);
-var _invariant = __webpack_require__(0);
-var _invariant2 = _interopRequireDefault(_invariant);
-var _RSocketFrame = __webpack_require__(1);
-var _RSocketVersion = __webpack_require__(28);
-var _RSocketMachine = __webpack_require__(13);
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : {default: obj};
-}
-
-/**
-                                                                                                                                                 * RSocketClient: A client in an RSocket connection that will communicates with
-                                                                                                                                                 * the peer via the given transport client. Provides methods for establishing a
-                                                                                                                                                 * connection and initiating the RSocket interactions:
-                                                                                                                                                 * - fireAndForget()
-                                                                                                                                                 * - requestResponse()
-                                                                                                                                                 * - requestStream()
-                                                                                                                                                 * - requestChannel()
-                                                                                                                                                 * - metadataPush()
-                                                                                                                                                 */
-class RSocketClient {
-  constructor(config) {
-    this._cancel = null;
-    this._config = config;
-    this._connection = null;
-    this._socket = null;
-  }
-
-  close() {
-    this._config.transport.close();
-  }
-
-  connect() {
-    (0, _invariant2.default)(
-      !this._connection,
-      'RSocketClient: Unexpected call to connect(), already connected.'
-    );
-
-    this._connection = new _rsocketFlowable.Single(subscriber => {
-      const transport = this._config.transport;
-      let subscription;
-      transport.connectionStatus().subscribe({
-        onNext: status => {
-          if (status.kind === 'CONNECTED') {
-            subscription && subscription.cancel();
-            subscriber.onComplete(
-              new RSocketClientSocket(this._config, transport)
-            );
-          } else if (status.kind === 'ERROR') {
-            subscription && subscription.cancel();
-            subscriber.onError(status.error);
-          } else if (status.kind === 'CLOSED') {
-            subscription && subscription.cancel();
-            subscriber.onError(new Error('RSocketClient: Connection closed.'));
-          }
-        },
-        onSubscribe: _subscription => {
-          subscriber.onSubscribe(() => _subscription.cancel());
-          subscription = _subscription;
-          subscription.request(Number.MAX_SAFE_INTEGER);
-        },
-      });
-
-      transport.connect();
-    });
-    return this._connection;
-  }
-}
-exports.default = RSocketClient;
-
-/**
-                                      * @private
-                                      */
-class RSocketClientSocket {
-  constructor(config, connection) {
-    this._machine = (0, _RSocketMachine.createClientMachine)(
-      connection,
-      subscriber => connection.receive().subscribe(subscriber),
-      config.serializers,
-      config.responder
-    );
-
-    // Send SETUP
-    connection.sendOne(this._buildSetupFrame(config));
-
-    // Send KEEPALIVE frames
-    const {keepAlive} = config.setup;
-    const keepAliveFrames = (0, _rsocketFlowable.every)(keepAlive).map(() => ({
-      data: null,
-      flags: _RSocketFrame.FLAGS.RESPOND,
-      lastReceivedPosition: 0,
-      streamId: _RSocketFrame.CONNECTION_STREAM_ID,
-      type: _RSocketFrame.FRAME_TYPES.KEEPALIVE,
-    }));
-
-    connection.send(keepAliveFrames);
-  }
-
-  fireAndForget(payload) {
-    this._machine.fireAndForget(payload);
-  }
-
-  requestResponse(payload) {
-    return this._machine.requestResponse(payload);
-  }
-
-  requestStream(payload) {
-    return this._machine.requestStream(payload);
-  }
-
-  requestChannel(payloads) {
-    return this._machine.requestChannel(payloads);
-  }
-
-  metadataPush(payload) {
-    return this._machine.metadataPush(payload);
-  }
-
-  close() {
-    this._machine.close();
-  }
-
-  connectionStatus() {
-    return this._machine.connectionStatus();
-  }
-
-  _buildSetupFrame(config) {
-    const {
-      dataMimeType,
-      keepAlive,
-      lifetime,
-      metadataMimeType,
-    } = config.setup;
-    return {
-      data: undefined,
-      dataMimeType,
-      flags: 0,
-      keepAlive,
-      lifetime,
-      majorVersion: _RSocketVersion.MAJOR_VERSION,
-      metadata: undefined,
-      metadataMimeType,
-      minorVersion: _RSocketVersion.MINOR_VERSION,
-      resumeToken: null,
-      streamId: _RSocketFrame.CONNECTION_STREAM_ID,
-      type: _RSocketFrame.FRAME_TYPES.SETUP,
-    };
-  }
-}
-
-
-/***/ }),
-/* 24 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/** Copyright (c) Facebook, Inc. and its affiliates.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * 
- */
-
-
-Object.defineProperty(exports, '__esModule', {value: true});
-
-var _nullthrows = __webpack_require__(12);
+var _nullthrows = __webpack_require__(15);
 var _nullthrows2 = _interopRequireDefault(_nullthrows);
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : {default: obj};
@@ -5625,7 +7591,7 @@ exports.default = FlowableMapOperator;
 
 
 /***/ }),
-/* 25 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5649,7 +7615,7 @@ exports.default = FlowableMapOperator;
 
 Object.defineProperty(exports, '__esModule', {value: true});
 
-var _nullthrows = __webpack_require__(12);
+var _nullthrows = __webpack_require__(15);
 var _nullthrows2 = _interopRequireDefault(_nullthrows);
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : {default: obj};
@@ -5704,7 +7670,7 @@ exports.default = FlowableTakeOperator;
 
 
 /***/ }),
-/* 26 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5728,9 +7694,9 @@ exports.default = FlowableTakeOperator;
 
 Object.defineProperty(exports, '__esModule', {value: true});
 
-var _warning = __webpack_require__(7);
+var _warning = __webpack_require__(6);
 var _warning2 = _interopRequireDefault(_warning);
-var _emptyFunction = __webpack_require__(3);
+var _emptyFunction = __webpack_require__(7);
 var _emptyFunction2 = _interopRequireDefault(_emptyFunction);
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : {default: obj};
@@ -5739,7 +7705,7 @@ function _interopRequireDefault(obj) {
 /**
                                                                                                                                                                                                                    * Represents a lazy computation that will either produce a value of type T
                                                                                                                                                                                                                    * or fail with an error. Calling `subscribe()` starts the
-                                                                                                                                                                                                                   * computation and return a subscription object, which has an `unsubscribe()`
+                                                                                                                                                                                                                   * computation and returns a subscription object, which has an `unsubscribe()`
                                                                                                                                                                                                                    * method that can be called to prevent completion/error callbacks from being
                                                                                                                                                                                                                    * invoked and, where supported, to also cancel the computation.
                                                                                                                                                                                                                    * Implementations may optionally implement cancellation; if they do not
@@ -5927,7 +7893,104 @@ class FutureSubscriber {
 
 
 /***/ }),
-/* 27 */
+/* 29 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, '__esModule', {value: true});
+var _warning = __webpack_require__(6);
+var _warning2 = _interopRequireDefault(_warning);
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : {default: obj};
+}
+
+class FlowableProcessor {
+  constructor(source, fn) {
+    this._source = source;
+    this._transformer = fn;
+    this._done = false;
+    this._mappers = []; //mappers for map function
+  }
+
+  onSubscribe(subscription) {
+    this._subscription = subscription;
+  }
+
+  onNext(t) {
+    if (!this._sink) {
+      (0, _warning2.default)(
+        'Warning, premature onNext for processor, dropping value'
+      );
+      return;
+    }
+
+    let val = t;
+    if (this._transformer) {
+      val = this._transformer(t);
+    }
+    const finalVal = this._mappers.reduce(
+      (interimVal, mapper) => mapper(interimVal),
+      val
+    );
+
+    this._sink.onNext(finalVal);
+  }
+
+  onError(error) {
+    this._error = error;
+    if (!this._sink) {
+      (0, _warning2.default)(
+        'Warning, premature onError for processor, marking complete/errored'
+      );
+    } else {
+      this._sink.onError(error);
+    }
+  }
+
+  onComplete() {
+    this._done = true;
+    if (!this._sink) {
+      (0, _warning2.default)(
+        'Warning, premature onError for processor, marking complete'
+      );
+    } else {
+      this._sink.onComplete();
+    }
+  }
+
+  subscribe(subscriber) {
+    if (this._source.subscribe) {
+      this._source.subscribe(this);
+    }
+    this._sink = subscriber;
+    this._sink.onSubscribe(this);
+
+    if (this._error) {
+      this._sink.onError(this._error);
+    } else if (this._done) {
+      this._sink.onComplete();
+    }
+  }
+
+  map(fn) {
+    this._mappers.push(fn);
+    return this;
+  }
+
+  request(n) {
+    this._subscription && this._subscription.request(n);
+  }
+
+  cancel() {
+    this._subscription && this._subscription.cancel();
+  }
+}
+exports.default = FlowableProcessor;
+
+
+/***/ }),
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5951,7 +8014,7 @@ class FutureSubscriber {
 
 Object.defineProperty(exports, '__esModule', {value: true});
 exports.every = every;
-var _Flowable = __webpack_require__(11);
+var _Flowable = __webpack_require__(14);
 var _Flowable2 = _interopRequireDefault(_Flowable);
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : {default: obj};
@@ -6006,7 +8069,616 @@ function _interopRequireDefault(obj) {
 
 
 /***/ }),
-/* 28 */
+/* 31 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, '__esModule', {value: true});
+exports.WellKnownMimeTypeEntry = (exports.ReservedMimeTypeEntry = (exports.ExplicitMimeTimeEntry = (exports.CompositeMetadata = undefined)));
+exports.encodeAndAddCustomMetadata = encodeAndAddCustomMetadata;
+exports.encodeAndAddWellKnownMetadata = encodeAndAddWellKnownMetadata;
+exports.decodeMimeAndContentBuffersSlices = decodeMimeAndContentBuffersSlices;
+exports.decodeMimeTypeFromMimeBuffer = decodeMimeTypeFromMimeBuffer;
+exports.encodeCustomMetadataHeader = encodeCustomMetadataHeader;
+exports.encodeWellKnownMetadataHeader = encodeWellKnownMetadataHeader;
+var _LiteBuffer = __webpack_require__(8);
+var _RSocketBufferUtils = __webpack_require__(3);
+var _WellKnownMimeType = __webpack_require__(16);
+var _WellKnownMimeType2 = _interopRequireDefault(_WellKnownMimeType);
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : {default: obj};
+}
+class CompositeMetadata {
+  constructor(buffer) {
+    this._buffer = buffer;
+  }
+  [Symbol.iterator]() {
+    return entriesIterator(this._buffer);
+  }
+}
+exports.CompositeMetadata = CompositeMetadata; /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             * Encode a new sub-metadata information into a composite metadata {@link CompositeByteBuf
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * buffer}, without checking if the {@link String} can be matched with a well known compressable
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * mime type. Prefer using this method and {@link #encodeAndAddMetadata(CompositeByteBuf,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * ByteBufAllocator, WellKnownMimeType, ByteBuf)} if you know in advance whether or not the mime
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * is well known. Otherwise use {@link #encodeAndAddMetadataWithCompression(CompositeByteBuf,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * ByteBufAllocator, String, ByteBuf)}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              *
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * @param compositeMetaData the buffer that will hold all composite metadata information.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * @param allocator the {@link ByteBufAllocator} to use to create intermediate buffers as needed.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * @param customMimeType the custom mime type to encode.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * @param metadata the metadata value to encode.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              */ // see #encodeMetadataHeader(ByteBufAllocator, String, int)
+function encodeAndAddCustomMetadata(
+  compositeMetaData,
+  customMimeType,
+  metadata
+) {
+  return _LiteBuffer.LiteBuffer.concat([
+    compositeMetaData,
+    encodeCustomMetadataHeader(customMimeType, metadata.byteLength),
+    metadata,
+  ]);
+} /**
+                                                                                                                                                                                                                          * Encode a new sub-metadata information into a composite metadata {@link CompositeByteBuf
+                                                                                                                                                                                                                           * buffer}.
+                                                                                                                                                                                                                           *
+                                                                                                                                                                                                                           * @param compositeMetaData the buffer that will hold all composite metadata information.
+                                                                                                                                                                                                                           * @param allocator the {@link ByteBufAllocator} to use to create intermediate buffers as needed.
+                                                                                                                                                                                                                           * @param knownMimeType the {@link WellKnownMimeType} to encode.
+                                                                                                                                                                                                                           * @param metadata the metadata value to encode.
+                                                                                                                                                                                                                           */ // see #encodeMetadataHeader(ByteBufAllocator, byte, int)
+function encodeAndAddWellKnownMetadata(
+  compositeMetaData,
+  knownMimeType,
+  metadata
+) {
+  let mimeTypeId;
+  if (Number.isInteger(knownMimeType)) {
+    mimeTypeId = knownMimeType;
+  } else {
+    mimeTypeId = knownMimeType.identifier;
+  }
+  return _LiteBuffer.LiteBuffer.concat([
+    compositeMetaData,
+    encodeWellKnownMetadataHeader(mimeTypeId, metadata.byteLength),
+    metadata,
+  ]);
+}
+/**
+                                                                                                                                                                                                                                                                                                                                                           * Decode the next metadata entry (a mime header + content pair of {@link ByteBuf}) from a {@link
+                                                                                                                                                                                                                                                                                                                                                           * ByteBuf} that contains at least enough bytes for one more such entry. These buffers are
+                                                                                                                                                                                                                                                                                                                                                           * actually slices of the full metadata buffer, and this method doesn't move the full metadata
+                                                                                                                                                                                                                                                                                                                                                           * buffer's {@link ByteBuf#readerIndex()}. As such, it requires the user to provide an {@code
+                                                                                                                                                                                                                                                                                                                                                           * index} to read from. The next index is computed by calling {@link #computeNextEntryIndex(int,
+                                                                                                                                                                                                                                                                                                                                                           * ByteBuf, ByteBuf)}. Size of the first buffer (the "header buffer") drives which decoding method
+                                                                                                                                                                                                                                                                                                                                                           * should be further applied to it.
+                                                                                                                                                                                                                                                                                                                                                           *
+                                                                                                                                                                                                                                                                                                                                                           * <p>The header buffer is either:
+                                                                                                                                                                                                                                                                                                                                                           *
+                                                                                                                                                                                                                                                                                                                                                           * <ul>
+                                                                                                                                                                                                                                                                                                                                                           *   <li>made up of a single byte: this represents an encoded mime id, which can be further
+                                                                                                                                                                                                                                                                                                                                                           *       decoded using {@link #decodeMimeIdFromMimeBuffer(ByteBuf)}
+                                                                                                                                                                                                                                                                                                                                                           *   <li>made up of 2 or more bytes: this represents an encoded mime String + its length, which
+                                                                                                                                                                                                                                                                                                                                                           *       can be further decoded using {@link #decodeMimeTypeFromMimeBuffer(ByteBuf)}. Note the
+                                                                                                                                                                                                                                                                                                                                                           *       encoded length, in the first byte, is skipped by this decoding method because the
+                                                                                                                                                                                                                                                                                                                                                           *       remaining length of the buffer is that of the mime string.
+                                                                                                                                                                                                                                                                                                                                                           * </ul>
+                                                                                                                                                                                                                                                                                                                                                           *
+                                                                                                                                                                                                                                                                                                                                                           * @param compositeMetadata the source {@link ByteBuf} that originally contains one or more
+                                                                                                                                                                                                                                                                                                                                                           *     metadata entries
+                                                                                                                                                                                                                                                                                                                                                           * @param entryIndex the {@link ByteBuf#readerIndex()} to start decoding from. original reader
+                                                                                                                                                                                                                                                                                                                                                           *     index is kept on the source buffer
+                                                                                                                                                                                                                                                                                                                                                           * @param retainSlices should produced metadata entry buffers {@link ByteBuf#slice() slices} be
+                                                                                                                                                                                                                                                                                                                                                           *     {@link ByteBuf#retainedSlice() retained}?
+                                                                                                                                                                                                                                                                                                                                                           * @return a {@link ByteBuf} array of length 2 containing the mime header buffer
+                                                                                                                                                                                                                                                                                                                                                           *     <strong>slice</strong> and the content buffer <strong>slice</strong>, or one of the
+                                                                                                                                                                                                                                                                                                                                                           *     zero-length error constant arrays
+                                                                                                                                                                                                                                                                                                                                                           */ function decodeMimeAndContentBuffersSlices(
+  compositeMetadata,
+  entryIndex
+) {
+  const mimeIdOrLength = compositeMetadata.readInt8(entryIndex, 1);
+  let mime;
+  let toSkip = entryIndex;
+  if (
+    (mimeIdOrLength & STREAM_METADATA_KNOWN_MASK) === STREAM_METADATA_KNOWN_MASK
+  ) {
+    mime = compositeMetadata.slice(toSkip, toSkip + 1);
+    toSkip += 1;
+  } else {
+    // M flag unset, remaining 7 bits are the length of the mime
+    const mimeLength = (mimeIdOrLength & 0xff) + 1;
+    if (compositeMetadata.byteLength > toSkip + mimeLength) {
+      // need to be able to read an extra mimeLength bytes (we have already read one so byteLength should be strictly more)
+      // here we need a way for the returned ByteBuf to differentiate between a
+      // 1-byte length mime type and a 1 byte encoded mime id, preferably without
+      // re-applying the byte mask. The easiest way is to include the initial byte
+      // and have further decoding ignore the first byte. 1 byte buffer == id, 2+ byte
+      // buffer == full mime string.
+      mime = compositeMetadata.slice(toSkip, toSkip + mimeLength + 1); // we thus need to skip the bytes we just sliced, but not the flag/length byte
+      // which was already skipped in initial read
+      toSkip += mimeLength + 1;
+    } else {
+      throw new Error(
+        'Metadata is malformed. Inappropriately formed Mime Length'
+      );
+    }
+  }
+  if (compositeMetadata.byteLength >= toSkip + 3) {
+    // ensures the length medium can be read
+    const metadataLength = (0, _RSocketBufferUtils.readUInt24BE)(
+      compositeMetadata,
+      toSkip
+    );
+    toSkip += 3;
+    if (compositeMetadata.byteLength >= metadataLength + toSkip) {
+      const metadata = compositeMetadata.slice(toSkip, toSkip + metadataLength);
+      return [mime, metadata];
+    } else {
+      throw new Error(
+        'Metadata is malformed. Inappropriately formed Metadata Length or malformed content'
+      );
+    }
+  } else {
+    throw new Error(
+      'Metadata is malformed. Metadata Length is absent or malformed'
+    );
+  }
+}
+/**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    * Decode a {@link CharSequence} custome mime type from a {@link ByteBuf}, assuming said buffer
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    * properly contains such a mime type.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    *
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    * <p>The buffer must at least have two readable bytes, which distinguishes it from the {@link
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     * #decodeMimeIdFromMimeBuffer(ByteBuf) compressed id} case. The first byte is a size and the
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     * remaining bytes must correspond to the {@link CharSequence}, encoded fully in US_ASCII. As a
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     * result, the first byte can simply be skipped, and the remaining of the buffer be decoded to the
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     * mime type.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     *
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     * <p>If the mime header buffer is less than 2 bytes long, returns {@code null}.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     *
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     * @param flyweightMimeBuffer the mime header {@link ByteBuf} that contains length + custom mime
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     *     type
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     * @return the decoded custom mime type, as a {@link CharSequence}, or null if the input is
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     *     invalid
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     * @see #decodeMimeIdFromMimeBuffer(ByteBuf)
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     */ function decodeMimeTypeFromMimeBuffer(
+  flyweightMimeBuffer
+) {
+  if (flyweightMimeBuffer.length < 2) {
+    throw new Error('Unable to decode explicit MIME type');
+  } // the encoded length is assumed to be kept at the start of the buffer
+  // but also assumed to be irrelevant because the rest of the slice length
+  // actually already matches _decoded_length
+  return flyweightMimeBuffer.toString('ascii', 1);
+}
+function encodeCustomMetadataHeader(customMime, metadataLength) {
+  const metadataHeader = (0, _RSocketBufferUtils.createBuffer)(
+    4 + customMime.length
+  ); // reserve 1 byte for the customMime length
+  // /!\ careful not to read that first byte, which is random at this point
+  // int writerIndexInitial = metadataHeader.writerIndex();
+  // metadataHeader.writerIndex(writerIndexInitial + 1);
+  // write the custom mime in UTF8 but validate it is all ASCII-compatible
+  // (which produces the right result since ASCII chars are still encoded on 1 byte in UTF8)
+  const customMimeLength = metadataHeader.write(customMime, 1);
+  if (!isAscii(metadataHeader, 1)) {
+    throw new Error('Custom mime type must be US_ASCII characters only');
+  }
+  if (customMimeLength < 1 || customMimeLength > 128) {
+    throw new Error(
+      'Custom mime type must have a strictly positive length that fits on 7 unsigned bits, ie 1-128'
+    );
+  } // encoded length is one less than actual length, since 0 is never a valid length, which gives
+  // wider representation range
+  metadataHeader.writeUInt8(customMimeLength - 1);
+  (0, _RSocketBufferUtils.writeUInt24BE)(
+    metadataHeader,
+    metadataLength,
+    customMimeLength + 1
+  );
+  return metadataHeader;
+}
+/**
+                                                                                                                                                                        * Encode a {@link WellKnownMimeType well known mime type} and a metadata value length into a
+                                                                                                                                                                        * newly allocated {@link ByteBuf}.
+                                                                                                                                                                        *
+                                                                                                                                                                        * <p>This compact representation encodes the mime type via its ID on a single byte, and the
+                                                                                                                                                                        * unsigned value length on 3 additional bytes.
+                                                                                                                                                                        *
+                                                                                                                                                                        * @param allocator the {@link ByteBufAllocator} to use to create the buffer.
+                                                                                                                                                                        * @param mimeType a byte identifier of a {@link WellKnownMimeType} to encode.
+                                                                                                                                                                        * @param metadataLength the metadata length to append to the buffer as an unsigned 24 bits
+                                                                                                                                                                        *     integer.
+                                                                                                                                                                        * @return the encoded mime and metadata length information
+                                                                                                                                                                        */ function encodeWellKnownMetadataHeader(
+  mimeType,
+  metadataLength
+) {
+  const buffer = _LiteBuffer.LiteBuffer.alloc(4);
+  buffer.writeUInt8(mimeType | STREAM_METADATA_KNOWN_MASK);
+  (0, _RSocketBufferUtils.writeUInt24BE)(buffer, metadataLength, 1);
+  return buffer;
+}
+function* entriesIterator(buffer) {
+  const length = buffer.byteLength;
+  let entryIndex = 0;
+  while (entryIndex < length) {
+    const headerAndData = decodeMimeAndContentBuffersSlices(buffer, entryIndex);
+    const header = headerAndData[0];
+    const data = headerAndData[1];
+    entryIndex = computeNextEntryIndex(entryIndex, header, data);
+    if (!isWellKnownMimeType(header)) {
+      const typeString = decodeMimeTypeFromMimeBuffer(header);
+      if (!typeString) {
+        throw new Error('MIME type cannot be null');
+      }
+      yield new ExplicitMimeTimeEntry(data, typeString);
+      continue;
+    }
+    const id = decodeMimeIdFromMimeBuffer(header);
+    const type = _WellKnownMimeType2.default.fromIdentifier(id);
+    if (_WellKnownMimeType.UNKNOWN_RESERVED_MIME_TYPE === type) {
+      yield new ReservedMimeTypeEntry(data, id);
+      continue;
+    }
+    yield new WellKnownMimeTypeEntry(data, type);
+  }
+}
+class ExplicitMimeTimeEntry {
+  constructor(content, type) {
+    this._content = content;
+    this._type = type;
+  }
+  get content() {
+    return this._content;
+  }
+  get mimeType() {
+    return this._type;
+  }
+}
+exports.ExplicitMimeTimeEntry = ExplicitMimeTimeEntry;
+class ReservedMimeTypeEntry {
+  constructor(content, type) {
+    this._content = content;
+    this._type = type;
+  }
+  get content() {
+    return this._content;
+  }
+  /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * {@inheritDoc} Since this entry represents a compressed id that couldn't be decoded, this is
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * always {@code null}.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              */ get mimeType() {
+    return undefined;
+  }
+  /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    * Returns the reserved, but unknown {@link WellKnownMimeType} for this entry. Range is 0-127
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    * (inclusive).
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    *
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    * @return the reserved, but unknown {@link WellKnownMimeType} for this entry
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    */ get type() {
+    return this._type;
+  }
+}
+exports.ReservedMimeTypeEntry = ReservedMimeTypeEntry;
+
+class WellKnownMimeTypeEntry {
+  constructor(content, type) {
+    this._content = content;
+    this._type = type;
+  }
+
+  get content() {
+    return this._content;
+  }
+
+  get mimeType() {
+    return this._type.string;
+  }
+
+  /**
+     * Returns the {@link WellKnownMimeType} for this entry.
+     *
+     * @return the {@link WellKnownMimeType} for this entry
+     */
+  get type() {
+    return this._type;
+  }
+}
+exports.WellKnownMimeTypeEntry = WellKnownMimeTypeEntry;
+
+/**
+                                                              * Decode a {@code byte} compressed mime id from a {@link ByteBuf}, assuming said buffer properly
+                                                              * contains such an id.
+                                                              *
+                                                              * <p>The buffer must have exactly one readable byte, which is assumed to have been tested for
+                                                              * mime id encoding via the {@link #STREAM_METADATA_KNOWN_MASK} mask ({@code firstByte &
+                                                              * STREAM_METADATA_KNOWN_MASK) == STREAM_METADATA_KNOWN_MASK}).
+                                                              *
+                                                              * <p>If there is no readable byte, the negative identifier of {@link
+                                                               * WellKnownMimeType#UNPARSEABLE_MIME_TYPE} is returned.
+                                                               *
+                                                               * @param mimeBuffer the buffer that should next contain the compressed mime id byte
+                                                               * @return the compressed mime id, between 0 and 127, or a negative id if the input is invalid
+                                                               * @see #decodeMimeTypeFromMimeBuffer(ByteBuf)
+                                                               */
+function decodeMimeIdFromMimeBuffer(mimeBuffer) {
+  if (!isWellKnownMimeType(mimeBuffer)) {
+    return _WellKnownMimeType.UNPARSEABLE_MIME_TYPE.identifier;
+  }
+  return mimeBuffer.readInt8() & STREAM_METADATA_LENGTH_MASK;
+}
+
+function computeNextEntryIndex(currentEntryIndex, headerSlice, contentSlice) {
+  return currentEntryIndex +
+    headerSlice.byteLength + // this includes the mime length byte
+    3 + // 3 bytes of the content length, which are excluded from the slice
+    contentSlice.byteLength;
+}
+
+function isWellKnownMimeType(header) {
+  return header.byteLength === 1;
+}
+
+const STREAM_METADATA_KNOWN_MASK = 0x80; // 1000 0000
+const STREAM_METADATA_LENGTH_MASK = 0x7f; // 0111 1111
+
+function isAscii(buffer, offset) {
+  let isAscii = true;
+  for (let i = offset, length = buffer.length; i < length; i++) {
+    if (buffer[i] > 127) {
+      isAscii = false;
+      break;
+    }
+  }
+
+  return isAscii;
+}
+
+
+/***/ }),
+/* 32 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/** Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * 
+ */
+
+
+Object.defineProperty(exports, '__esModule', {value: true});
+
+var _rsocketFlowable = __webpack_require__(2);
+var _invariant = __webpack_require__(0);
+var _invariant2 = _interopRequireDefault(_invariant);
+var _RSocketFrame = __webpack_require__(1);
+var _RSocketVersion = __webpack_require__(33);
+var _RSocketMachine = __webpack_require__(17);
+var _RSocketLease = __webpack_require__(5);
+
+var _RSocketSerialization = __webpack_require__(4);
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : {default: obj};
+}
+
+/**
+                                                                                                                                                             * RSocketClient: A client in an RSocket connection that will communicates with
+                                                                                                                                                             * the peer via the given transport client. Provides methods for establishing a
+                                                                                                                                                             * connection and initiating the RSocket interactions:
+                                                                                                                                                             * - fireAndForget()
+                                                                                                                                                             * - requestResponse()
+                                                                                                                                                             * - requestStream()
+                                                                                                                                                             * - requestChannel()
+                                                                                                                                                             * - metadataPush()
+                                                                                                                                                             */
+class RSocketClient {
+  constructor(config) {
+    this._checkConfig(config);
+    this._cancel = null;
+    this._config = config;
+    this._connection = null;
+    this._socket = null;
+  }
+
+  close() {
+    this._config.transport.close();
+  }
+
+  connect() {
+    (0, _invariant2.default)(
+      !this._connection,
+      'RSocketClient: Unexpected call to connect(), already connected.'
+    );
+
+    this._connection = new _rsocketFlowable.Single(subscriber => {
+      const transport = this._config.transport;
+      let subscription;
+      transport.connectionStatus().subscribe({
+        onNext: status => {
+          if (status.kind === 'CONNECTED') {
+            subscription && subscription.cancel();
+            subscriber.onComplete(
+              new RSocketClientSocket(this._config, transport)
+            );
+          } else if (status.kind === 'ERROR') {
+            subscription && subscription.cancel();
+            subscriber.onError(status.error);
+          } else if (status.kind === 'CLOSED') {
+            subscription && subscription.cancel();
+            subscriber.onError(new Error('RSocketClient: Connection closed.'));
+          }
+        },
+        onSubscribe: _subscription => {
+          subscriber.onSubscribe(() => _subscription.cancel());
+          subscription = _subscription;
+          subscription.request(Number.MAX_SAFE_INTEGER);
+        },
+      });
+
+      transport.connect();
+    });
+    return this._connection;
+  }
+
+  _checkConfig(config) {
+    const setup = config.setup;
+    const keepAlive = setup && setup.keepAlive;
+    // wrap in try catch since in 'strict' mode the access to an unexciting window will throw
+    // the ReferenceError: window is not defined exception
+    try {
+      const navigator = window && window.navigator;
+      if (
+        keepAlive > 30000 &&
+        navigator &&
+        navigator.userAgent &&
+        (navigator.userAgent.includes('Trident') ||
+          navigator.userAgent.includes('Edg'))
+      ) {
+        console.warn(
+          'rsocket-js: Due to a browser bug, Internet Explorer and Edge users may experience WebSocket instability with keepAlive values longer than 30 seconds.'
+        );
+      }
+    } catch (e) {
+      // ignore the error since it means that the code is running in non browser environment
+    }
+  }
+}
+exports.default = RSocketClient;
+
+/**
+                                      * @private
+                                      */
+class RSocketClientSocket {
+  constructor(config, connection) {
+    let requesterLeaseHandler;
+    let responderLeaseHandler;
+
+    const leasesSupplier = config.leases;
+    if (leasesSupplier) {
+      const lease = leasesSupplier();
+      requesterLeaseHandler = new _RSocketLease.RequesterLeaseHandler(
+        lease._receiver
+      );
+      responderLeaseHandler = new _RSocketLease.ResponderLeaseHandler(
+        lease._sender,
+        lease._stats
+      );
+    }
+    const {keepAlive, lifetime} = config.setup;
+
+    this._machine = (0, _RSocketMachine.createClientMachine)(
+      connection,
+      subscriber => connection.receive().subscribe(subscriber),
+      lifetime,
+      config.serializers,
+      config.responder,
+      config.errorHandler,
+      requesterLeaseHandler,
+      responderLeaseHandler
+    );
+
+    // Send SETUP
+    connection.sendOne(this._buildSetupFrame(config));
+
+    // Send KEEPALIVE frames
+    const keepAliveFrames = (0, _rsocketFlowable.every)(keepAlive).map(() => ({
+      data: null,
+      flags: _RSocketFrame.FLAGS.RESPOND,
+      lastReceivedPosition: 0,
+      streamId: _RSocketFrame.CONNECTION_STREAM_ID,
+      type: _RSocketFrame.FRAME_TYPES.KEEPALIVE,
+    }));
+
+    connection.send(keepAliveFrames);
+  }
+
+  fireAndForget(payload) {
+    this._machine.fireAndForget(payload);
+  }
+
+  requestResponse(payload) {
+    return this._machine.requestResponse(payload);
+  }
+
+  requestStream(payload) {
+    return this._machine.requestStream(payload);
+  }
+
+  requestChannel(payloads) {
+    return this._machine.requestChannel(payloads);
+  }
+
+  metadataPush(payload) {
+    return this._machine.metadataPush(payload);
+  }
+
+  close() {
+    this._machine.close();
+  }
+
+  connectionStatus() {
+    return this._machine.connectionStatus();
+  }
+
+  availability() {
+    return this._machine.availability();
+  }
+
+  _buildSetupFrame(config) {
+    const {
+      dataMimeType,
+      keepAlive,
+      lifetime,
+      metadataMimeType,
+      payload,
+    } = config.setup;
+
+    const serializers = config.serializers ||
+      _RSocketSerialization.IdentitySerializers;
+    const data = payload ? serializers.data.serialize(payload.data) : undefined;
+    const metadata = payload
+      ? serializers.metadata.serialize(payload.metadata)
+      : undefined;
+    let flags = 0;
+    if (metadata !== undefined) {
+      flags |= _RSocketFrame.FLAGS.METADATA;
+    }
+    return {
+      data,
+      dataMimeType,
+      flags: flags | (config.leases ? _RSocketFrame.FLAGS.LEASE : 0),
+      keepAlive,
+      lifetime,
+      majorVersion: _RSocketVersion.MAJOR_VERSION,
+      metadata,
+      metadataMimeType,
+      minorVersion: _RSocketVersion.MINOR_VERSION,
+      resumeToken: null,
+      streamId: _RSocketFrame.CONNECTION_STREAM_ID,
+      type: _RSocketFrame.FRAME_TYPES.SETUP,
+    };
+  }
+}
+
+
+/***/ }),
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6035,7 +8707,7 @@ const MINOR_VERSION = (exports.MINOR_VERSION = 0);
 
 
 /***/ }),
-/* 29 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6064,16 +8736,17 @@ var _invariant = __webpack_require__(0);
 var _invariant2 = _interopRequireDefault(_invariant);
 var _RSocketFrame = __webpack_require__(1);
 
-var _RSocketSerialization = __webpack_require__(6);
-var _RSocketMachine = __webpack_require__(13);
+var _RSocketSerialization = __webpack_require__(4);
+var _RSocketMachine = __webpack_require__(17);
+var _RSocketLease = __webpack_require__(5);
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : {default: obj};
 }
 
 /**
-                                                                                                                                                 * RSocketServer: A server in an RSocket connection that accepts connections
-                                                                                                                                                 * from peers via the given transport server.
-                                                                                                                                                 */
+                                                                                                                                             * RSocketServer: A server in an RSocket connection that accepts connections
+                                                                                                                                             * from peers via the given transport server.
+                                                                                                                                             */
 class RSocketServer {
   constructor(config) {
     this._handleTransportComplete = () => {
@@ -6107,13 +8780,45 @@ class RSocketServer {
                 connection.close();
                 break;
               case _RSocketFrame.FRAME_TYPES.SETUP:
+                if (this._setupLeaseError(frame)) {
+                  connection.sendOne({
+                    code: _RSocketFrame.ERROR_CODES.INVALID_SETUP,
+                    flags: 0,
+                    message: 'RSocketServer: LEASE not supported.',
+                    streamId: _RSocketFrame.CONNECTION_STREAM_ID,
+                    type: _RSocketFrame.FRAME_TYPES.ERROR,
+                  });
+
+                  connection.close();
+                  break;
+                }
                 const serializers = this._getSerializers();
+
+                let requesterLeaseHandler;
+                let responderLeaseHandler;
+
+                const leasesSupplier = this._config.leases;
+                if (leasesSupplier) {
+                  const lease = leasesSupplier();
+                  requesterLeaseHandler = new _RSocketLease.RequesterLeaseHandler(
+                    lease._receiver
+                  );
+
+                  responderLeaseHandler = new _RSocketLease.ResponderLeaseHandler(
+                    lease._sender,
+                    lease._stats
+                  );
+                }
                 const serverMachine = (0, _RSocketMachine.createServerMachine)(
                   connection,
                   subscriber => {
                     swapper.swap(subscriber);
                   },
-                  serializers
+                  frame.lifetime,
+                  serializers,
+                  this._config.errorHandler,
+                  requesterLeaseHandler,
+                  responderLeaseHandler
                 );
 
                 try {
@@ -6191,6 +8896,13 @@ class RSocketServer {
     return this._config.serializers ||
       _RSocketSerialization.IdentitySerializers;
   }
+
+  _setupLeaseError(frame) {
+    const clientLeaseEnabled = (frame.flags & _RSocketFrame.FLAGS.LEASE) ===
+      _RSocketFrame.FLAGS.LEASE;
+    const serverLeaseEnabled = this._config.leases;
+    return clientLeaseEnabled && !serverLeaseEnabled;
+  }
 }
 exports.default = RSocketServer;
 
@@ -6235,7 +8947,7 @@ function deserializePayload(serializers, frame) {
 
 
 /***/ }),
-/* 30 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6264,77 +8976,81 @@ var _invariant = __webpack_require__(0);
 var _invariant2 = _interopRequireDefault(_invariant);
 var _RSocketFrame = __webpack_require__(1);
 
-var _rsocketTypes = __webpack_require__(14);
+var _rsocketTypes = __webpack_require__(18);
+
+var _RSocketBinaryFraming = __webpack_require__(10);
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : {default: obj};
 }
 
 /**
-                                                                                                                                            * NOTE: This implementation conforms to an upcoming version of the RSocket protocol
-                                                                                                                                            *       and will not work with version 1.0 servers.
-                                                                                                                                            *
-                                                                                                                                            * An implementation of the DuplexConnection interface that supports automatic
-                                                                                                                                            * resumption per the RSocket protocol.
-                                                                                                                                            *
-                                                                                                                                            * # Example
-                                                                                                                                            *
-                                                                                                                                            * Create a client instance:
-                                                                                                                                            * ```
-                                                                                                                                            * const client = new RSocketClient({
-                                                                                                                                            *   ...,
-                                                                                                                                            *   transport: new RSocketResumableTransport(
-                                                                                                                                            *     () => new RSocketWebSocketClient(...), // provider for low-level transport instances
-                                                                                                                                            *     {
-                                                                                                                                            *       bufferSize: 10, // max number of sent & pending frames to buffer before failing
-                                                                                                                                            *       resumeToken: 'abc123', // string to uniquely identify the session across connections
-                                                                                                                                            *     }
-                                                                                                                                            *   ),
-                                                                                                                                            * })
-                                                                                                                                            *
-                                                                                                                                            * Open the connection. After this if the connection dies it will be auto-resumed:
-                                                                                                                                            * ```
-                                                                                                                                            * client.connect().subscribe(...);
-                                                                                                                                            * ```
-                                                                                                                                            *
-                                                                                                                                            * Optionally, subscribe to the status of the connection:
-                                                                                                                                            * ```
-                                                                                                                                            * client.connectionStatus().subscribe(...);
-                                                                                                                                            * ```
-                                                                                                                                            *
-                                                                                                                                            * # Implementation Notes
-                                                                                                                                            *
-                                                                                                                                            * This transport maintains:
-                                                                                                                                            * - _currentConnection: a current low-level transport, which is null when not
-                                                                                                                                            *   connected
-                                                                                                                                            * - _sentFrames: a buffer of frames written to a low-level transport (which
-                                                                                                                                            *   may or may not have been received by the server)
-                                                                                                                                            * - _pendingFrames: a buffer of frames not yet written to the low-level
-                                                                                                                                            *   connection, because they were sent while not connected.
-                                                                                                                                            *
-                                                                                                                                            * The initial connection is simple: connect using the low-level transport and
-                                                                                                                                            * flush any _pendingFrames (write them and add them to _sentFrames).
-                                                                                                                                            *
-                                                                                                                                            * Thereafter if the low-level transport drops, this transport attempts resumption.
-                                                                                                                                            * It obtains a fresh low-level transport from the given transport `source`
-                                                                                                                                            * and attempts to connect. Once connected, it sends a RESUME frame and waits.
-                                                                                                                                            * If RESUME_OK is received, _sentFrames and _pendingFrames are adjusted such
-                                                                                                                                            * that:
-                                                                                                                                            * - any frames the server has received are removed from _sentFrames
-                                                                                                                                            * - the remaining frames are merged (in correct order) into _pendingFrames
-                                                                                                                                            *
-                                                                                                                                            * Then the connection proceeds as above, where all pending frames are flushed.
-                                                                                                                                            * If anything other than RESUME_OK is received, resumption is considered to
-                                                                                                                                            * have failed and the connection is set to the ERROR status.
-                                                                                                                                            */
+                                                                                                                                                             * NOTE: This implementation conforms to an upcoming version of the RSocket protocol
+                                                                                                                                                             *       and will not work with version 1.0 servers.
+                                                                                                                                                             *
+                                                                                                                                                             * An implementation of the DuplexConnection interface that supports automatic
+                                                                                                                                                             * resumption per the RSocket protocol.
+                                                                                                                                                             *
+                                                                                                                                                             * # Example
+                                                                                                                                                             *
+                                                                                                                                                             * Create a client instance:
+                                                                                                                                                             * ```
+                                                                                                                                                             * const client = new RSocketClient({
+                                                                                                                                                             *   ...,
+                                                                                                                                                             *   transport: new RSocketResumableTransport(
+                                                                                                                                                             *     () => new RSocketWebSocketClient(...), // provider for low-level transport instances
+                                                                                                                                                             *     {
+                                                                                                                                                             *       bufferSize: 10, // max number of sent & pending frames to buffer before failing
+                                                                                                                                                             *       resumeToken: 'abc123', // string to uniquely identify the session across connections
+                                                                                                                                                             *     }
+                                                                                                                                                             *   ),
+                                                                                                                                                             * })
+                                                                                                                                                             *
+                                                                                                                                                             * Open the connection. After this if the connection dies it will be auto-resumed:
+                                                                                                                                                             * ```
+                                                                                                                                                             * client.connect().subscribe(...);
+                                                                                                                                                             * ```
+                                                                                                                                                             *
+                                                                                                                                                             * Optionally, subscribe to the status of the connection:
+                                                                                                                                                             * ```
+                                                                                                                                                             * client.connectionStatus().subscribe(...);
+                                                                                                                                                             * ```
+                                                                                                                                                             *
+                                                                                                                                                             * # Implementation Notes
+                                                                                                                                                             *
+                                                                                                                                                             * This transport maintains:
+                                                                                                                                                             * - _currentConnection: a current low-level transport, which is null when not
+                                                                                                                                                             *   connected
+                                                                                                                                                             * - _sentFrames: a buffer of frames written to a low-level transport (which
+                                                                                                                                                             *   may or may not have been received by the server)
+                                                                                                                                                             * - _pendingFrames: a buffer of frames not yet written to the low-level
+                                                                                                                                                             *   connection, because they were sent while not connected.
+                                                                                                                                                             *
+                                                                                                                                                             * The initial connection is simple: connect using the low-level transport and
+                                                                                                                                                             * flush any _pendingFrames (write them and add them to _sentFrames).
+                                                                                                                                                             *
+                                                                                                                                                             * Thereafter if the low-level transport drops, this transport attempts resumption.
+                                                                                                                                                             * It obtains a fresh low-level transport from the given transport `source`
+                                                                                                                                                             * and attempts to connect. Once connected, it sends a RESUME frame and waits.
+                                                                                                                                                             * If RESUME_OK is received, _sentFrames and _pendingFrames are adjusted such
+                                                                                                                                                             * that:
+                                                                                                                                                             * - any frames the server has received are removed from _sentFrames
+                                                                                                                                                             * - the remaining frames are merged (in correct order) into _pendingFrames
+                                                                                                                                                             *
+                                                                                                                                                             * Then the connection proceeds as above, where all pending frames are flushed.
+                                                                                                                                                             * If anything other than RESUME_OK is received, resumption is considered to
+                                                                                                                                                             * have failed and the connection is set to the ERROR status.
+                                                                                                                                                             */
 class RSocketResumableTransport {
-  constructor(source, options) {
+  constructor(source, options, encoders) {
     (0, _invariant2.default)(
       options.bufferSize >= 0,
       'RSocketResumableTransport: bufferSize option must be >= 0, got `%s`.',
       options.bufferSize
     );
 
+    this._encoders = encoders;
     this._bufferSize = options.bufferSize;
+    this._sentFramesSize = 0;
     this._position = {
       client: 0,
       server: 0,
@@ -6343,9 +9059,10 @@ class RSocketResumableTransport {
     this._currentConnection = null;
     this._statusSubscription = null;
     this._receiveSubscription = null;
-    this._pendingFrames = [];
     this._receivers = new Set();
     this._resumeToken = options.resumeToken;
+    this._sessionTimeoutMillis = options.sessionDurationSeconds * 1000;
+    this._sessionTimeoutHandle = null;
     this._senders = new Set();
     this._sentFrames = [];
     this._setupFrame = null;
@@ -6361,8 +9078,9 @@ class RSocketResumableTransport {
   connect() {
     (0, _invariant2.default)(
       !this._isTerminated(),
-      'RSocketResumableTransport: Cannot connect(), connection terminated (%s).',
-      this._status.kind
+      'RSocketResumableTransport: Cannot connect(), connection terminated (%s: %s).',
+      this._status.kind,
+      this._status.kind === 'ERROR' ? this._status.error.message : 'no message'
     );
 
     try {
@@ -6378,14 +9096,24 @@ class RSocketResumableTransport {
             return;
           }
           if (status.kind === 'CONNECTED') {
-            // (other) -> CONNECTED
+            if (this._sessionTimeoutHandle) {
+              clearTimeout(this._sessionTimeoutHandle);
+              this._sessionTimeoutHandle = null;
+            }
+            //Setup
             if (this._setupFrame == null) {
               this._handleConnected(connection);
+              //Resume
             } else {
               this._handleResume(connection);
             }
-          } else {
-            // CONNECTED -> (other)
+          } else if (this._isTerminationStatus(status)) {
+            if (!this._sessionTimeoutHandle) {
+              this._sessionTimeoutHandle = setTimeout(
+                () => this._close(this._resumeTimeoutError()),
+                this._sessionTimeoutMillis
+              );
+            }
             this._disconnect();
             this._setConnectionStatus(
               _rsocketTypes.CONNECTION_STATUS.NOT_CONNECTED
@@ -6420,12 +9148,16 @@ class RSocketResumableTransport {
 
   receive() {
     return new _rsocketFlowable.Flowable(subject => {
+      let added = false;
       subject.onSubscribe({
         cancel: () => {
           this._receivers.delete(subject);
         },
         request: () => {
-          this._receivers.add(subject);
+          if (!added) {
+            added = true;
+            this._receivers.add(subject);
+          }
         },
       });
     });
@@ -6467,6 +9199,15 @@ class RSocketResumableTransport {
     } else {
       this._setConnectionStatus(_rsocketTypes.CONNECTION_STATUS.CLOSED);
     }
+    const receivers = this._receivers;
+    receivers.forEach(r => r.onComplete());
+    receivers.clear();
+
+    const senders = this._senders;
+    senders.forEach(s => s.cancel());
+    senders.clear();
+    this._sentFrames.length = 0;
+
     this._disconnect();
   }
 
@@ -6516,28 +9257,32 @@ class RSocketResumableTransport {
             if (clientPosition < this._position.client) {
               // Invalid RESUME_OK frame: server asked for an older
               // client frame than is available
-              this._close(
-                new Error(
-                  'RSocketResumableTransport: Resumption failed, server is ' +
-                    'missing frames that are no longer in the client buffer.'
-                )
-              );
-
+              this._close(this._nonResumableStateError());
               return;
             }
-            // Extract "sent" frames that the server hasn't received...
-            const unreceivedSentFrames = this._sentFrames.slice(
-              clientPosition - this._position.client
-            );
+            // remove tail frames of total length = remoteImpliedPos-localPos
+            let removeSize = clientPosition - this._position.client;
+            let index = 0;
+            while (removeSize > 0) {
+              const frameSize = this._onReleasedTailFrame(
+                this._sentFrames[index]
+              );
 
-            // ...and mark them as pending again
-            this._pendingFrames = [
-              ...unreceivedSentFrames,
-              ...this._pendingFrames,
-            ];
-
+              if (!frameSize) {
+                this._close(this._absentLengthError(frame));
+                return;
+              }
+              removeSize -= frameSize;
+              index++;
+            }
+            if (removeSize !== 0) {
+              this._close(this._inconsistentImpliedPositionError());
+              return;
+            }
             // Drop sent frames that the server has received
-            this._sentFrames.length = clientPosition - this._position.client;
+            if (index > 0) {
+              this._sentFrames.splice(0, index);
+            }
             // Continue connecting, which will flush pending frames
             this._handleConnected(connection);
           } else {
@@ -6578,8 +9323,36 @@ class RSocketResumableTransport {
     });
   }
 
+  _absentLengthError(frame) {
+    return new Error(
+      'RSocketResumableTransport: absent frame.length for type ' + frame.type
+    );
+  }
+
+  _inconsistentImpliedPositionError() {
+    return new Error(
+      'RSocketResumableTransport: local frames are inconsistent with remote implied position'
+    );
+  }
+
+  _nonResumableStateError() {
+    return new Error(
+      'RSocketResumableTransport: resumption failed, server is ' +
+        'missing frames that are no longer in the client buffer.'
+    );
+  }
+
+  _resumeTimeoutError() {
+    return new Error('RSocketResumableTransport: resumable session timed out');
+  }
+
   _isTerminated() {
-    return this._status.kind === 'CLOSED' || this._status.kind === 'ERROR';
+    return this._isTerminationStatus(this._status);
+  }
+
+  _isTerminationStatus(status) {
+    const kind = status.kind;
+    return kind === 'CLOSED' || kind === 'ERROR';
   }
 
   _setConnectionStatus(status) {
@@ -6592,31 +9365,33 @@ class RSocketResumableTransport {
 
   _receiveFrame(frame) {
     if ((0, _RSocketFrame.isResumePositionFrameType)(frame.type)) {
-      this._position.server++;
+      this._position.server += frame.length;
     }
     // TODO: trim _sentFrames on KEEPALIVE frame
     this._receivers.forEach(subscriber => subscriber.onNext(frame));
   }
 
   _flushFrames() {
-    // Writes all pending frames to the transport so long as a connection is available
-    while (this._pendingFrames.length && this._currentConnection) {
-      this._writeFrame(this._pendingFrames.shift());
+    this._sentFrames.forEach(frame => {
+      const connection = this._currentConnection;
+      if (connection) {
+        connection.sendOne(frame);
+      }
+    });
+  }
+
+  _onReleasedTailFrame(frame) {
+    const removedFrameSize = frame.length;
+    if (removedFrameSize) {
+      this._sentFramesSize -= removedFrameSize;
+      this._position.client += removedFrameSize;
+      return removedFrameSize;
     }
   }
 
   _writeFrame(frame) {
     // Ensure that SETUP frames contain the resume token
     if (frame.type === _RSocketFrame.FRAME_TYPES.SETUP) {
-      (0, _invariant2.default)(
-        frame.majorVersion > 1 ||
-          (frame.majorVersion === 1 && frame.minorVersion > 0),
-        'RSocketResumableTransport: Unsupported protocol version %s.%s. ' +
-          'This class implements the v1.1 resumption protocol.',
-        frame.majorVersion,
-        frame.minorVersion
-      );
-
       frame = Object.assign({}, frame, {
         flags: frame.flags | _RSocketFrame.FLAGS.RESUME_ENABLE, // eslint-disable-line no-bitwise
         resumeToken: this._resumeToken,
@@ -6624,38 +9399,45 @@ class RSocketResumableTransport {
 
       this._setupFrame = frame; // frame can only be a SetupFrame
     }
+    frame.length = (0, _RSocketBinaryFraming.sizeOfFrame)(
+      frame,
+      this._encoders
+    );
     // If connected, immediately write frames to the low-level transport
     // and consider them "sent". The resumption protocol will figure out
     // which frames may not have been received and recover.
+    if ((0, _RSocketFrame.isResumePositionFrameType)(frame.type)) {
+      let available = this._bufferSize - this._sentFramesSize;
+      const frameSize = frame.length;
+      if (frameSize) {
+        // remove tail until there is space for new frame
+        while (available < frameSize) {
+          const removedFrame = this._sentFrames.shift();
+          if (removedFrame) {
+            const removedFrameSize = this._onReleasedTailFrame(removedFrame);
+            if (!removedFrameSize) {
+              this._close(this._absentLengthError(frame));
+              return;
+            }
+            available += removedFrameSize;
+          } else {
+            break;
+          }
+        }
+        if (available >= frameSize) {
+          this._sentFrames.push(frame);
+          this._sentFramesSize += frameSize;
+        } else {
+          this._position.client += frameSize;
+        }
+      } else {
+        this._close(this._absentLengthError(frame));
+        return;
+      }
+    }
     const currentConnection = this._currentConnection;
     if (currentConnection) {
-      if ((0, _RSocketFrame.isResumePositionFrameType)(frame.type)) {
-        this._sentFrames.push(frame);
-        if (this._sentFrames.length > this._bufferSize) {
-          // Buffer overflows are acceptable here, since the
-          // assumption is that most frames will reach the server
-          this._sentFrames.shift();
-          this._position.client++;
-        }
-      }
       currentConnection.sendOne(frame);
-    } else if (this._bufferSize > 0) {
-      // Otherwise buffer pending frames. This allows an application
-      // to continue interacting with a ReactiveSocket during momentary
-      // losses of connection.
-      (0, _invariant2.default)(
-        this._pendingFrames.length < this._bufferSize,
-        'RSocketResumableTransport: Buffer size of `%s` exceeded.',
-        this._bufferSize
-      );
-
-      this._pendingFrames.push(frame);
-    } else {
-      (0, _invariant2.default)(
-        false,
-        'RSocketResumableTransport: Cannot sent frames while disconnected; ' +
-          'buffering is disabled (bufferSize === 0).'
-      );
     }
   }
 }
@@ -6663,7 +9445,7 @@ exports.default = RSocketResumableTransport;
 
 
 /***/ }),
-/* 31 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6744,7 +9526,7 @@ Object.defineProperty(exports, '__esModule', {
 
 
 /***/ }),
-/* 32 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6752,7 +9534,7 @@ Object.defineProperty(exports, '__esModule', {
 
 
 /***/ }),
-/* 33 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6776,7 +9558,7 @@ Object.defineProperty(exports, '__esModule', {
 
 Object.defineProperty(exports, '__esModule', {value: true});
 
-var _RSocketWebSocketClient = __webpack_require__(34);
+var _RSocketWebSocketClient = __webpack_require__(39);
 var _RSocketWebSocketClient2 = _interopRequireDefault(_RSocketWebSocketClient);
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : {default: obj};
@@ -6785,7 +9567,7 @@ exports.default = _RSocketWebSocketClient2.default;
 
 
 /***/ }),
-/* 34 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6812,9 +9594,9 @@ Object.defineProperty(exports, '__esModule', {value: true});
 var _invariant = __webpack_require__(0);
 var _invariant2 = _interopRequireDefault(_invariant);
 var _rsocketFlowable = __webpack_require__(2);
-var _rsocketCore = __webpack_require__(8);
+var _rsocketCore = __webpack_require__(9);
 
-var _rsocketTypes = __webpack_require__(14);
+var _rsocketTypes = __webpack_require__(18);
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : {default: obj};
 }
@@ -6909,7 +9691,7 @@ class RSocketWebSocketClient {
       },
       onError: error => {
         subscription && this._senders.delete(subscription);
-        this._handleError(error);
+        this._close(error);
       },
       onNext: frame => this._writeFrame(frame),
       onSubscribe: _subscription => {
@@ -6959,7 +9741,7 @@ class RSocketWebSocketClient {
       : (0, _rsocketCore.deserializeFrame)(buffer, this._encoders);
     if (false) {
       if (this._options.debug) {
-        console.log((0, _rsocketCore.printFrame)(frame));
+        console.log(printFrame(frame));
       }
     }
     return frame;
@@ -6969,7 +9751,7 @@ class RSocketWebSocketClient {
     try {
       if (false) {
         if (this._options.debug) {
-          console.log((0, _rsocketCore.printFrame)(frame));
+          console.log(printFrame(frame));
         }
       }
       const buffer = this._options.lengthPrefixedFrames

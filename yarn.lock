@@ -871,13 +871,14 @@ convert-source-map@^1.1.0:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/convert-source-map/-/convert-source-map-1.5.0.tgz#9acd70851c6d5dfdd93d9282e5edf94a03ff46b5"
 
-core-js@^1.0.0:
-  version "1.2.7"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-1.2.7.tgz#652294c14651db28fa93bd2d5ff2983a4f08c636"
-
 core-js@^2.4.0:
   version "2.4.1"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.4.1.tgz#4de911e667b0eae9124e34254b53aea6fc618d3e"
+
+core-js@^2.4.1:
+  version "2.6.11"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.11.tgz#38831469f9922bded8ee21c9dc46985e0399308c"
+  integrity sha512-5wjnpaT/3dV+XB4borEsnAYQchn00XSgTAWKDkEqv+K8KevjbzmofK6hfJ9TZIlpj2N0xQpazy7PiRQiWHqzWg==
 
 core-util-is@~1.0.0:
   version "1.0.2"
@@ -1191,17 +1192,24 @@ fast-deep-equal@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/fast-deep-equal/-/fast-deep-equal-1.0.0.tgz#96256a3bc975595eb36d82e9929d060d893439ff"
 
-fbjs@^0.8.12:
-  version "0.8.12"
-  resolved "https://registry.yarnpkg.com/fbjs/-/fbjs-0.8.12.tgz#10b5d92f76d45575fd63a217d4ea02bea2f8ed04"
+fbjs-css-vars@^1.0.0:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/fbjs-css-vars/-/fbjs-css-vars-1.0.2.tgz#216551136ae02fe255932c3ec8775f18e2c078b8"
+  integrity sha512-b2XGFAFdWZWg0phtAWLHCk836A1Xann+I+Dgd3Gk64MHKZO44FfoD1KxyvbSh0qZsIoXQGGlVztIY+oitJPpRQ==
+
+fbjs@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/fbjs/-/fbjs-1.0.0.tgz#52c215e0883a3c86af2a7a776ed51525ae8e0a5a"
+  integrity sha512-MUgcMEJaFhCaF1QtWGnmq9ZDRAzECTCRAF7O6UZIlAlkTs1SasiX9aP0Iw7wfD2mJ7wDTNfg2w7u5fSCwJk1OA==
   dependencies:
-    core-js "^1.0.0"
+    core-js "^2.4.1"
+    fbjs-css-vars "^1.0.0"
     isomorphic-fetch "^2.1.1"
     loose-envify "^1.0.0"
     object-assign "^4.1.0"
     promise "^7.1.1"
     setimmediate "^1.0.5"
-    ua-parser-js "^0.7.9"
+    ua-parser-js "^0.7.18"
 
 filename-regex@^2.0.0:
   version "2.0.1"
@@ -2298,37 +2306,40 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
     hash-base "^2.0.0"
     inherits "^2.0.1"
 
-rsocket-core@^0.0.8:
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/rsocket-core/-/rsocket-core-0.0.8.tgz#12835b1770f9d021a6889e6998969dbfc13e3840"
+rsocket-core@^0.0.19:
+  version "0.0.19"
+  resolved "https://registry.yarnpkg.com/rsocket-core/-/rsocket-core-0.0.19.tgz#0b4fb1bb1f4c86f747426c310ed1557cdd3145d1"
+  integrity sha512-WYPQb6TiRzIO+BhwUZN+aDTQ0KywU+eMrb4NbJPQi58ult+r+8h94RAfesWa35gfYQb8Tl40UR7scJqYfZXE2A==
+  dependencies:
+    fbjs "^1.0.0"
+    rsocket-flowable "^0.0.14"
+    rsocket-types "^0.0.16"
+
+rsocket-flowable@^0.0.14:
+  version "0.0.14"
+  resolved "https://registry.yarnpkg.com/rsocket-flowable/-/rsocket-flowable-0.0.14.tgz#5195dbd2972a98afe4a4ee082904fbc5890bc630"
+  integrity sha512-vK85yDj0DRpoTV1jQZF0JmSuQz4qj2DHMyV744I9h/8AP5jVJhuN1D+ArKQvP0VWXjFoRK23ObVMnoSdSkk4pg==
+  dependencies:
+    fbjs "^1.0.0"
+
+rsocket-types@^0.0.16:
+  version "0.0.16"
+  resolved "https://registry.yarnpkg.com/rsocket-types/-/rsocket-types-0.0.16.tgz#2113dcf8e25478d6764f1e3e84ad4a97d16a6fde"
+  integrity sha512-zOJ2u5bgooj8QewqoIoaeEn1FHDZSyHp7VuDSiEJAAjTTQpYyEqKpLTvqi+tazRCBOTfulMBijootTI18VVeIg==
   dependencies:
     buffer "^5.0.6"
-    fbjs "^0.8.12"
-    rsocket-flowable "^0.0.8"
-    rsocket-types "^0.0.8"
+    fbjs "^1.0.0"
+    rsocket-flowable "^0.0.14"
 
-rsocket-flowable@^0.0.8:
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/rsocket-flowable/-/rsocket-flowable-0.0.8.tgz#20276e9a26e3c12dc84744c88f92fad9d01c8d46"
+rsocket-websocket-client@^0.0.19:
+  version "0.0.19"
+  resolved "https://registry.yarnpkg.com/rsocket-websocket-client/-/rsocket-websocket-client-0.0.19.tgz#6cb7f7e798266b25ebebc3dc52c7f1d0c8a62d3a"
+  integrity sha512-N1shWzmdzpSw1zW9smKFEgtj3tNqVCnEZeDI2Krf9WaTfWiuZicF1EJ8zupR3QzleYYqAQwRUZESe9xDG1Cs5w==
   dependencies:
-    fbjs "^0.8.12"
-
-rsocket-types@^0.0.8:
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/rsocket-types/-/rsocket-types-0.0.8.tgz#1d899776089ed9ab55dcd67a10ac68f2459c7a47"
-  dependencies:
-    buffer "^5.0.6"
-    fbjs "^0.8.12"
-    rsocket-flowable "^0.0.8"
-
-rsocket-websocket-client@^0.0.8:
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/rsocket-websocket-client/-/rsocket-websocket-client-0.0.8.tgz#0a49f91ac433262a69db6fb735f80485e574c9d1"
-  dependencies:
-    fbjs "^0.8.12"
-    rsocket-core "^0.0.8"
-    rsocket-flowable "^0.0.8"
-    rsocket-types "^0.0.8"
+    fbjs "^1.0.0"
+    rsocket-core "^0.0.19"
+    rsocket-flowable "^0.0.14"
+    rsocket-types "^0.0.16"
 
 safe-buffer@^5.0.1, safe-buffer@^5.1.0, safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   version "5.1.1"
@@ -2540,9 +2551,10 @@ tweetnacl@^0.14.3, tweetnacl@~0.14.0:
   version "0.14.5"
   resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-0.14.5.tgz#5ae68177f192d4456269d108afa93ff8743f4f64"
 
-ua-parser-js@^0.7.9:
-  version "0.7.13"
-  resolved "https://registry.yarnpkg.com/ua-parser-js/-/ua-parser-js-0.7.13.tgz#cd9dd2f86493b3f44dbeeef3780fda74c5ee14be"
+ua-parser-js@^0.7.18:
+  version "0.7.21"
+  resolved "https://registry.yarnpkg.com/ua-parser-js/-/ua-parser-js-0.7.21.tgz#853cf9ce93f642f67174273cc34565ae6f308777"
+  integrity sha512-+O8/qh/Qj8CgC6eYBVBykMrNtp5Gebn4dlGD/kKXVkJNDwyrAwSIqwz8CDf+tsAIWVycKcku6gIXJ0qwx/ZXaQ==
 
 uglify-js@^2.8.29:
   version "2.8.29"
