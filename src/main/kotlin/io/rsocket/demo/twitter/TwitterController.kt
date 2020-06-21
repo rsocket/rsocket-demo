@@ -10,13 +10,13 @@ import com.baulsupp.okurl.services.twitter.TwitterAuthInterceptor
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import io.rsocket.demo.twitter.model.Tweet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onCompletion
 import okhttp3.OkHttpClient
-import okhttp3.logging.LoggingEventListener
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.stereotype.Controller
 import java.nio.charset.StandardCharsets
@@ -46,7 +46,7 @@ class TwitterController {
         }
         .mapNotNull {
           @Suppress("BlockingMethodInNonBlockingContext")
-          tweetAdapter.fromJson(it)
+          parseTweet(it)
         }
   }
 
@@ -58,16 +58,18 @@ class TwitterController {
         .add(Instant::class.java, Rfc3339InstantJsonAdapter.nullSafe())
         .build()!!
 
+    fun parseTweet(it: String): Tweet = tweetAdapter.fromJson(it)!!
+
     val tweetAdapter = moshi.adapter(Tweet::class.java)
 
-    val twitterToken = System.getenv("TWITTER_TOKEN")
-    val twitterAuth = TwitterAuthInterceptor().serviceDefinition.parseCredentialsString(twitterToken)
+    val twitterToken by lazy { System.getenv("TWITTER_TOKEN") }
+    val twitterAuth by lazy { TwitterAuthInterceptor().serviceDefinition.parseCredentialsString(twitterToken) }
 
     val client = OkHttpClient.Builder()
         .addInterceptor(
             AuthenticatingInterceptor(com.baulsupp.okurl.credentials.CredentialsStore.NONE)
         )
-        .eventListenerFactory(LoggingEventListener.Factory())
+//        .eventListenerFactory(LoggingEventListener.Factory())
         .build()
   }
 }

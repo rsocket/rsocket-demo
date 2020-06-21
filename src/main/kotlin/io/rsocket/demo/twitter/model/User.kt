@@ -1,4 +1,4 @@
-package io.rsocket.demo.twitter
+package io.rsocket.demo.twitter.model
 
 data class User(
   val description: String? = null,

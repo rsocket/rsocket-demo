@@ -1,4 +1,4 @@
-package io.rsocket.demo.twitter
+package io.rsocket.demo.twitter.model
 
 data class Tweet(
   val created_at: String? = null,
@@ -18,5 +18,7 @@ data class Tweet(
   val timestamp_ms: String? = null,
   val truncated: Boolean? = null,
   val user: User? = null,
-  val place: Place? = null
+  val place: Place? = null,
+  val entities: Entities? = null,
+  val extended_entities: Entities? = null
 )

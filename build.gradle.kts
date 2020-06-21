@@ -37,6 +37,7 @@ dependencies {
 		exclude(group = "com.babylon.certificatetransparency", module = "certificatetransparency")
 		exclude(group = "org.slf4j", module = "slf4j-jdk14")
 	}
+	implementation("com.github.yschimke:oksocial-output:5.1")
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
 	}

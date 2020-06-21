@@ -1,4 +1,4 @@
-package io.rsocket.demo.twitter
+package io.rsocket.demo.twitter.model
 
 data class Place(
   val bounding_box: BoundingBox? = null,
