@@ -38,13 +38,10 @@ To test the full app locally
 
     ./gradlew stage
 
-- Add valid twitter credentials to a .env file.  Grabs values from Keys and Access tokens here https://apps.twitter.com
+- Add valid twitter credentials to a .env file.  Grabs values from Keys and Access tokens here https://apps.twitter.com.  Uses the format stored by okurl.
 
 ```
-TWITTER_CONSUMER_KEY=XXXX
-TWITTER_CONSUMER_SECRET=XXX
 TWITTER_TOKEN=XXXX
-TWITTER_TOKEN_SECRET=XXXX
 ```
 
 - Run local server

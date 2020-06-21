@@ -17,5 +17,6 @@ data class Tweet(
   val text: String? = null,
   val timestamp_ms: String? = null,
   val truncated: Boolean? = null,
-  val user: User? = null
+  val user: User? = null,
+  val place: Place? = null
 )
