@@ -6,13 +6,14 @@ import kotlinx.coroutines.reactive.asFlow
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.stereotype.Controller
 import reactor.core.publisher.Flux
+import java.time.Duration.ofMillis
 import java.time.Duration.ofSeconds
 
 @Controller("time")
 class TimeController {
   @MessageMapping("")
   suspend fun requestResponse(): Flow<String> =
-    Flux.interval(ofSeconds(0), ofSeconds(1))
+    Flux.interval(ofMillis(0), ofMillis(50))
         .asFlow()
         .map {
           System.currentTimeMillis()

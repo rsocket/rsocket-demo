@@ -7,20 +7,23 @@ import com.baulsupp.okurl.kotlin.request
 import com.baulsupp.okurl.moshi.Rfc3339InstantJsonAdapter
 import com.baulsupp.okurl.services.mapbox.model.MapboxLatLongAdapter
 import com.baulsupp.okurl.services.twitter.TwitterAuthInterceptor
-import com.baulsupp.okurl.services.twitter.TwitterCredentials
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onCompletion
 import okhttp3.OkHttpClient
+import okhttp3.logging.LoggingEventListener
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.stereotype.Controller
 import java.nio.charset.StandardCharsets
 import java.time.Instant
 import java.util.Date
 
+@ExperimentalCoroutinesApi
 @Controller("twitter")
 class TwitterController {
   @MessageMapping("searchTweets")
@@ -38,9 +41,11 @@ class TwitterController {
 
     return r.lineSequence()
         .asFlow()
+        .onCompletion {
+          s.close()
+        }
         .mapNotNull {
-//          print("T")
-//          System.out.flush()
+          @Suppress("BlockingMethodInNonBlockingContext")
           tweetAdapter.fromJson(it)
         }
   }
@@ -62,6 +67,7 @@ class TwitterController {
         .addInterceptor(
             AuthenticatingInterceptor(com.baulsupp.okurl.credentials.CredentialsStore.NONE)
         )
+        .eventListenerFactory(LoggingEventListener.Factory())
         .build()
   }
 }
