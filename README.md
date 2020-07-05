@@ -49,3 +49,11 @@ TWITTER_TOKEN=XXXX
     heroku local web
 
 - Hit http://localhost:5000 in a webbrowser
+
+## Google Gcloud App Engine Flexible deployment
+
+Assumes a working gcloud setup and project
+
+```
+gcloud app deploy
+```
