@@ -9,7 +9,7 @@ import java.time.Duration
 
 @Controller
 class TimerController() {
-  @MessageMapping("timer")
+  @MessageMapping(value = ["", "timer"])
   suspend fun timer(): Flow<Long> {
     return Flux.interval(Duration.ofMillis(500L)).asFlow()
   }
