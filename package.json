@@ -1,0 +1,19 @@
+{
+  "name": "rsocket-demo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/yschimke/rsocket-demo.git",
+  "author": "Yuri Schimke <yuri@schimke.ee>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "buffer": "^6.0.3",
+    "rsocket-websocket-client": "^0.0.23",
+    "webpack": "^5.23.0"
+  },
+  "scripts": {
+    "build": "webpack"
+  },
+  "devDependencies": {
+    "webpack-cli": "^4.5.0"
+  }
+}

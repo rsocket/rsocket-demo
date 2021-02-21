@@ -11,6 +11,7 @@
   <!-- Optional theme -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
         integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
 </head>
 <body>
 <div class="container-fluid">
@@ -19,53 +20,23 @@
   </p>
 
   <div id="contents-main">
-    <div class="lead">
-      <strong>Name of Event:</strong>
-      <span th:text="${eventName}"></span>
-    </div>
-    <div id="contents">
-      <ul>
-        <li style="list-style-type:none" v-for="player in players">
-          <player-card
-              v-bind:player="player" v-bind:key="player.id">
-          </player-card>
-        </li>
-      </ul>
-    </div>
+    <pre>
+    $ brew install yschimke/tap/rsocket-cli
+    $ rsocket-cli wss://rsocket-demo.herokuapp.com/rsocket
+    </pre>
+
   </div>
+
+  <ul id="messages">
+
+  </ul>
+
+  <script src="/js/app.js"></script>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.21.1/babel.min.js"></script>
 <script type="text/babel">
-  // player-card is now a Vue component that generates a 'card' showing a player
-  // It can be used
-  // declaratively like <player-card v-bind:player="someplayer">
-  Vue.component('player-card', {
-    props: ['player'],
-    template: `<div class="card">
-                    <div class="card-body">
-                        <h6 class="card-title">
-                            {{ player.name }}
-                        </h6>
-                        <p class="card-text">
-                            <div>
-                            {{ player.description }}
-                            </div>
-                        </p>
-                    </div>
-                </div>`
-  });
-
-  var app = new Vue({
-    el: '#contents',
-    data: {
-      players: [
-        {id: "1", name: "Lionel Messi", description: "Argentina's superstar"},
-        {id: "2", name: "Christiano Ronaldo", description: "Portugal top-ranked player"}
-      ]
-    }
-  });
+  console.log("a")
 
 </script>
 </body>
