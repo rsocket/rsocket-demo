@@ -16,7 +16,7 @@ function addMessage(message) {
 }
 
 function main() {
-  const url = "ws://localhost:8080/rsocket";
+  const url = location.origin.replace(/^http/, 'ws') + "/rsocket";
 
   // Create an instance of a client
   const client = new RSocketClient({
