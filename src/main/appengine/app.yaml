@@ -1,0 +1,18 @@
+runtime: java
+env: flex
+runtime_config:
+  jdk: openjdk8
+env_variables:
+  SPRING_PROFILES_ACTIVE: "gcp"
+handlers:
+  - url: /.*
+    script: this field is required, but ignored
+manual_scaling:
+  instances: 1
+readiness_check:
+  path: "/actuator/health"
+  check_interval_sec: 15
+  timeout_sec: 4
+  failure_threshold: 5
+  success_threshold: 2
+  app_start_timeout_sec: 60
