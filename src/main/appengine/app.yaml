@@ -2,23 +2,22 @@ runtime: java
 env: flex
 runtime_config:
   jdk: openjdk8
+resources:
+  cpu: 2
+  memory_gb: 2.3
+  disk_size_gb: 10
+automatic_scaling:
+  min_instances: 0
+  target_concurrent_requests: 100
+instance_class: F2
 env_variables:
   SPRING_PROFILES_ACTIVE: "gcp"
 handlers:
   - url: /.*
     script: this field is required, but ignored
-manual_scaling:
-  instances: 1
-resources:
-  cpu: 4
-  memory_gb: 4
-  disk_size_gb: 10
-
 network:
   session_affinity: true
-
 liveness_check:
   path: "/actuator/health"
-
 readiness_check:
   path: "/actuator/health"
