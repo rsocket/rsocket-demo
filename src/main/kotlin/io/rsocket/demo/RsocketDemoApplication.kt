@@ -1,26 +1,35 @@
 package io.rsocket.demo
 
 import io.rsocket.core.Resume
-import io.rsocket.resume.InMemoryResumableFramesStore
+import io.rsocket.demo.config.RSocketDemoConfig
 import org.apache.commons.logging.LogFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.rsocket.server.RSocketServerCustomizer
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
+import org.springframework.context.event.ContextRefreshedEvent
+import org.springframework.context.event.EventListener
 import java.time.Duration
 
 @SpringBootApplication
-class RsocketDemoApplication {
+@ConfigurationPropertiesScan("io.rsocket.demo.config")
+class RsocketDemoApplication(val properties: RSocketDemoConfig) {
 	private val logger = LogFactory.getLog(RsocketDemoApplication::class.java)
 
+	@EventListener
+	fun onApplicationEvent(event: ContextRefreshedEvent) {
+		println("Started: $properties")
+	}
+
 	@Bean
-	fun rSocketResume(): RSocketServerCustomizer = RSocketServerCustomizer {
-		logger.info("Configuring resume for 15 minutes")
-		it.resume(Resume()
-			.sessionDuration(Duration.ofMinutes(15))
-			.cleanupStoreOnKeepAlive()
-			.storeFactory { InMemoryResumableFramesStore("server", 50_000) }
-		)
+	fun rSocketResume(): RSocketServerCustomizer {
+		return RSocketServerCustomizer {
+			logger.info("Configuring resume for 15 minutes")
+			it.resume(Resume()
+				.sessionDuration(Duration.ofMinutes(15))
+			)
+		}
 	}
 }
 
