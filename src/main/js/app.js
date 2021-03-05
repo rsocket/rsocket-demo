@@ -1,5 +1,6 @@
 import {RSocketClient, JsonSerializers} from 'rsocket-core';
 import RSocketWebSocketClient from 'rsocket-websocket-client';
+const { Flowable } = require('rsocket-flowable');
 
 function addMessage(message) {
   var ul = document.getElementById("messages");
@@ -24,20 +25,22 @@ function main() {
       keepAlive: 60000,
       lifetime: 180000,
       dataMimeType: 'application/json',
-      metadataMimeType: 'application/json',
+      metadataMimeType: 'message/x.rsocket.routing.v0',
     },
     transport: new RSocketWebSocketClient({url: url}),
+  });
+
+  const stream = Flowable.just({
+    data: '{"join": {"name": "Web"}}',
+    metadata: String.fromCharCode('chat/web'.length) + 'chat/web',
   });
 
   // Open the connection
   client.connect().subscribe({
     onComplete: socket => {
-      socket.requestStream({
-        data: null,
-        metadata: null,
-      }).subscribe({
+      socket.requestChannel(stream).subscribe({
         onComplete: () => console.log('complete'),
-        onError: error => console.error(error),
+        onError: e => console.error(e),
         onNext: payload => {
           addMessage(payload.data);
         },
@@ -46,7 +49,7 @@ function main() {
         },
       });
     },
-    onError: error => console.error(error),
+    onError: e => console.error(e),
     onSubscribe: cancel => {/* call cancel() to abort */}
   });
 }
