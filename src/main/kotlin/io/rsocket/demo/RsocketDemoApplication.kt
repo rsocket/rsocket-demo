@@ -3,6 +3,7 @@ package io.rsocket.demo
 import io.rsocket.core.Resume
 import io.rsocket.demo.config.RSocketDemoConfig
 import org.apache.commons.logging.LogFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.rsocket.server.RSocketServerCustomizer
@@ -17,9 +18,12 @@ import java.time.Duration
 class RsocketDemoApplication(val properties: RSocketDemoConfig) {
 	private val logger = LogFactory.getLog(RsocketDemoApplication::class.java)
 
+	@Value("\${spring.profiles.active:}")
+	private val activeProfile: String? = null
+
 	@EventListener
 	fun onApplicationEvent(event: ContextRefreshedEvent) {
-		println("Started: $properties")
+		logger.info("Started: $activeProfile ${properties.tokens.twitter?.length}")
 	}
 
 	@Bean
