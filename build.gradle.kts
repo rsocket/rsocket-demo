@@ -6,6 +6,7 @@ plugins {
 	id("com.google.cloud.tools.appengine") version "2.4.1"
 	kotlin("jvm") version "1.4.30"
 	kotlin("plugin.spring") version "1.4.30"
+	id("com.squareup.wire") version "3.4.0"
 }
 
 group = "io.rsocket.demo"
@@ -53,6 +54,13 @@ dependencies {
 	implementation("com.squareup.moshi:moshi-adapters:1.11.0")
 	implementation("com.squareup.moshi:moshi-kotlin:1.11.0")
 
+	implementation("com.squareup.wire:wire-runtime:3.4.0")
+	implementation("com.squareup.wire:wire-moshi-adapter:3.4.0")
+	implementation("com.squareup.wire:wire-grpc-client:3.4.0") {
+		exclude(group= "com.squareup.okhttp3")
+	}
+	implementation("com.squareup.wire:wire-moshi-adapter:3.4.0")
+
 	implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.2")
 	implementation("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.2")
 	implementation("com.squareup.okhttp3:okhttp-brotli:5.0.0-alpha.2")
@@ -62,6 +70,7 @@ dependencies {
 	testImplementation("io.projectreactor:reactor-test")
 	testImplementation("org.testcontainers:junit-jupiter")
 	testImplementation("org.testcontainers:postgresql")
+	testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
 dependencyManagement {
@@ -69,6 +78,13 @@ dependencyManagement {
 		mavenBom("com.google.cloud:spring-cloud-gcp-dependencies:${property("springCloudGcpVersion")}")
 		mavenBom("org.testcontainers:testcontainers-bom:${property("testcontainersVersion")}")
 		mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
+	}
+}
+
+wire {
+	kotlin {
+		out = "src/main/kotlin"
+		javaInterop = true
 	}
 }
 

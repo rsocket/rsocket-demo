@@ -1,0 +1,15 @@
+syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+
+package io.rsocket.demo.api;
+
+option java_package = "io.rsocket.demo.api";
+
+message Event {
+  string type = 1;
+  JoinEvent join = 2;
+}
+
+message JoinEvent {
+  string name = 1;
+}
