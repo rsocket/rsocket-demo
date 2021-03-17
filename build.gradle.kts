@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
 
 plugins {
 	id("org.springframework.boot") version "2.4.3"
@@ -7,13 +8,15 @@ plugins {
 	kotlin("jvm") version "1.4.30"
 	kotlin("plugin.spring") version "1.4.30"
 	id("com.squareup.wire") version "3.4.0"
+	id("org.springframework.experimental.aot") version "0.9.0"
 }
 
 group = "io.rsocket.demo"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_1_8
+java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
+	maven { url = uri("https://repo.spring.io/release") }
 	mavenCentral()
 	maven(url = "https://jitpack.io") {
 		group = "com.github.yschimke"
@@ -44,7 +47,7 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
-	implementation("com.github.yschimke:okurl:2.29") {
+	implementation("com.github.yschimke:okurl:2.31") {
 		exclude(group = "com.squareup.okhttp3")
 		exclude(group = "ch.qos.logback")
 		exclude(group = "com.babylon.certificatetransparency", module = "certificatetransparency")
@@ -91,10 +94,17 @@ wire {
 tasks.withType<KotlinCompile> {
 	kotlinOptions {
 		freeCompilerArgs = listOf("-Xjsr305=strict")
-		jvmTarget = "1.8"
+		jvmTarget = "11"
 	}
 }
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+tasks.withType<BootBuildImage> {
+	builder = "paketobuildpacks/builder:tiny"
+	environment = mapOf(
+		"BP_NATIVE_IMAGE" to "true"
+	)
 }
