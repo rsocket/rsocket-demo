@@ -5,7 +5,7 @@ plugins {
 	id("org.springframework.boot") version "2.4.3"
 	id("io.spring.dependency-management") version "1.0.11.RELEASE"
 	id("com.google.cloud.tools.appengine") version "2.4.1"
-	kotlin("jvm") version "1.4.30"
+	kotlin("jvm") version "1.4.31"
 	kotlin("plugin.spring") version "1.4.30"
 	id("com.squareup.wire") version "3.4.0"
 	id("org.springframework.experimental.aot") version "0.9.0"
@@ -40,7 +40,9 @@ dependencies {
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
-	implementation("com.google.cloud:spring-cloud-gcp-starter-secretmanager")
+	implementation("com.google.cloud:spring-cloud-gcp-starter-secretmanager") {
+		exclude(group = "org.conscrypt")
+	}
 	implementation("com.google.cloud:spring-cloud-gcp-starter")
 	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -52,6 +54,7 @@ dependencies {
 		exclude(group = "ch.qos.logback")
 		exclude(group = "com.babylon.certificatetransparency", module = "certificatetransparency")
 		exclude(group = "org.slf4j", module = "slf4j-jdk14")
+		exclude(group = "org.conscrypt")
 	}
 	implementation("com.squareup.moshi:moshi:1.11.0")
 	implementation("com.squareup.moshi:moshi-adapters:1.11.0")
@@ -105,6 +108,7 @@ tasks.withType<Test> {
 tasks.withType<BootBuildImage> {
 	builder = "paketobuildpacks/builder:tiny"
 	environment = mapOf(
-		"BP_NATIVE_IMAGE" to "true"
+		"BP_NATIVE_IMAGE" to "true",
+		"BP_NATIVE_IMAGE_BUILD_ARGUMENTS" to "--enable-https --enable-all-security-services -H:+AddAllCharsets --trace-class-initialization=org.conscrypt.OpenSSLProvider,org.conscrypt.Conscrypt"
 	)
 }
