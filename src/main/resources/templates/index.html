@@ -22,7 +22,9 @@
   <div id="contents-main">
     <pre>
     $ brew install yschimke/tap/rsocket-cli
-    $ rsocket-cli wss://rsocket-demo-1.appspot.com/rsocket
+    $ rsocket-cli <span th:text="${rsocketUrl}" />
+    $ rsocket-cli <span th:text="${rsocketUrl}" /> --route=searchTweets -i spring
+    $ rsocket-cli <span th:text="${rsocketUrl}" /> --route chat/hello --channel -i '{"join": {"name": "Yuri"}}'
     </pre>
 
   </div>
