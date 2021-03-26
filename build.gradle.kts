@@ -4,7 +4,7 @@ plugins {
 	id("org.springframework.boot") version "2.4.3"
 	id("io.spring.dependency-management") version "1.0.11.RELEASE"
 	id("com.google.cloud.tools.appengine") version "2.4.1"
-	kotlin("jvm") version "1.4.30"
+	kotlin("jvm") version "1.4.31"
 	kotlin("plugin.spring") version "1.4.30"
 	id("com.squareup.wire") version "3.4.0"
 }
@@ -12,6 +12,7 @@ plugins {
 group = "io.rsocket.demo"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
+java.targetCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
 	mavenCentral()
