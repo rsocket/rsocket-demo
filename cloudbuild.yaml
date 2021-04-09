@@ -1,0 +1,6 @@
+steps:
+  - name: 'gcr.io/cloud-builders/gradle'
+    args: ['build']
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['app', 'deploy', 'build/staged-app/app.yaml']
+timeout: '1600s'
